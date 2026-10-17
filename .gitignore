@@ -6,6 +6,7 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
+/.codex-tools/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -14,6 +15,34 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log
+
+# 本机 IDE 配置、操作系统缓存与编辑器临时文件
+/.idea/
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# 本地环境配置与移动端签名私钥；配置示例可以提交
+.env
+.env.*
+!.env.example
+!.env.template
+*.keystore
+*.jks
+*.p12
+*.pfx
+
+# 自动生成的测试报告与覆盖率数据；Docs/Validation 中主动保留的验证证据仍可提交
+/TestResults/
+/TestResults.xml
+/test-results.xml
+/TestResults-*.xml
+/CodeCoverage/
+/CoverageResults/
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1

@@ -1,0 +1,140 @@
+{
+  "success": true,
+  "command": "command test_status",
+  "data": {
+    "command": "test_status",
+    "parameters": {},
+    "result": {
+      "status": "completed",
+      "duration": 0.54,
+      "summary": {
+        "total": 16,
+        "passed": 16,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "results": [
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.ArenaWithoutSafeSpawnIsRejectedInsteadOfHanging",
+          "Status": "Passed",
+          "Duration": 0.0344355,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.DefenseCannotTurnDamageIntoHealing(15,2,13)",
+          "Status": "Passed",
+          "Duration": 0.0088212,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.DefenseCannotTurnDamageIntoHealing(5,9,0)",
+          "Status": "Passed",
+          "Duration": 4.07E-05,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.DefenseCannotTurnDamageIntoHealing(0,0,0)",
+          "Status": "Passed",
+          "Duration": 3.27E-05,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.DiagonalInputHasSameSpeedAndRestartIsReproducible",
+          "Status": "Passed",
+          "Duration": 0.0530647,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.InvalidHealthAndNonfiniteSpeedAreRejected",
+          "Status": "Passed",
+          "Duration": 0.000707,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.JsonLoadsAllThreeKindsAndTenMonsters",
+          "Status": "Passed",
+          "Duration": 0.0042657,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.LethalDamageClampsToZero",
+          "Status": "Passed",
+          "Duration": 0.0002538,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.RandomMovementRemainsInBoundsAndResetsItsRandomStream",
+          "Status": "Passed",
+          "Duration": 0.0344091,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.SweptCircleDetectsFastCrossing",
+          "Status": "Passed",
+          "Duration": 0.000656,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.SweptCircleDoesNotHitParallelMiss",
+          "Status": "Passed",
+          "Duration": 0.0002499,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.BattleRulesTests.UnsupportedJsonSchemaIsRejected",
+          "Status": "Passed",
+          "Duration": 0.0002689,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.ContactSystemTests.DeadHeroCannotDealDamage",
+          "Status": "Passed",
+          "Duration": 0.0044749,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.ContactSystemTests.LethalExchangeIsSimultaneous",
+          "Status": "Passed",
+          "Duration": 0.0012202,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.ContactSystemTests.MultipleExtremeHitsCannotOverflowHeroDamage",
+          "Status": "Passed",
+          "Duration": 0.0020749,
+          "Message": null,
+          "StackTrace": null
+        },
+        {
+          "FullName": "Game.Battle.Tests.ContactSystemTests.OverlapDamagesOnceAndSeparationAllowsAnotherHit",
+          "Status": "Passed",
+          "Duration": 0.0009976,
+          "Message": null,
+          "StackTrace": null
+        }
+      ]
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "D:\\projects\\game-td"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

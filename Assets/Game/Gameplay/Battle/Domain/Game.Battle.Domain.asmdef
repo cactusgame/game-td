@@ -1,0 +1,5 @@
+{
+  "name": "Game.Battle.Domain",
+  "rootNamespace": "Game.Battle.Domain",
+  "noEngineReferences": true
+}

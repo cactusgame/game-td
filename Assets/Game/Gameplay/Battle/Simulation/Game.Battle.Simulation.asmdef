@@ -1,0 +1,5 @@
+{
+  "name": "Game.Battle.Simulation",
+  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Unity.Entities", "Unity.Collections", "Unity.Mathematics", "Unity.Burst"],
+  "allowUnsafeCode": true
+}

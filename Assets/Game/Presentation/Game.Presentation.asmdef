@@ -1,0 +1,4 @@
+{
+  "name": "Game.Presentation",
+  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Game.Battle.Application", "Unity.InputSystem", "Unity.ugui", "Unity.TextMeshPro", "VContainer"]
+}

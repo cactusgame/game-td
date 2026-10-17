@@ -1,0 +1,4 @@
+{
+  "name": "Game.Bootstrap",
+  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Game.Battle.Application", "Game.Battle.Simulation", "Game.Configuration", "Game.Presentation", "VContainer"]
+}

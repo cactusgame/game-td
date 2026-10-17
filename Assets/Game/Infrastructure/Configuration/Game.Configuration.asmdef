@@ -1,0 +1,4 @@
+{
+  "name": "Game.Configuration",
+  "references": ["Game.Battle.Domain", "Game.Battle.Contracts"]
+}

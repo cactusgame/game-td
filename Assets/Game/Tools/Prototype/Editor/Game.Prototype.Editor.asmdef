@@ -1,0 +1,5 @@
+{
+  "name": "Game.Prototype.Editor",
+  "references": ["Game.Bootstrap", "Game.Battle.Domain", "Game.Configuration", "Game.Presentation", "Unity.InputSystem", "Unity.ugui", "Unity.TextMeshPro", "VContainer", "Unity.2D.Sprite.Editor"],
+  "includePlatforms": ["Editor"]
+}
