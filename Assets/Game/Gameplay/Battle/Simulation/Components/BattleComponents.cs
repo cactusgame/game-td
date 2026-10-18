@@ -9,8 +9,8 @@ namespace Game.Battle.Simulation
     public struct UnitIdentity : IComponentData { public ulong Id; public UnitKind Kind; }
     // 自定义二维地面坐标，不是 GameObject.Transform。Previous 供本步扫掠接触检测使用。
     public struct GroundTransform : IComponentData { public float2 Position, Previous; public float FacingX; }
-    // 当前生命只保存在这里；LastHitTime 使用模拟时间，表现层据此播放短暂受伤变色。
-    public struct Vitals : IComponentData { public int Health, MaxHealth, Attack, Defense; public float LastHitTime; }
+    // 当前生命只保存在这里；攻击/受伤时间使用模拟时钟，表现层据此播放动作。
+    public struct Vitals : IComponentData { public int Health, MaxHealth, Attack, Defense; public float LastHitTime, LastAttackTime; }
     // 速度为每秒地面单位；半径决定逻辑接触范围，与 Sprite 图片尺寸无关。
     public struct UnitMotion : IComponentData { public float Speed, Radius; }
     // 每个单位独立保存随机流与方向状态，避免并行移动时共享一个可变随机数对象。

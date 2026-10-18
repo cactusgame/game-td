@@ -11,9 +11,16 @@ namespace Game.Presentation.Views
     {
         [SerializeField] private Sprite knight, goblin, runner, white, circle;
         [SerializeField] private Camera battleCamera;
+        [SerializeField] private UnitAnimationSet knightAnimations, goblinAnimations, runnerAnimations;
+        [SerializeField] private UnitDeathSettings deathSettings;
+        public void ConfigureDeath(UnitDeathSettings settings) { deathSettings = settings; }
+        public void ConfigureAnimations(UnitAnimationSet hero, UnitAnimationSet basic, UnitAnimationSet fast)
+        { knightAnimations = hero; goblinAnimations = basic; runnerAnimations = fast; }
         private BattleSession _session;
         private int _generation;
         private readonly Dictionary<ulong, UnitView> _views = new Dictionary<ulong, UnitView>();
+        // ECS 保留死亡快照直到重启；记录已移除 ID，避免尸体视图下一帧被重新创建。
+        private readonly HashSet<ulong> _removedViews = new HashSet<ulong>();
         public void Configure(Sprite hero, Sprite basic, Sprite fast, Sprite solid, Sprite disc, Camera camera)
         { knight = hero; goblin = basic; runner = fast; white = solid; circle = disc; battleCamera = camera; }
         // VContainer 注入逻辑入口；图片与 Camera 则由场景引用提供。
@@ -28,6 +35,7 @@ namespace Game.Presentation.Views
                 // 重启后单位 ID 可以重新使用，因此先清除上一局的显示对象，避免复用旧配置或残留单位。
                 foreach (Transform child in transform) Destroy(child.gameObject);
                 _views.Clear();
+                _removedViews.Clear();
                 _generation = _session.Generation;
             }
             // 根据窗口比例调整正交相机，让完整地图在桌面缩放和手机旋转后仍可见。
@@ -36,17 +44,25 @@ namespace Game.Presentation.Views
             battleCamera.orthographicSize = Mathf.Max(vertical, horizontal);
             foreach (var unit in _session.Units)
             {
+                if (_removedViews.Contains(unit.Id)) continue;
                 if (!_views.TryGetValue(unit.Id, out var view))
                 {
-                    // 首次看到某个 ID 才创建显示对象；普通帧复用，死亡状态由 Render 隐藏。
+                    // 首次看到某个 ID 才创建显示对象；普通帧复用。
                     var definition = _session.Definition.GetUnit(unit.Kind);
                     var sprite = unit.Kind == UnitKind.Hero ? knight : unit.Kind == UnitKind.Goblin ? goblin : runner;
+                    var animations = unit.Kind == UnitKind.Hero ? knightAnimations : unit.Kind == UnitKind.Goblin ? goblinAnimations : runnerAnimations;
                     view = new UnitView(transform, sprite, white, circle, definition.VisualHeight, definition.Radius,
-                        unit.Kind == UnitKind.Hero ? new Color(0.38f, 0.78f, 0.98f) : new Color(0.83f, 0.38f, 0.29f));
+                        unit.Kind == UnitKind.Hero ? new Color(0.38f, 0.78f, 0.98f) : new Color(0.83f, 0.38f, 0.29f), animations, deathSettings);
                     _views.Add(unit.Id, view);
                 }
                 // 传递的是数据副本。显示位置、血条和朝向不会反向修改模拟的真实状态。
                 view.Render(unit, _session.ElapsedTime, Time.deltaTime);
+                if (view.ReadyForRemoval)
+                {
+                    view.Destroy();
+                    _views.Remove(unit.Id);
+                    _removedViews.Add(unit.Id);
+                }
             }
         }
     }

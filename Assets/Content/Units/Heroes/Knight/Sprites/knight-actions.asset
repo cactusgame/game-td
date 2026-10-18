@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
+  m_Name: knight-actions
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
+  Idle:
+  - {fileID: -1001277650, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -215601015, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -773615552, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: 1976686455, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  Move:
+  - {fileID: 1816643512, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -622181408, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -1452901080, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: 526396373, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  Attack:
+  - {fileID: 15672672, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -578750636, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: 1026902884, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -1137742555, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  Hurt:
+  - {fileID: -135045025, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: -314106451, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: 299411910, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  - {fileID: 1020396431, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
+  Death: []
+  IdleFps: 5
+  MoveFps: 9
+  AttackFps: 10
+  HurtFps: 14
+  BodyHeightFraction: 0.6539075
+  DeathBodyHeightFraction: 0.6

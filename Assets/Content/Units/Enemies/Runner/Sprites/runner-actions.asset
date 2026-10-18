@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
+  m_Name: runner-actions
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
+  Idle:
+  - {fileID: -1687799201, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: -520218259, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 271046716, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 138833705, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  Move:
+  - {fileID: 1251951733, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 39617512, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: -1073436971, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: -78394237, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  Attack:
+  - {fileID: -1863726113, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: -257782454, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 1799696482, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 597909849, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  Hurt:
+  - {fileID: 361286036, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 1396743386, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 505333496, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  - {fileID: 1178913411, guid: aeba342bfb895994995759ba370d9f70, type: 3}
+  Death:
+  - {fileID: -724372885, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
+  - {fileID: -1884819053, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
+  - {fileID: 29207638, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
+  - {fileID: 1690473165, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
+  IdleFps: 5
+  MoveFps: 9
+  AttackFps: 10
+  HurtFps: 14
+  BodyHeightFraction: 0.6698565
+  DeathBodyHeightFraction: 0.7001595

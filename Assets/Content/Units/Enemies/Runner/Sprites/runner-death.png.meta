@@ -1,0 +1,443 @@
+fileFormatVersion: 2
+guid: e965add9e5197cd4a8a854be5506e403
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 355642105660153663
+    second: runner-death_0
+  - first:
+      213: -3515619663775267480
+    second: runner-death_1
+  - first:
+      213: -2572166282095488567
+    second: runner-death_2
+  - first:
+      213: 2429913545476509019
+    second: runner-death_3
+  - first:
+      213: 9036865900126658748
+    second: runner-death_4
+  - first:
+      213: -5227125661289551142
+    second: runner-death_5
+  - first:
+      213: -5365597734258580087
+    second: runner-death_6
+  - first:
+      213: 5817964769558545911
+    second: runner-death_7
+  - first:
+      213: -1700155577748214580
+    second: runner-death_8
+  - first:
+      213: -316417017539381558
+    second: runner-death_9
+  - first:
+      213: -5037892700257607714
+    second: runner-death_10
+  - first:
+      213: -1913426837965427127
+    second: runner-death_11
+  - first:
+      213: -3509376546548671040
+    second: runner-death_12
+  - first:
+      213: -3141886123726508137
+    second: runner-death_13
+  - first:
+      213: -3661772929578891234
+    second: runner-death_14
+  - first:
+      213: -1692688561057995305
+    second: runner-death_15
+  - first:
+      213: -6783973312667901268
+    second: runner-death_16
+  - first:
+      213: 7722409378354278456
+    second: runner-death_17
+  - first:
+      213: -4217079230707470137
+    second: runner-death_18
+  - first:
+      213: 5795005219579354561
+    second: runner-death_19
+  - first:
+      213: -1567063590522306192
+    second: runner-death_20
+  - first:
+      213: -7514718081695297610
+    second: runner-death_21
+  - first:
+      213: 4736318191151509790
+    second: runner-death_22
+  - first:
+      213: -2782960983811736676
+    second: runner-death_23
+  - first:
+      213: 3750751567354121118
+    second: runner-death_24
+  - first:
+      213: -1166513848646269623
+    second: runner-death_25
+  - first:
+      213: 7278159746519813889
+    second: runner-death_26
+  - first:
+      213: -5301127345588268074
+    second: runner-death_27
+  - first:
+      213: -9102007289860864638
+    second: runner-death_28
+  - first:
+      213: 6491789658661780373
+    second: runner-death_29
+  - first:
+      213: -2653186196686841594
+    second: runner-death_30
+  - first:
+      213: -6929407039457711880
+    second: runner-death_31
+  - first:
+      213: -8144628775328315868
+    second: runner-death_32
+  - first:
+      213: -1959973129844419133
+    second: runner-death_33
+  - first:
+      213: 8382388394186795705
+    second: runner-death_34
+  - first:
+      213: 332225241265913113
+    second: runner-death_35
+  - first:
+      213: -752445950187497734
+    second: runner-death_36
+  - first:
+      213: -5030840035853086534
+    second: runner-death_37
+  - first:
+      213: 6696259987269536293
+    second: runner-death_38
+  - first:
+      213: 4646516178694317777
+    second: runner-death_39
+  - first:
+      213: -4861306769347818546
+    second: runner-death_40
+  - first:
+      213: 1338970225040053349
+    second: runner-death_41
+  - first:
+      213: 4771237381914067564
+    second: runner-death_42
+  - first:
+      213: 5980750367181368078
+    second: runner-death_43
+  - first:
+      213: -3085461260742170596
+    second: runner-death_44
+  - first:
+      213: -8021109668138460875
+    second: runner-death_45
+  - first:
+      213: 5937068599319422793
+    second: runner-death_46
+  - first:
+      213: -2866934239260765261
+    second: runner-death_47
+  - first:
+      213: 4105583917928196529
+    second: runner-death_48
+  - first:
+      213: -3662159612354874511
+    second: runner-death_49
+  - first:
+      213: -4999191394980931260
+    second: runner-death_50
+  - first:
+      213: -2458949315936077041
+    second: runner-death_51
+  - first:
+      213: -5260641430960321984
+    second: runner-death_52
+  - first:
+      213: 4033766106915785847
+    second: runner-death_53
+  - first:
+      213: 5104826798297607537
+    second: runner-death_54
+  - first:
+      213: -7126822686564016320
+    second: runner-death_55
+  - first:
+      213: -2247880028028814074
+    second: runner-death_56
+  - first:
+      213: -3251526585598453841
+    second: runner-death_57
+  - first:
+      213: 7291856897353470975
+    second: runner-death_58
+  - first:
+      213: -6942652891043576184
+    second: runner-death_59
+  - first:
+      213: -4033989062053371358
+    second: runner-death_60
+  - first:
+      213: -1150583395094284128
+    second: runner-death_61
+  - first:
+      213: 5338238354949414342
+    second: runner-death_62
+  - first:
+      213: 5339669403534746900
+    second: runner-death_63
+  - first:
+      213: -7667195202509031874
+    second: runner-death_64
+  - first:
+      213: 21810864533251835
+    second: runner-death_65
+  - first:
+      213: -5894342272084663077
+    second: runner-death_66
+  - first:
+      213: 696815036456992555
+    second: runner-death_67
+  - first:
+      213: -1514615547668178418
+    second: runner-death_68
+  - first:
+      213: 8122230861951736748
+    second: runner-death_69
+  - first:
+      213: -6291167124062284346
+    second: runner-death_70
+  - first:
+      213: -2067907284865275288
+    second: runner-death_71
+  - first:
+      213: -802000670238757828
+    second: runner-death_72
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Death_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 627
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.049441785}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 41c014974e41cb74d8f619e82ee71444
+      internalID: -724372885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_1
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 627
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.05263158}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66809439de45d2d459cf6b0c9da37358
+      internalID: -1884819053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.19138756}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 02ae77ba42befb84c8ec2414e8456d3b
+      internalID: 29207638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_3
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 0
+        width: 627
+        height: 627
+      alignment: 9
+      pivot: {x: 0.5, y: 0.19138756}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 622c14828104e8e4fbfcdff80837a26b
+      internalID: 1690473165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: c4f530f6c46cefc4d901faf40b361a0d
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Death_0: -724372885
+      Death_1: -1884819053
+      Death_2: 29207638
+      Death_3: 1690473165
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

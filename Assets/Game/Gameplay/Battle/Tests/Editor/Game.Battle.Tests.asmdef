@@ -1,6 +1,6 @@
 {
   "name": "Game.Battle.Tests",
-  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Game.Battle.Application", "Game.Battle.Simulation", "Game.Configuration", "Unity.Entities", "Unity.Collections", "Unity.Mathematics"],
+  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Game.Battle.Application", "Game.Battle.Simulation", "Game.Configuration", "Game.Presentation", "Unity.Entities", "Unity.Collections", "Unity.Mathematics"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

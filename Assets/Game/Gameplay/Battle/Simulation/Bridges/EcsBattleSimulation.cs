@@ -89,7 +89,7 @@ namespace Game.Battle.Simulation
             em.SetComponentData(entity, new UnitIdentity { Id = id, Kind = definition.Kind });
             em.SetComponentData(entity, new GroundTransform { Position = position, Previous = position, FacingX = 1 });
             em.SetComponentData(entity, new Vitals { Health = definition.MaxHealth, MaxHealth = definition.MaxHealth,
-                Attack = definition.Attack, Defense = definition.Defense, LastHitTime = -100 });
+                Attack = definition.Attack, Defense = definition.Defense, LastHitTime = -100, LastAttackTime = -100 });
             em.SetComponentData(entity, new UnitMotion { Speed = definition.Speed, Radius = definition.Radius });
             em.SetComponentData(entity, new WanderState { Random = new Random(seed) });
             // 英雄只额外带 HeroTag；怪物额外带 MonsterTag 和 HeroContact，不会同时带两种分类标记。
@@ -128,7 +128,7 @@ namespace Game.Battle.Simulation
             for (int i = 0; i < identities.Length; i++)
                 destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind,
                     positions[i].Position.x, positions[i].Position.y, positions[i].FacingX,
-                    vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime));
+                    vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime));
         }
 
         // World 持有原生资源与系统状态，必须显式释放；由 VContainer 作用域管理服务清理。

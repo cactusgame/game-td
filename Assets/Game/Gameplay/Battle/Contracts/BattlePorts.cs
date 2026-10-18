@@ -21,12 +21,12 @@ namespace Game.Battle.Contracts
         public readonly UnitKind Kind;
         public readonly float X, Y, FacingX;
         public readonly int Health, MaxHealth;
-        public readonly float LastHitTime;
+        public readonly float LastHitTime, LastAttackTime;
         public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX,
-            int health, int maxHealth, float lastHitTime)
+            int health, int maxHealth, float lastHitTime, float lastAttackTime = -100)
         {
             Id = id; Kind = kind; X = x; Y = y; FacingX = facingX;
-            Health = health; MaxHealth = maxHealth; LastHitTime = lastHitTime;
+            Health = health; MaxHealth = maxHealth; LastHitTime = lastHitTime; LastAttackTime = lastAttackTime;
         }
     }
 

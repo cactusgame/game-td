@@ -44,6 +44,9 @@ namespace Game.Battle.Simulation
                     previous.x, previous.y, current.x, current.y, radius);
                 contact.ValueRW.WasOverlapping = overlaps ? (byte)1 : (byte)0;
                 if (!hit) continue;
+                // 攻击事件独立于实际伤害：被防御抵消时也需要挥击动作。
+                heroVitals.LastAttackTime = now;
+                vitals.ValueRW.LastAttackTime = now;
                 // Domain 只计算伤害数值，当前系统决定何时计算并更新组件。
                 // 双方根据接触处理前的属性互相攻击，即使怪物本次被击杀，仍结算它的这次攻击。
                 int damage = ContactRules.Damage(heroVitals.Attack, vitals.ValueRO.Defense);

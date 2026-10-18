@@ -59,6 +59,11 @@ namespace Game.Tools.Prototype
             view.Configure(LoadSprite("Assets/Content/Units/Heroes/Knight/Sprites/knight.png"),
                 LoadSprite("Assets/Content/Units/Enemies/Goblin/Sprites/goblin.png"),
                 LoadSprite("Assets/Content/Units/Enemies/Runner/Sprites/runner.png"), white, circle, camera);
+            view.ConfigureAnimations(
+                BattleAnimationSetup.Import("Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.png"),
+                BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png"),
+                BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png"));
+            view.ConfigureDeath(BattleAnimationSetup.ImportDeathAssets());
 
             var canvas = new GameObject("BattleCanvas", typeof(RectTransform), typeof(Canvas),
                 typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));

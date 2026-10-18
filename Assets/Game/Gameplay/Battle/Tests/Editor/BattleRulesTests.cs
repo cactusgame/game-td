@@ -72,6 +72,8 @@ namespace Game.Battle.Tests
             simulation.CopyUnits(units);
             Assert.That(units[0].X, Is.Zero);
             Assert.That(units[0].Health, Is.EqualTo(100));
+            Assert.That(units[0].LastAttackTime, Is.EqualTo(-100));
+            Assert.That(units[0].LastHitTime, Is.EqualTo(-100));
             Assert.That(simulation.ElapsedTime, Is.Zero);
         }
 
@@ -145,6 +147,24 @@ namespace Game.Battle.Tests
             var monster = _world.EntityManager.GetComponentData<Vitals>(_monster); monster.Health = 5;
             _world.EntityManager.SetComponentData(_hero, hero); _world.EntityManager.SetComponentData(_monster, monster);
             Step(); Assert.That(Hp(_hero), Is.Zero); Assert.That(Hp(_monster), Is.Zero);
+        }
+
+        [Test] public void BlockedDamageStillPublishesAttackWithoutHurtAndOverlapDoesNotRetrigger()
+        {
+            var em = _world.EntityManager;
+            var hero = em.GetComponentData<Vitals>(_hero);
+            var monster = em.GetComponentData<Vitals>(_monster);
+            hero.Defense = monster.Defense = 100;
+            hero.LastHitTime = monster.LastHitTime = -100;
+            em.SetComponentData(_hero, hero); em.SetComponentData(_monster, monster);
+            Step();
+            Assert.That(em.GetComponentData<Vitals>(_hero).LastAttackTime, Is.EqualTo(1));
+            Assert.That(em.GetComponentData<Vitals>(_monster).LastAttackTime, Is.EqualTo(1));
+            Assert.That(em.GetComponentData<Vitals>(_hero).LastHitTime, Is.EqualTo(-100));
+            Assert.That(em.GetComponentData<Vitals>(_monster).LastHitTime, Is.EqualTo(-100));
+            _world.SetTime(new TimeData(2, 1f / 60)); _group.Update();
+            Assert.That(em.GetComponentData<Vitals>(_hero).LastAttackTime, Is.EqualTo(1));
+            Assert.That(em.GetComponentData<Vitals>(_monster).LastAttackTime, Is.EqualTo(1));
         }
 
         [Test] public void DeadHeroCannotDealDamage()
