@@ -31,10 +31,14 @@ namespace Game.Battle.Tests
         [Test] public void SweptCircleDoesNotHitParallelMiss()
             => Assert.That(ContactRules.SweptCircles(-3, 2, 3, 2, 0.5f), Is.False);
 
-        [Test] public void JsonLoadsAllThreeKindsAndTenMonsters()
+        [Test] public void JsonLoadsAllThreeKindsAndConfiguredMonsterSpawns()
         {
             var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
-            Assert.That(definition.MonsterCount, Is.EqualTo(10));
+            Assert.That(definition.GoblinCount, Is.GreaterThan(0));
+            Assert.That(definition.RunnerCount, Is.GreaterThan(0));
+            Assert.That(definition.Hero.Kind, Is.EqualTo(UnitKind.Hero));
+            Assert.That(definition.Goblin.Kind, Is.EqualTo(UnitKind.Goblin));
+            Assert.That(definition.Runner.Kind, Is.EqualTo(UnitKind.Runner));
             Assert.That(definition.Runner.Speed, Is.GreaterThan(definition.Goblin.Speed));
             Assert.That(definition.Runner.Radius, Is.LessThan(definition.Goblin.Radius));
         }
@@ -79,7 +83,10 @@ namespace Game.Battle.Tests
 
         [Test] public void RandomMovementRemainsInBoundsAndResetsItsRandomStream()
         {
-            var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            // 用受控数量验证行为，不将性能调试时的实际出生数量硬编码进测试期望。
+            var definition = new BattleDefinition(configured.Hero, configured.Goblin, configured.Runner,
+                6, 4, configured.Width, configured.Height, configured.FixedStep, configured.Seed, configured.Navigation);
             using var simulation = new EcsBattleSimulation();
             var first = new List<UnitSnapshot>(); var second = new List<UnitSnapshot>();
             simulation.Reset(definition);

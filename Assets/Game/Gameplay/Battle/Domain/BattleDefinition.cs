@@ -1,4 +1,5 @@
 using System;
+using Game.MapEngine.Domain;
 
 namespace Game.Battle.Domain
 {
@@ -49,9 +50,12 @@ namespace Game.Battle.Domain
         // 模拟步长，单位为秒；与显示器刷新率和画面 FPS 独立。
         public float FixedStep { get; }
         public uint Seed { get; }
+        public NavigationDefinition Navigation { get; }
+        public GridMap NavigationMap { get; }
 
         public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner,
-            int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed)
+            int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed,
+            NavigationDefinition navigation = null, GridMap navigationMap = null)
         {
             Hero = hero ?? throw new ArgumentNullException(nameof(hero));
             Goblin = goblin ?? throw new ArgumentNullException(nameof(goblin));
@@ -71,6 +75,17 @@ namespace Game.Battle.Domain
             if (fixedStep > 0.1f) throw new ArgumentOutOfRangeException(nameof(fixedStep));
             GoblinCount = goblinCount; RunnerCount = runnerCount;
             Width = width; Height = height; FixedStep = fixedStep; Seed = seed == 0 ? 1u : seed;
+            Navigation = navigation ?? new NavigationDefinition();
+            NavigationMap = navigationMap ?? GridMap.CreateOpenArena(width, height, Navigation.CellSize);
+            // 战斗场地与导航坐标必须相同；以后编辑器可传入已导出的纯地图定义。
+            const float geometryTolerance = 0.0001f;
+            if (Math.Abs(NavigationMap.Width - width) > geometryTolerance ||
+                Math.Abs(NavigationMap.Height - height) > geometryTolerance ||
+                Math.Abs(NavigationMap.OriginX + width * 0.5f) > geometryTolerance ||
+                Math.Abs(NavigationMap.OriginY + height * 0.5f) > geometryTolerance)
+            {
+                throw new ArgumentException("Navigation map must cover the battle arena in the same ground coordinates.", nameof(navigationMap));
+            }
         }
 
         public UnitDefinition GetUnit(UnitKind kind)

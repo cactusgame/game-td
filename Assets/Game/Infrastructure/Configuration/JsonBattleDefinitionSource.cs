@@ -18,11 +18,12 @@ namespace Game.Infrastructure.Configuration
         {
             var data = JsonUtility.FromJson<BattleJson>(json);
             if (data == null || data.schemaVersion != 1 || data.arena == null || data.hero == null
-                || data.goblin == null || data.runner == null || data.spawn == null)
-                throw new FormatException("Battle JSON must use schemaVersion 1 and contain arena, hero, goblin, runner and spawn.");
+                || data.goblin == null || data.runner == null || data.spawn == null || data.navigation == null)
+                throw new FormatException("Battle JSON must use schemaVersion 1 and contain arena, hero, goblin, runner, spawn and navigation.");
             return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin),
                 data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners,
-                data.arena.width, data.arena.height, data.fixedStep, data.seed);
+                data.arena.width, data.arena.height, data.fixedStep, data.seed,
+                new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds));
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
@@ -34,6 +35,13 @@ namespace Game.Infrastructure.Configuration
             public ArenaJson arena;
             public SpawnJson spawn;
             public UnitJson hero, goblin, runner;
+            public NavigationJson navigation;
+        }
+        [Serializable] private sealed class NavigationJson
+        {
+            public float cellSize;
+            public float detectionRadius;
+            public float repathSeconds;
         }
         [Serializable] private sealed class ArenaJson { public float width, height; }
         [Serializable] private sealed class SpawnJson { public int goblins, runners; }

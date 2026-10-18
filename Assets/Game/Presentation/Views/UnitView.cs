@@ -9,6 +9,7 @@ namespace Game.Presentation.Views
     {
         private readonly GameObject _root;
         private readonly SpriteRenderer _body;
+        private readonly SpriteRenderer _shadow;
         private readonly Transform _healthFill;
         private readonly SpriteRenderer _healthRenderer, _healthBackground;
         private readonly float _height;
@@ -29,8 +30,9 @@ namespace Game.Presentation.Views
             if (animations != null && animations.Idle.Length > 0) sprite = animations.Idle[0];
             _height = height;
             _root = new GameObject("UnitView"); _root.transform.SetParent(parent, false);
-            var shadow = Child("GroundShadow", circle, new Color(0.07f, 0.11f, 0.07f, 0.3f));
-            shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
+            _shadow = Child("GroundShadow", circle, new Color(0.07f, 0.11f, 0.07f, 0.3f));
+            _shadow.sortingLayerName = BattleRenderSorting.ShadowLayer;
+            _shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
             _body = Child("Sprite", sprite, Color.white);
             float scale = height / (sprite.bounds.size.y * (animations != null ? animations.BodyHeightFraction : 1));
             _body.transform.localScale = Vector3.one * scale;
@@ -40,6 +42,7 @@ namespace Game.Presentation.Views
             var fill = new GameObject("HealthFill").AddComponent<SpriteRenderer>();
             fill.transform.SetParent(back.transform, false);
             fill.sprite = white; fill.color = teamColor;
+            fill.sortingLayerName = BattleRenderSorting.UnitLayer;
             fill.transform.localScale = new Vector3(0.92f, 0.60f, 1);
             _healthFill = fill.transform;
             _healthRenderer = fill; _healthBackground = back;
@@ -50,6 +53,7 @@ namespace Game.Presentation.Views
             var renderer = new GameObject(name).AddComponent<SpriteRenderer>();
             renderer.transform.SetParent(_root.transform, false);
             renderer.sprite = sprite; renderer.color = color;
+            renderer.sortingLayerName = BattleRenderSorting.UnitLayer;
             return renderer;
         }
 
@@ -101,10 +105,7 @@ namespace Game.Presentation.Views
             // 受伤发生时点来自模拟；这里只决定反馈颜色，不通过动画回调决定伤害。
             _body.color = simulationTime - state.LastHitTime < 0.12 ? new Color(1, 0.45f, 0.4f) : Color.white;
             // 用地面 Y 排序，而不是图片中心或建筑视觉高度；靠下的对象显示在前。
-            int order = 1000 - Mathf.RoundToInt(state.Y * 50);
-            _body.sortingOrder = order;
-            _healthRenderer.sortingOrder = order + 2;
-            _healthBackground.sortingOrder = order + 1;
+            SetDepth(state.Y);
             // 血条只是生命快照的显示，改变长度不会改变生命值。
             float ratio = (float)state.Health / state.MaxHealth;
             _healthFill.localScale = new Vector3(0.92f * ratio, 0.60f, 1);
@@ -122,7 +123,7 @@ namespace Game.Presentation.Views
             _root.transform.position = new Vector3(state.X, state.Y, 0);
             _body.transform.localPosition = Vector3.zero;
             _body.flipX = state.FacingX < 0;
-            _body.sortingOrder = 1000 - Mathf.RoundToInt(state.Y * 50);
+            SetDepth(state.Y);
             if (_animations != null && _animations.Death != null && _animations.Death.Length > 0)
             {
                 _body.transform.localScale = Vector3.one * (_height /
@@ -135,5 +136,14 @@ namespace Game.Presentation.Views
         }
 
         public void Destroy() => Object.Destroy(_root);
+
+        private void SetDepth(float groundY)
+        {
+            int order = BattleRenderSorting.UnitDepth(groundY);
+            _body.sortingOrder = order;
+            _shadow.sortingOrder = order;
+            _healthRenderer.sortingOrder = order + 2;
+            _healthBackground.sortingOrder = order + 1;
+        }
     }
 }

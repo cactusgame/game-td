@@ -642,7 +642,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 9.2
+  orthographic size: 9
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1123,6 +1123,7 @@ GameObject:
   - component: {fileID: 1231984342}
   - component: {fileID: 1231984341}
   - component: {fileID: 1231984340}
+  - component: {fileID: 1231984343}
   m_Layer: 0
   m_Name: TrainingGround
   m_TagString: Untagged
@@ -1174,9 +1175,9 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -100
+  m_SortingLayerID: 435718645
+  m_SortingLayer: 1
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1231984341
@@ -1202,6 +1203,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1231984343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1231984339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce38f3c5cd85e14fa7e9af50adfeea2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.BattleArenaView
 --- !u!1 &1286972046
 GameObject:
   m_ObjectHideFlags: 0
@@ -1320,6 +1333,8 @@ MonoBehaviour:
   goblinAnimations: {fileID: 11400000, guid: ba3e8ffc9f93c6549b5ea83fba70dc69, type: 2}
   runnerAnimations: {fileID: 11400000, guid: edf4c18ee27262149a7d8837156aba5a, type: 2}
   deathSettings: {fileID: 11400000, guid: 9babc3009a681c64caa90166800fd20c, type: 2}
+  mapViewSettings: {fileID: 11400000, guid: bbc0a456b0539754280f6d3f41aada24, type: 2}
+  arenaView: {fileID: 1231984343}
 --- !u!4 &1362957773
 Transform:
   m_ObjectHideFlags: 0

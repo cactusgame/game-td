@@ -13,6 +13,13 @@ namespace Game.Presentation.Views
         [SerializeField] private Camera battleCamera;
         [SerializeField] private UnitAnimationSet knightAnimations, goblinAnimations, runnerAnimations;
         [SerializeField] private UnitDeathSettings deathSettings;
+        [SerializeField] private BattleMapViewSettings mapViewSettings;
+        [SerializeField] private BattleArenaView arenaView;
+        public void ConfigureMapView(BattleMapViewSettings settings, BattleArenaView arena)
+        {
+            mapViewSettings = settings;
+            arenaView = arena;
+        }
         public void ConfigureDeath(UnitDeathSettings settings) { deathSettings = settings; }
         public void ConfigureAnimations(UnitAnimationSet hero, UnitAnimationSet basic, UnitAnimationSet fast)
         { knightAnimations = hero; goblinAnimations = basic; runnerAnimations = fast; }
@@ -37,13 +44,12 @@ namespace Game.Presentation.Views
                 _views.Clear();
                 _removedViews.Clear();
                 _generation = _session.Generation;
+                arenaView.Configure(_session.Definition.Width, _session.Definition.Height, mapViewSettings);
             }
-            // 根据窗口比例调整正交相机，让完整地图在桌面缩放和手机旋转后仍可见。
-            float vertical = _session.Definition.Height * 0.5f + 2.2f;
-            float horizontal = (_session.Definition.Width * 0.5f + 1) / Mathf.Max(0.1f, battleCamera.aspect);
-            battleCamera.orthographicSize = Mathf.Max(vertical, horizontal);
+            Vector2 heroPosition = Vector2.zero;
             foreach (var unit in _session.Units)
             {
+                if (unit.Kind == UnitKind.Hero) heroPosition = new Vector2(unit.X, unit.Y);
                 if (_removedViews.Contains(unit.Id)) continue;
                 if (!_views.TryGetValue(unit.Id, out var view))
                 {
@@ -64,6 +70,13 @@ namespace Game.Presentation.Views
                     _removedViews.Add(unit.Id);
                 }
             }
+            // 相机只读取英雄地面快照，移动镜头不修改 ECS 位置或寻路地图。
+            float visibleHeight = Mathf.Max(1, mapViewSettings.VisibleWorldHeight);
+            float margin = Mathf.Max(mapViewSettings.BorderThickness, mapViewSettings.EdgeMargin);
+            var center = BattleCameraFraming.Center(heroPosition, _session.Definition.Width,
+                _session.Definition.Height, visibleHeight, battleCamera.aspect, margin, mapViewSettings.TopEdgeMargin);
+            battleCamera.orthographicSize = visibleHeight * 0.5f;
+            battleCamera.transform.position = new Vector3(center.x, center.y, battleCamera.transform.position.z);
         }
     }
 }

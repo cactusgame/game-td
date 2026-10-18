@@ -20,6 +20,7 @@ namespace Game.Battle.Simulation
     {
         private readonly World _world;
         private readonly BattleSystemGroup _group;
+        private readonly MonsterNavigationSystem _navigation;
         private readonly EntityQuery _units;
         // Entity 只是这个 World 中的句柄；数据在它所挂载的组件里。
         private readonly Entity _settings;
@@ -34,6 +35,8 @@ namespace Game.Battle.Simulation
             // 组继承 ComponentSystemGroup（class），Managed API 返回可直接调用的托管系统对象。
             // Managed 不表示组内不能执行并行 Job。
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
+            _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
+            _group.AddSystemToUpdateList(_navigation);
             // MovementSystem/CircleContactSystem 是 ISystem 结构体，这里的 GetOrCreate 返回 SystemHandle。
             // “取得或创建系统”和“加入组的更新列表”是两步；这两步都没有执行一次模拟。
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<MovementSystem>());
@@ -52,6 +55,7 @@ namespace Game.Battle.Simulation
             var em = _world.EntityManager;
             // 创建/销毁实体是结构性变更。先等待原有 Job，防止其继续访问即将被清空的数据。
             em.CompleteAllTrackedJobs();
+            _navigation.Configure(definition.NavigationMap, definition.Navigation);
             // 只销毁单位查询匹配的实体，保留 _settings 与系统本身。
             em.DestroyEntity(_units);
             ElapsedTime = 0;
@@ -81,10 +85,11 @@ namespace Game.Battle.Simulation
         private void Spawn(ulong id, UnitDefinition definition, float2 position, uint seed)
         {
             var em = _world.EntityManager;
-            // 五种组件是所有单位共有的数据，也是 MovementJob.Execute 的默认匹配条件。
+            // 统一移动 Job 所需的数据。英雄的导航组件为空，不使用怪物寻路分支。
             // 同组件类型组合称为 Archetype；这些组件数据会由 ECS 按 Chunk 组织存储。
             var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals),
-                typeof(UnitMotion), typeof(WanderState));
+                typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
+            em.AddBuffer<NavigationWaypoint>(entity);
             // SetComponentData 修改已有组件，不会自动添加缺失组件；这里写入只读定义中的初始属性。
             em.SetComponentData(entity, new UnitIdentity { Id = id, Kind = definition.Kind });
             em.SetComponentData(entity, new GroundTransform { Position = position, Previous = position, FacingX = 1 });

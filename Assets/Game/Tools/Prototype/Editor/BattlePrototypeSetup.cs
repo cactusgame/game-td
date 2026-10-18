@@ -35,6 +35,7 @@ namespace Game.Tools.Prototype
             if (File.Exists(ScenePath)) throw new InvalidOperationException("Prototype scene already exists. Open it instead of overwriting edits.");
             if (EditorSceneManager.GetActiveScene().isDirty)
                 throw new InvalidOperationException("Save the current scene before creating the prototype.");
+            BattleSortingSetup.EnsureLayers();
             Directory.CreateDirectory(Shared);
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             AssetDatabase.Refresh();
@@ -54,7 +55,7 @@ namespace Game.Tools.Prototype
 
             var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
             var definition = Game.Infrastructure.Configuration.JsonBattleDefinitionSource.Parse(config.text);
-            CreateArena(definition, white);
+            var arena = CreateArena(definition, white);
             var view = new GameObject("UnitViews").AddComponent<BattleView>();
             view.Configure(LoadSprite("Assets/Content/Units/Heroes/Knight/Sprites/knight.png"),
                 LoadSprite("Assets/Content/Units/Enemies/Goblin/Sprites/goblin.png"),
@@ -64,6 +65,7 @@ namespace Game.Tools.Prototype
                 BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png"),
                 BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png"));
             view.ConfigureDeath(BattleAnimationSetup.ImportDeathAssets());
+            view.ConfigureMapView(BattleMapViewSetup.EnsureSettings(), arena);
 
             var canvas = new GameObject("BattleCanvas", typeof(RectTransform), typeof(Canvas),
                 typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));
@@ -234,30 +236,10 @@ namespace Game.Tools.Prototype
             return label;
         }
 
-        private static void CreateArena(BattleDefinition definition, Sprite white)
+        private static BattleArenaView CreateArena(BattleDefinition definition, Sprite white)
         {
-            // A combined visual mesh; ground colors and grid lines never determine collision truth.
-            var vertices = new List<Vector3>(); var colors = new List<Color>(); var triangles = new List<int>();
-            void Quad(float x, float y, float w, float h, Color color)
-            {
-                int n = vertices.Count;
-                vertices.Add(new Vector3(x, y)); vertices.Add(new Vector3(x + w, y));
-                vertices.Add(new Vector3(x + w, y + h)); vertices.Add(new Vector3(x, y + h));
-                colors.AddRange(new[] { color, color, color, color });
-                triangles.AddRange(new[] { n, n + 2, n + 1, n, n + 3, n + 2 });
-            }
-            float left = -definition.Width / 2, bottom = -definition.Height / 2;
-            for (int y = 0; y < Mathf.CeilToInt(definition.Height); y++)
-                for (int x = 0; x < Mathf.CeilToInt(definition.Width); x++)
-                    Quad(left + x, bottom + y, Mathf.Min(1, definition.Width - x), Mathf.Min(1, definition.Height - y),
-                        (x + y) % 2 == 0 ? new Color(0.30f, 0.40f, 0.245f) : new Color(0.31f, 0.41f, 0.25f));
-            var border = new Color(0.53f, 0.56f, 0.35f);
-            Quad(left - 0.08f, bottom - 0.08f, definition.Width + 0.16f, 0.08f, border);
-            Quad(left - 0.08f, -bottom, definition.Width + 0.16f, 0.08f, border);
-            Quad(left - 0.08f, bottom, 0.08f, definition.Height, border);
-            Quad(-left, bottom, 0.08f, definition.Height, border);
             var mesh = new Mesh { name = "TrainingGround" };
-            mesh.SetVertices(vertices); mesh.SetColors(colors); mesh.SetTriangles(triangles, 0); mesh.RecalculateBounds();
+            BattleArenaMesh.Build(mesh, definition.Width, definition.Height, BattleMapViewSetup.EnsureSettings());
             AssetDatabase.CreateAsset(mesh, Shared + "TrainingGround.asset");
             var material = new Material(Shader.Find("Sprites/Default")) { name = "TrainingGround" };
             material.mainTexture = white.texture;
@@ -265,7 +247,9 @@ namespace Game.Tools.Prototype
             var ground = new GameObject("TrainingGround", typeof(MeshFilter), typeof(MeshRenderer));
             ground.GetComponent<MeshFilter>().sharedMesh = mesh;
             ground.GetComponent<MeshRenderer>().sharedMaterial = material;
-            ground.GetComponent<MeshRenderer>().sortingOrder = -100;
+            ground.GetComponent<MeshRenderer>().sortingLayerName = BattleRenderSorting.GroundLayer;
+            ground.GetComponent<MeshRenderer>().sortingOrder = 0;
+            return ground.AddComponent<BattleArenaView>();
         }
     }
 }

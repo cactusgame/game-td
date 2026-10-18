@@ -1,0 +1,5 @@
+{
+  "name": "Game.MapEngine.Domain",
+  "rootNamespace": "Game.MapEngine.Domain",
+  "noEngineReferences": true
+}
