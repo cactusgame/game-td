@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using Game.Infrastructure.Configuration;
 using Game.Presentation.Views;
 using UnityEditor;
@@ -11,17 +10,18 @@ namespace Game.Tools.Prototype
     /// <summary>更新现有地图预览、相机和场景引用，不重建单位/UI 或覆盖整个场景。</summary>
     public static class BattleMapViewSetup
     {
-        public const string SettingsPath = "Assets/Content/Maps/Prototype/map-view-settings.asset";
+        public const string SettingsPath = "Assets/Content/Combat/Prototype/presentation.json";
+
+        public static TextAsset LoadSettingsAsset()
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(SettingsPath);
+            if (asset == null) throw new InvalidOperationException("Missing presentation JSON: " + SettingsPath);
+            return asset;
+        }
 
         public static BattleMapViewSettings EnsureSettings()
         {
-            var settings = AssetDatabase.LoadAssetAtPath<BattleMapViewSettings>(SettingsPath);
-            if (settings != null) return settings;
-            Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
-            AssetDatabase.Refresh();
-            settings = ScriptableObject.CreateInstance<BattleMapViewSettings>();
-            AssetDatabase.CreateAsset(settings, SettingsPath);
-            return settings;
+            return BattlePresentationSettings.Parse(LoadSettingsAsset().text).Map;
         }
 
         public static void Apply()
@@ -35,7 +35,6 @@ namespace Game.Tools.Prototype
             var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
             var definition = JsonBattleDefinitionSource.Parse(config.text);
             var settings = EnsureSettings();
-            EditorUtility.SetDirty(settings);
             var arena = ground.GetComponent<BattleArenaView>();
             if (arena == null) arena = Undo.AddComponent<BattleArenaView>(ground);
             var mesh = ground.GetComponent<MeshFilter>().sharedMesh;
@@ -49,7 +48,7 @@ namespace Game.Tools.Prototype
             groundRenderer.sortingOrder = 0;
             EditorUtility.SetDirty(groundRenderer);
             Undo.RecordObject(view, "Configure map view");
-            view.ConfigureMapView(settings, arena);
+            view.ConfigureMapView(LoadSettingsAsset(), arena);
             EditorUtility.SetDirty(view);
             var camera = Camera.main;
             if (camera == null) throw new InvalidOperationException("The battle camera is missing.");

@@ -21,7 +21,7 @@ namespace Game.Tools.Prototype
             if (view == null) throw new InvalidOperationException("Open the battle scene before applying animations.");
             Undo.RecordObject(view, "Apply unit animations");
             view.ConfigureAnimations(hero, goblin, runner);
-            view.ConfigureDeath(ImportDeathAssets());
+            ImportDeathAssets();
             EditorUtility.SetDirty(view);
             EditorSceneManager.MarkSceneDirty(view.gameObject.scene);
             EditorSceneManager.SaveScene(view.gameObject.scene);
@@ -29,18 +29,10 @@ namespace Game.Tools.Prototype
             Debug.Log("Applied unit animations and configured delayed monster removal.");
         }
 
-        public const string DeathSettingsPath = "Assets/Content/Combat/Prototype/unit-death-settings.asset";
-        public static UnitDeathSettings ImportDeathAssets()
+        public static void ImportDeathAssets()
         {
             Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-death.png");
             Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-death.png");
-            var settings = AssetDatabase.LoadAssetAtPath<UnitDeathSettings>(DeathSettingsPath);
-            if (settings == null)
-            {
-                settings = ScriptableObject.CreateInstance<UnitDeathSettings>();
-                AssetDatabase.CreateAsset(settings, DeathSettingsPath);
-            }
-            return settings;
         }
 
         public static UnitAnimationSet Import(string path)
@@ -137,13 +129,11 @@ namespace Game.Tools.Prototype
             if (death)
             {
                 set.Death = Frames("Death");
-                set.DeathBodyHeightFraction = (idleTop - idleBottom + 1) / cellHeight;
             }
             else
             {
                 set.Idle = Frames("Idle"); set.Move = Frames("Move");
                 set.Attack = Frames("Attack"); set.Hurt = Frames("Hurt");
-                set.BodyHeightFraction = (idleTop - idleBottom + 1) / cellHeight;
             }
             EditorUtility.SetDirty(set);
             return set;

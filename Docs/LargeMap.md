@@ -8,15 +8,15 @@
 
 地图逻辑尺寸和寻路参数：`Assets/Content/Combat/Prototype/battle.json` 的 `arena`、`navigation`。
 
-相机与视觉参数：`Assets/Content/Maps/Prototype/map-view-settings.asset`。
+相机与视觉参数：`Assets/Content/Combat/Prototype/presentation.json` 的 `Map` 节点。
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
-| Visible World Height | 18 | 单屏可见的世界高度 |
-| Edge Margin | 0.75 | 地图边缘外允许显示的留白 |
-| Top Edge Margin | 2 | 上沿额外留白，避免完整角色和血条被镜头裁切 |
-| Border Thickness | 0.3 | 外沿金色边框宽度 |
-| Ground Pattern Size | 1 | 视觉地面棋盘格大小，与寻路格长独立 |
+| VisibleWorldHeight | 18 | 单屏可见的世界高度 |
+| EdgeMargin | 0.75 | 地图边缘外允许显示的留白 |
+| TopEdgeMargin | 2 | 上沿额外留白，避免完整角色和血条被镜头裁切 |
+| BorderThickness | 0.3 | 外沿金色边框宽度 |
+| GroundPatternSize | 1 | 视觉地面棋盘格大小，与寻路格长独立 |
 
 16:9 下单屏显示约 32×18 世界单位，96×54 对应约 3×3 屏。横竖屏和超宽屏按实际宽高比显示不同的世界宽度，世界尺寸保持不变。
 
@@ -46,6 +46,6 @@ Unity 编译通过，编辑器测试 49 项全部通过，包括大地图四角�
 
 现在地面、阴影和单位分别使用 Battle Ground、Battle Shadows、Battle Units 三个 Sorting Layer。单位的 Y 排序仅比较单位间前后关系，不再影响其是否在地面上方；活体、尸体和血条共用一处深度计算，并限制在渲染器合法整数范围内。排序层通过编辑器序列化 API 创建，现有层及其 ID 保留。
 
-同时新增 Top Edge Margin=2，给站在上沿的英雄头部和血条留出空间，下沿/侧沿留白仍为 0.75。
+同时新增 TopEdgeMargin=2，给站在上沿的英雄头部和血条留出空间，下沿/侧沿留白仍为 0.75。
 
 本次编译通过，55 项编辑器测试全部通过；Play Mode 在英雄 Y=26.58、两种怪物 Y=24 的场景复现并验证修复。英雄的完整 Sprite 包围盒和血条均落在视野内。修复前后画面分别为 `Docs/Validation/upper-edge-before.png`、`Docs/Validation/upper-edge-after.png`，验证后已恢复对局并退出 Play Mode。

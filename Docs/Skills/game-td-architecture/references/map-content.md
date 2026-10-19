@@ -37,7 +37,7 @@ Game/Tools/MapAuthoring/
 
 ```text
 Content/Units/Heroes/Knight/
-  KnightDefinition.asset 或配置目录
+  KnightVisual.asset 等资源引用（数值配置集中在 Combat/Prototype 的 JSON）
   KnightVisual.asset
   Sprites/
   Animations/
@@ -54,7 +54,7 @@ Content/Shared/                 共用 Shader、材质、字体、音频、Atlas
 
 按真实需要建目录，不强制每个内容类型具备所有资产种类。
 规则配置引用稳定 DefinitionId；视图目录映射 Sprite/动画/Prefab/音效/锚点。Authoring 资产可暂时合并，但导出到领域和 ECS 时分开。
-英雄、怪物等可调属性延续 JSON 配置加载约定，DTO 与验证/转换留在基础设施或 Authoring，不把 JsonUtility 带入纯领域层。
+全部可调配置统一使用 JSON；当前战斗相关配置集中放在 `Assets/Content/Combat/Prototype/`，规则为 `battle.json`，表现为 `presentation.json`。ScriptableObject 仅保留 Sprite 等资源引用，不承载可调数值。英雄、怪物等可调属性延续 JSON 配置加载约定，DTO 与验证/转换留在基础设施或 Authoring，不把 JsonUtility 带入纯领域层。
 配置在创建或替换会话前验证，明确内容版本；共享配置不保存实例当前血量、技能剩余冷却。
 保持 Windows/手机可用的加载边界；不要硬编码桌面绝对路径，StreamingAssets 等平台差异由适配器处理。
 Sprite Atlas 按加载生命周期/材质/打包需求组织，默认内置交付；无真实需要不引入 Addressables。

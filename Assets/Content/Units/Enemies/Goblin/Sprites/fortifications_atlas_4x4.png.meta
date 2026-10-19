@@ -1,0 +1,2914 @@
+fileFormatVersion: 2
+guid: f2be00a321b6eae4db544e743bedb7f8
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2357273047449346782
+    second: fortifications_atlas_4x4_0
+  - first:
+      213: 4489822503910018570
+    second: fortifications_atlas_4x4_1
+  - first:
+      213: 3228368917358591357
+    second: fortifications_atlas_4x4_2
+  - first:
+      213: -3452323897977992612
+    second: fortifications_atlas_4x4_3
+  - first:
+      213: 2323282498406681409
+    second: fortifications_atlas_4x4_4
+  - first:
+      213: 8399662393259044807
+    second: fortifications_atlas_4x4_5
+  - first:
+      213: 2814616111246073782
+    second: fortifications_atlas_4x4_6
+  - first:
+      213: 3564206597721941896
+    second: fortifications_atlas_4x4_7
+  - first:
+      213: 2447302144442223011
+    second: fortifications_atlas_4x4_8
+  - first:
+      213: 7567840448674203127
+    second: fortifications_atlas_4x4_9
+  - first:
+      213: -1725197994046976277
+    second: fortifications_atlas_4x4_10
+  - first:
+      213: 7276113027193449594
+    second: fortifications_atlas_4x4_11
+  - first:
+      213: -3135715849176493623
+    second: fortifications_atlas_4x4_12
+  - first:
+      213: 8290057484731477319
+    second: fortifications_atlas_4x4_13
+  - first:
+      213: 1056523215880545774
+    second: fortifications_atlas_4x4_14
+  - first:
+      213: -1769507024188900987
+    second: fortifications_atlas_4x4_15
+  - first:
+      213: 1369719091526740235
+    second: fortifications_atlas_4x4_16
+  - first:
+      213: -1041598596735694064
+    second: fortifications_atlas_4x4_17
+  - first:
+      213: 5010002844765638653
+    second: fortifications_atlas_4x4_18
+  - first:
+      213: -5271405389206027476
+    second: fortifications_atlas_4x4_19
+  - first:
+      213: 8268127538291694694
+    second: fortifications_atlas_4x4_20
+  - first:
+      213: -325122723696995641
+    second: fortifications_atlas_4x4_21
+  - first:
+      213: 5628135001888339437
+    second: fortifications_atlas_4x4_22
+  - first:
+      213: -3785788536364393345
+    second: fortifications_atlas_4x4_23
+  - first:
+      213: -6684459861507098759
+    second: fortifications_atlas_4x4_24
+  - first:
+      213: -6629201629085078280
+    second: fortifications_atlas_4x4_25
+  - first:
+      213: 1426615143479181195
+    second: fortifications_atlas_4x4_26
+  - first:
+      213: 8034574466374635355
+    second: fortifications_atlas_4x4_27
+  - first:
+      213: 356147526505161235
+    second: fortifications_atlas_4x4_28
+  - first:
+      213: -5906884430381333262
+    second: fortifications_atlas_4x4_29
+  - first:
+      213: -4558629535709419821
+    second: fortifications_atlas_4x4_30
+  - first:
+      213: -4169763626465269424
+    second: fortifications_atlas_4x4_31
+  - first:
+      213: 2084670128123945463
+    second: fortifications_atlas_4x4_32
+  - first:
+      213: -1973460011725650178
+    second: fortifications_atlas_4x4_33
+  - first:
+      213: -8219587175539658295
+    second: fortifications_atlas_4x4_34
+  - first:
+      213: 2676815276790394545
+    second: fortifications_atlas_4x4_35
+  - first:
+      213: -8843612612658448604
+    second: fortifications_atlas_4x4_36
+  - first:
+      213: -7187432126588837426
+    second: fortifications_atlas_4x4_37
+  - first:
+      213: -3259261899048970730
+    second: fortifications_atlas_4x4_38
+  - first:
+      213: -662701623682173925
+    second: fortifications_atlas_4x4_39
+  - first:
+      213: 8531885885931313033
+    second: fortifications_atlas_4x4_40
+  - first:
+      213: -6629964082630169525
+    second: fortifications_atlas_4x4_41
+  - first:
+      213: -1922140679936075352
+    second: fortifications_atlas_4x4_42
+  - first:
+      213: -813520289347189464
+    second: fortifications_atlas_4x4_43
+  - first:
+      213: 6362202042516751966
+    second: fortifications_atlas_4x4_44
+  - first:
+      213: -1067238099949300485
+    second: fortifications_atlas_4x4_45
+  - first:
+      213: 8361858922391559216
+    second: fortifications_atlas_4x4_46
+  - first:
+      213: 3086084071531548756
+    second: fortifications_atlas_4x4_47
+  - first:
+      213: -2479534763208111854
+    second: fortifications_atlas_4x4_48
+  - first:
+      213: 2869585938037477858
+    second: fortifications_atlas_4x4_49
+  - first:
+      213: 3069657177075946191
+    second: fortifications_atlas_4x4_50
+  - first:
+      213: 6959587527619227087
+    second: fortifications_atlas_4x4_51
+  - first:
+      213: 8982242727161677069
+    second: fortifications_atlas_4x4_52
+  - first:
+      213: -5280244510423076821
+    second: fortifications_atlas_4x4_53
+  - first:
+      213: 7186818965123887059
+    second: fortifications_atlas_4x4_54
+  - first:
+      213: -9045875398123610907
+    second: fortifications_atlas_4x4_55
+  - first:
+      213: 4367879712434248172
+    second: fortifications_atlas_4x4_56
+  - first:
+      213: 6855324853597610449
+    second: fortifications_atlas_4x4_57
+  - first:
+      213: 6662972906474756351
+    second: fortifications_atlas_4x4_58
+  - first:
+      213: 513879453636538583
+    second: fortifications_atlas_4x4_59
+  - first:
+      213: 6906407773684206781
+    second: fortifications_atlas_4x4_60
+  - first:
+      213: -981898460129627783
+    second: fortifications_atlas_4x4_61
+  - first:
+      213: -1578992526401452841
+    second: fortifications_atlas_4x4_62
+  - first:
+      213: -3098321493748852016
+    second: fortifications_atlas_4x4_63
+  - first:
+      213: -1061399631604547517
+    second: fortifications_atlas_4x4_64
+  - first:
+      213: 2188436286501445296
+    second: fortifications_atlas_4x4_65
+  - first:
+      213: -6271667973379409295
+    second: fortifications_atlas_4x4_66
+  - first:
+      213: 2462170714150951005
+    second: fortifications_atlas_4x4_67
+  - first:
+      213: 3508433782502213599
+    second: fortifications_atlas_4x4_68
+  - first:
+      213: 8516404423357778254
+    second: fortifications_atlas_4x4_69
+  - first:
+      213: -5748936590239576265
+    second: fortifications_atlas_4x4_70
+  - first:
+      213: 3309381878002517211
+    second: fortifications_atlas_4x4_71
+  - first:
+      213: -7548164639829719242
+    second: fortifications_atlas_4x4_72
+  - first:
+      213: -2273493814775853920
+    second: fortifications_atlas_4x4_73
+  - first:
+      213: 5220282145722298123
+    second: fortifications_atlas_4x4_74
+  - first:
+      213: -5752083706394942318
+    second: fortifications_atlas_4x4_75
+  - first:
+      213: -2390366410161345373
+    second: fortifications_atlas_4x4_76
+  - first:
+      213: -1308455522103888378
+    second: fortifications_atlas_4x4_77
+  - first:
+      213: 467036542573448108
+    second: fortifications_atlas_4x4_78
+  - first:
+      213: 4370962719879761395
+    second: fortifications_atlas_4x4_79
+  - first:
+      213: 4066701981722838349
+    second: fortifications_atlas_4x4_80
+  - first:
+      213: -7864806078087138285
+    second: fortifications_atlas_4x4_81
+  - first:
+      213: -4031502023886746662
+    second: fortifications_atlas_4x4_82
+  - first:
+      213: 2814951305886365809
+    second: fortifications_atlas_4x4_83
+  - first:
+      213: 5546955498153691711
+    second: fortifications_atlas_4x4_84
+  - first:
+      213: 5607934615882837723
+    second: fortifications_atlas_4x4_85
+  - first:
+      213: 3332219808456814988
+    second: fortifications_atlas_4x4_86
+  - first:
+      213: 7775915799927821737
+    second: fortifications_atlas_4x4_87
+  - first:
+      213: -445657505974704334
+    second: fortifications_atlas_4x4_88
+  - first:
+      213: -8242830278488188222
+    second: fortifications_atlas_4x4_89
+  - first:
+      213: -1898817853657478153
+    second: fortifications_atlas_4x4_90
+  - first:
+      213: -8624919198678775765
+    second: fortifications_atlas_4x4_91
+  - first:
+      213: 4834385991374266260
+    second: fortifications_atlas_4x4_92
+  - first:
+      213: -3766178429230832038
+    second: fortifications_atlas_4x4_93
+  - first:
+      213: 1471470339424227147
+    second: fortifications_atlas_4x4_94
+  - first:
+      213: -5407798758834645958
+    second: fortifications_atlas_4x4_95
+  - first:
+      213: -6765887311005219087
+    second: fortifications_atlas_4x4_96
+  - first:
+      213: -3524520500703096980
+    second: fortifications_atlas_4x4_97
+  - first:
+      213: 4345421679663304909
+    second: fortifications_atlas_4x4_98
+  - first:
+      213: 1666990354927276898
+    second: fortifications_atlas_4x4_99
+  - first:
+      213: 4943574214259196873
+    second: fortifications_atlas_4x4_100
+  - first:
+      213: 8956575998497286569
+    second: fortifications_atlas_4x4_101
+  - first:
+      213: 7108837386548289234
+    second: fortifications_atlas_4x4_102
+  - first:
+      213: -6593548387299697144
+    second: fortifications_atlas_4x4_103
+  - first:
+      213: -8949458047378183358
+    second: fortifications_atlas_4x4_104
+  - first:
+      213: 119150453285332947
+    second: fortifications_atlas_4x4_105
+  - first:
+      213: -4168160029039293579
+    second: fortifications_atlas_4x4_106
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_0
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 1226
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22ddd2817a8494fd0800000000000000
+      internalID: -2357273047449346782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_1
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 854
+        width: 201
+        height: 373
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0e8c1a77cd0f4e30800000000000000
+      internalID: 4489822503910018570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_2
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 863
+        width: 291
+        height: 364
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7d321bfc687dcc20800000000000000
+      internalID: 3228368917358591357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1190
+        width: 5
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5a0e6bb4b1e610d0800000000000000
+      internalID: -3452323897977992612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_4
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 1185
+        width: 52
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14b896e7f15fd3020800000000000000
+      internalID: 2323282498406681409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_5
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 1152
+        width: 37
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cfa96f7178919470800000000000000
+      internalID: 8399662393259044807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_6
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 1140
+        width: 72
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bfd9e1d0768f0720800000000000000
+      internalID: 2814616111246073782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_7
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 1184
+        width: 25
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 887e153440b967130800000000000000
+      internalID: 3564206597721941896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_8
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 1110
+        width: 87
+        height: 107
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a9c781855096f120800000000000000
+      internalID: 2447302144442223011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_9
+      rect:
+        serializedVersion: 2
+        x: 597
+        y: 827
+        width: 382
+        height: 392
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f50f0cbace560960800000000000000
+      internalID: 7567840448674203127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_10
+      rect:
+        serializedVersion: 2
+        x: 695
+        y: 1182
+        width: 24
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bee0d9d909dde08e0800000000000000
+      internalID: -1725197994046976277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_11
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 1200
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c257b6f32f9f460800000000000000
+      internalID: 7276113027193449594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_12
+      rect:
+        serializedVersion: 2
+        x: 750
+        y: 1200
+        width: 11
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c1d5458c03bb74d0800000000000000
+      internalID: -3135715849176493623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_13
+      rect:
+        serializedVersion: 2
+        x: 764
+        y: 1200
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74decf81c533c0370800000000000000
+      internalID: 8290057484731477319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_14
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 1146
+        width: 28
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee56383644689ae00800000000000000
+      internalID: 1056523215880545774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_15
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 1168
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58979ab9cb27177e0800000000000000
+      internalID: -1769507024188900987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_16
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 1124
+        width: 49
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b09a584b148320310800000000000000
+      internalID: 1369719091526740235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_17
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 1172
+        width: 18
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01b060b489f7b81f0800000000000000
+      internalID: -1041598596735694064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_18
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1178
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dffc3fd0b0b178540800000000000000
+      internalID: 5010002844765638653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_19
+      rect:
+        serializedVersion: 2
+        x: 222
+        y: 1150
+        width: 35
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c238b454ab438d6b0800000000000000
+      internalID: -5271405389206027476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_20
+      rect:
+        serializedVersion: 2
+        x: 286
+        y: 1132
+        width: 40
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66c508d803a4eb270800000000000000
+      internalID: 8268127538291694694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 875
+        width: 404
+        height: 238
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c212a9fa9eec7bf0800000000000000
+      internalID: -325122723696995641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_22
+      rect:
+        serializedVersion: 2
+        x: 949
+        y: 1100
+        width: 18
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de53f7f07f62b1e40800000000000000
+      internalID: 5628135001888339437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_23
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 1057
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7c1147526d267bc0800000000000000
+      internalID: -3785788536364393345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_24
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 1029
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9773387fb270c33a0800000000000000
+      internalID: -6684459861507098759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_25
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 915
+        width: 13
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fc61f9cd385004a0800000000000000
+      internalID: -6629201629085078280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_26
+      rect:
+        serializedVersion: 2
+        x: 927
+        y: 937
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8ff44a1aea5cc310800000000000000
+      internalID: 1426615143479181195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_27
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 921
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5f0fad78ea808f60800000000000000
+      internalID: 8034574466374635355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_28
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 905
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31269f4d94a41f400800000000000000
+      internalID: 356147526505161235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_29
+      rect:
+        serializedVersion: 2
+        x: 556
+        y: 899
+        width: 20
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f4c5d518e7860ea0800000000000000
+      internalID: -5906884430381333262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_30
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 881
+        width: 35
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d6af65079e7cb0c0800000000000000
+      internalID: -4558629535709419821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_31
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 893
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0596137f2160226c0800000000000000
+      internalID: -4169763626465269424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_32
+      rect:
+        serializedVersion: 2
+        x: 820
+        y: 891
+        width: 20
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f122bcbf6c3eec10800000000000000
+      internalID: 2084670128123945463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_33
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 884
+        width: 14
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef687ae339cdc94e0800000000000000
+      internalID: -1973460011725650178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_34
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 892
+        width: 13
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c13a9953092eed80800000000000000
+      internalID: -8219587175539658295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_35
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 887
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1be2e66df45f52520800000000000000
+      internalID: 2676815276790394545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_36
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 863
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 427345b2f2d254580800000000000000
+      internalID: -8843612612658448604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_37
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 885
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec1217fbf8c114c90800000000000000
+      internalID: -7187432126588837426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_38
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 883
+        width: 19
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61698353296c4c2d0800000000000000
+      internalID: -3259261899048970730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_39
+      rect:
+        serializedVersion: 2
+        x: 714
+        y: 883
+        width: 13
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b147958626c9dc6f0800000000000000
+      internalID: -662701623682173925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_40
+      rect:
+        serializedVersion: 2
+        x: 865
+        y: 859
+        width: 17
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 987da176209576670800000000000000
+      internalID: 8531885885931313033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_41
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 870
+        width: 29
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4cea3d3bc2adf3a0800000000000000
+      internalID: -6629964082630169525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_42
+      rect:
+        serializedVersion: 2
+        x: 1135
+        y: 873
+        width: 25
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a9151c4c3f2355e0800000000000000
+      internalID: -1922140679936075352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_43
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 614
+        width: 328
+        height: 265
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82543e76b9bc5b4f0800000000000000
+      internalID: -813520289347189464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_44
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 875
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e56c97d9c051b4850800000000000000
+      internalID: 6362202042516751966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_45
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 869
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf452c14a986031f0800000000000000
+      internalID: -1067238099949300485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_46
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 865
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03c541b036a4b0470800000000000000
+      internalID: 8361858922391559216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_47
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 858
+        width: 25
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45011aebc19f3da20800000000000000
+      internalID: 3086084071531548756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_48
+      rect:
+        serializedVersion: 2
+        x: 1076
+        y: 871
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2198fbe154ce69dd0800000000000000
+      internalID: -2479534763208111854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_49
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 815
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e11e29f431d2d720800000000000000
+      internalID: 2869585938037477858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_50
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 849
+        width: 11
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc217d550fc999a20800000000000000
+      internalID: 3069657177075946191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_51
+      rect:
+        serializedVersion: 2
+        x: 959
+        y: 582
+        width: 302
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcdabfe9bfb659060800000000000000
+      internalID: 6959587527619227087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_52
+      rect:
+        serializedVersion: 2
+        x: 1215
+        y: 865
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d05cece9b2657ac70800000000000000
+      internalID: 8982242727161677069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_53
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 609
+        width: 327
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b20b60df79dc8b6b0800000000000000
+      internalID: -5280244510423076821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_54
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 839
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dfef3975c5bcb360800000000000000
+      internalID: 7186818965123887059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_55
+      rect:
+        serializedVersion: 2
+        x: 675
+        y: 550
+        width: 282
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ec9564a048967280800000000000000
+      internalID: -9045875398123610907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_56
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 753
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce95749d473dd9c30800000000000000
+      internalID: 4367879712434248172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_57
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 639
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d1a79e12a1032f50800000000000000
+      internalID: 6855324853597610449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_58
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 639
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff8da767e82a77c50800000000000000
+      internalID: 6662972906474756351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_59
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 639
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d0b063f3aaa12700800000000000000
+      internalID: 513879453636538583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_60
+      rect:
+        serializedVersion: 2
+        x: 645
+        y: 640
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbc8178474d78df50800000000000000
+      internalID: 6906407773684206781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_61
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 307
+        width: 375
+        height: 312
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97178768d889f52f0800000000000000
+      internalID: -981898460129627783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_62
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 615
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d448d0c9aa461ae0800000000000000
+      internalID: -1578992526401452841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_63
+      rect:
+        serializedVersion: 2
+        x: 552
+        y: 608
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0da542d540d8005d0800000000000000
+      internalID: -3098321493748852016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_64
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 606
+        width: 15
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3400b7998a62541f0800000000000000
+      internalID: -1061399631604547517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_65
+      rect:
+        serializedVersion: 2
+        x: 939
+        y: 614
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0be5e7e2533ee5e10800000000000000
+      internalID: 2188436286501445296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_66
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 616
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17ab689f43f86f8a0800000000000000
+      internalID: -6271667973379409295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_67
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 308
+        width: 354
+        height: 303
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d58565928336b2220800000000000000
+      internalID: 2462170714150951005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_68
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 590
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd7460ccfe570b030800000000000000
+      internalID: 3508433782502213599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_69
+      rect:
+        serializedVersion: 2
+        x: 776
+        y: 582
+        width: 23
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e494ec183b8503670800000000000000
+      internalID: 8516404423357778254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_70
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 566
+        width: 30
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73f468e51aca730b0800000000000000
+      internalID: -5748936590239576265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_71
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 584
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd48470c8494ded20800000000000000
+      internalID: 3309381878002517211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_72
+      rect:
+        serializedVersion: 2
+        x: 1060
+        y: 252
+        width: 214
+        height: 360
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63709c080488f3790800000000000000
+      internalID: -7548164639829719242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_73
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 567
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0accc33cb6de270e0800000000000000
+      internalID: -2273493814775853920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_74
+      rect:
+        serializedVersion: 2
+        x: 707
+        y: 246
+        width: 346
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0f671b04fa227840800000000000000
+      internalID: 5220282145722298123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_75
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 530
+        width: 25
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 294640a485e7c20b0800000000000000
+      internalID: -5752083706394942318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_76
+      rect:
+        serializedVersion: 2
+        x: 1048
+        y: 366
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3acae472a66b3ded0800000000000000
+      internalID: -2390366410161345373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_77
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 320
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 606799892ae67dde0800000000000000
+      internalID: -1308455522103888378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_78
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 322
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cab8731d24f3b7600800000000000000
+      internalID: 467036542573448108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_79
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 322
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fd88e47f67c8ac30800000000000000
+      internalID: 4370962719879761395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_80
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 308
+        width: 28
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4587f3f7e3df6830800000000000000
+      internalID: 4066701981722838349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_81
+      rect:
+        serializedVersion: 2
+        x: 355
+        y: 318
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3147840aa889ad290800000000000000
+      internalID: -7864806078087138285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_82
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 312
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adb46f2e44a3d08c0800000000000000
+      internalID: -4031502023886746662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_83
+      rect:
+        serializedVersion: 2
+        x: 1032
+        y: 312
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 178f0676c47b01720800000000000000
+      internalID: 2814951305886365809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_84
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 695
+        height: 313
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3ac954f2aebafc40800000000000000
+      internalID: 5546955498153691711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_85
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 292
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bde205f22d263dd40800000000000000
+      internalID: 5607934615882837723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_86
+      rect:
+        serializedVersion: 2
+        x: 343
+        y: 294
+        width: 21
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c81b69cc24c6e3e20800000000000000
+      internalID: 3332219808456814988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_87
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 304
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a59b02b83a99eb60800000000000000
+      internalID: 7775915799927821737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_88
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 304
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23724e80cd4b0d9f0800000000000000
+      internalID: -445657505974704334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_89
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 278
+        width: 28
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ca90eab8859b9d80800000000000000
+      internalID: -8242830278488188222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_90
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 258
+        width: 39
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fb8393f83b06a5e0800000000000000
+      internalID: -1898817853657478153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_91
+      rect:
+        serializedVersion: 2
+        x: 1090
+        y: 264
+        width: 14
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b280e428fa12e4880800000000000000
+      internalID: -8624919198678775765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_92
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 274
+        width: 38
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49fdcfa0270371340800000000000000
+      internalID: 4834385991374266260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_93
+      rect:
+        serializedVersion: 2
+        x: 1199
+        y: 276
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5625f43ca8dbbbc0800000000000000
+      internalID: -3766178429230832038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_94
+      rect:
+        serializedVersion: 2
+        x: 1080
+        y: 264
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4f87ee3a76bb6410800000000000000
+      internalID: 1471470339424227147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_95
+      rect:
+        serializedVersion: 2
+        x: 1121
+        y: 254
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a34dcda3ea3a3f4b0800000000000000
+      internalID: -5407798758834645958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_96
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 240
+        width: 11
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f6063d765dba12a0800000000000000
+      internalID: -6765887311005219087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_97
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 246
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6f82004743661fc0800000000000000
+      internalID: -3524520500703096980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_98
+      rect:
+        serializedVersion: 2
+        x: 913
+        y: 248
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc0dc9f9ef90e4c30800000000000000
+      internalID: 4345421679663304909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_99
+      rect:
+        serializedVersion: 2
+        x: 970
+        y: 207
+        width: 29
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 263517d45e6522710800000000000000
+      internalID: 1666990354927276898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_100
+      rect:
+        serializedVersion: 2
+        x: 1022
+        y: 245
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c343b14e8a1b9440800000000000000
+      internalID: 4943574214259196873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_101
+      rect:
+        serializedVersion: 2
+        x: 707
+        y: 25
+        width: 252
+        height: 222
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a9683aaa662c4c70800000000000000
+      internalID: 8956575998497286569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_102
+      rect:
+        serializedVersion: 2
+        x: 943
+        y: 189
+        width: 32
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2de1a3750f9a7a260800000000000000
+      internalID: 7108837386548289234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_103
+      rect:
+        serializedVersion: 2
+        x: 964
+        y: 223
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80ed6a50da20f74a0800000000000000
+      internalID: -6593548387299697144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_104
+      rect:
+        serializedVersion: 2
+        x: 990
+        y: 29
+        width: 267
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24b23c972532dc380800000000000000
+      internalID: -8949458047378183358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_105
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 181
+        width: 30
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d726eab4be47a100800000000000000
+      internalID: 119150453285332947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fortifications_atlas_4x4_106
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 189
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57b81269988b726c0800000000000000
+      internalID: -4168160029039293579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      fortifications_atlas_4x4_0: -2357273047449346782
+      fortifications_atlas_4x4_1: 4489822503910018570
+      fortifications_atlas_4x4_10: -1725197994046976277
+      fortifications_atlas_4x4_100: 4943574214259196873
+      fortifications_atlas_4x4_101: 8956575998497286569
+      fortifications_atlas_4x4_102: 7108837386548289234
+      fortifications_atlas_4x4_103: -6593548387299697144
+      fortifications_atlas_4x4_104: -8949458047378183358
+      fortifications_atlas_4x4_105: 119150453285332947
+      fortifications_atlas_4x4_106: -4168160029039293579
+      fortifications_atlas_4x4_11: 7276113027193449594
+      fortifications_atlas_4x4_12: -3135715849176493623
+      fortifications_atlas_4x4_13: 8290057484731477319
+      fortifications_atlas_4x4_14: 1056523215880545774
+      fortifications_atlas_4x4_15: -1769507024188900987
+      fortifications_atlas_4x4_16: 1369719091526740235
+      fortifications_atlas_4x4_17: -1041598596735694064
+      fortifications_atlas_4x4_18: 5010002844765638653
+      fortifications_atlas_4x4_19: -5271405389206027476
+      fortifications_atlas_4x4_2: 3228368917358591357
+      fortifications_atlas_4x4_20: 8268127538291694694
+      fortifications_atlas_4x4_21: -325122723696995641
+      fortifications_atlas_4x4_22: 5628135001888339437
+      fortifications_atlas_4x4_23: -3785788536364393345
+      fortifications_atlas_4x4_24: -6684459861507098759
+      fortifications_atlas_4x4_25: -6629201629085078280
+      fortifications_atlas_4x4_26: 1426615143479181195
+      fortifications_atlas_4x4_27: 8034574466374635355
+      fortifications_atlas_4x4_28: 356147526505161235
+      fortifications_atlas_4x4_29: -5906884430381333262
+      fortifications_atlas_4x4_3: -3452323897977992612
+      fortifications_atlas_4x4_30: -4558629535709419821
+      fortifications_atlas_4x4_31: -4169763626465269424
+      fortifications_atlas_4x4_32: 2084670128123945463
+      fortifications_atlas_4x4_33: -1973460011725650178
+      fortifications_atlas_4x4_34: -8219587175539658295
+      fortifications_atlas_4x4_35: 2676815276790394545
+      fortifications_atlas_4x4_36: -8843612612658448604
+      fortifications_atlas_4x4_37: -7187432126588837426
+      fortifications_atlas_4x4_38: -3259261899048970730
+      fortifications_atlas_4x4_39: -662701623682173925
+      fortifications_atlas_4x4_4: 2323282498406681409
+      fortifications_atlas_4x4_40: 8531885885931313033
+      fortifications_atlas_4x4_41: -6629964082630169525
+      fortifications_atlas_4x4_42: -1922140679936075352
+      fortifications_atlas_4x4_43: -813520289347189464
+      fortifications_atlas_4x4_44: 6362202042516751966
+      fortifications_atlas_4x4_45: -1067238099949300485
+      fortifications_atlas_4x4_46: 8361858922391559216
+      fortifications_atlas_4x4_47: 3086084071531548756
+      fortifications_atlas_4x4_48: -2479534763208111854
+      fortifications_atlas_4x4_49: 2869585938037477858
+      fortifications_atlas_4x4_5: 8399662393259044807
+      fortifications_atlas_4x4_50: 3069657177075946191
+      fortifications_atlas_4x4_51: 6959587527619227087
+      fortifications_atlas_4x4_52: 8982242727161677069
+      fortifications_atlas_4x4_53: -5280244510423076821
+      fortifications_atlas_4x4_54: 7186818965123887059
+      fortifications_atlas_4x4_55: -9045875398123610907
+      fortifications_atlas_4x4_56: 4367879712434248172
+      fortifications_atlas_4x4_57: 6855324853597610449
+      fortifications_atlas_4x4_58: 6662972906474756351
+      fortifications_atlas_4x4_59: 513879453636538583
+      fortifications_atlas_4x4_6: 2814616111246073782
+      fortifications_atlas_4x4_60: 6906407773684206781
+      fortifications_atlas_4x4_61: -981898460129627783
+      fortifications_atlas_4x4_62: -1578992526401452841
+      fortifications_atlas_4x4_63: -3098321493748852016
+      fortifications_atlas_4x4_64: -1061399631604547517
+      fortifications_atlas_4x4_65: 2188436286501445296
+      fortifications_atlas_4x4_66: -6271667973379409295
+      fortifications_atlas_4x4_67: 2462170714150951005
+      fortifications_atlas_4x4_68: 3508433782502213599
+      fortifications_atlas_4x4_69: 8516404423357778254
+      fortifications_atlas_4x4_7: 3564206597721941896
+      fortifications_atlas_4x4_70: -5748936590239576265
+      fortifications_atlas_4x4_71: 3309381878002517211
+      fortifications_atlas_4x4_72: -7548164639829719242
+      fortifications_atlas_4x4_73: -2273493814775853920
+      fortifications_atlas_4x4_74: 5220282145722298123
+      fortifications_atlas_4x4_75: -5752083706394942318
+      fortifications_atlas_4x4_76: -2390366410161345373
+      fortifications_atlas_4x4_77: -1308455522103888378
+      fortifications_atlas_4x4_78: 467036542573448108
+      fortifications_atlas_4x4_79: 4370962719879761395
+      fortifications_atlas_4x4_8: 2447302144442223011
+      fortifications_atlas_4x4_80: 4066701981722838349
+      fortifications_atlas_4x4_81: -7864806078087138285
+      fortifications_atlas_4x4_82: -4031502023886746662
+      fortifications_atlas_4x4_83: 2814951305886365809
+      fortifications_atlas_4x4_84: 5546955498153691711
+      fortifications_atlas_4x4_85: 5607934615882837723
+      fortifications_atlas_4x4_86: 3332219808456814988
+      fortifications_atlas_4x4_87: 7775915799927821737
+      fortifications_atlas_4x4_88: -445657505974704334
+      fortifications_atlas_4x4_89: -8242830278488188222
+      fortifications_atlas_4x4_9: 7567840448674203127
+      fortifications_atlas_4x4_90: -1898817853657478153
+      fortifications_atlas_4x4_91: -8624919198678775765
+      fortifications_atlas_4x4_92: 4834385991374266260
+      fortifications_atlas_4x4_93: -3766178429230832038
+      fortifications_atlas_4x4_94: 1471470339424227147
+      fortifications_atlas_4x4_95: -5407798758834645958
+      fortifications_atlas_4x4_96: -6765887311005219087
+      fortifications_atlas_4x4_97: -3524520500703096980
+      fortifications_atlas_4x4_98: 4345421679663304909
+      fortifications_atlas_4x4_99: 1666990354927276898
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -37,9 +37,3 @@ MonoBehaviour:
   - {fileID: -1884819053, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
   - {fileID: 29207638, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
   - {fileID: 1690473165, guid: e965add9e5197cd4a8a854be5506e403, type: 3}
-  IdleFps: 5
-  MoveFps: 9
-  AttackFps: 10
-  HurtFps: 14
-  BodyHeightFraction: 0.6698565
-  DeathBodyHeightFraction: 0.7001595

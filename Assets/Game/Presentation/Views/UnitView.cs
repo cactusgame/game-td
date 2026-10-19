@@ -17,16 +17,22 @@ namespace Game.Presentation.Views
         private float _walkPhase;
         private readonly UnitAnimationSet _animations;
         private readonly UnitDeathSettings _deathSettings;
+        private readonly UnitAnimationSettings _animationSettings;
+        private double AttackDuration => (_animations.Attack?.Length ?? 0) / (double)_animationSettings.AttackFps;
+        private double HurtDuration => (_animations.Hurt?.Length ?? 0) / (double)_animationSettings.HurtFps;
         private double _deathStart = -1;
         public bool ReadyForRemoval { get; private set; }
         private double _lastRenderTime = -1, _loopStart;
         private bool _moving;
         public UnitView(Transform parent, Sprite sprite, Sprite white, Sprite circle,
             float height, float radius, Color teamColor, UnitAnimationSet animations = null,
-            UnitDeathSettings deathSettings = null)
+            UnitDeathSettings deathSettings = null, UnitAnimationSettings animationSettings = null)
         {
             _animations = animations;
             _deathSettings = deathSettings;
+            _animationSettings = animationSettings;
+            if (animations != null && animationSettings == null)
+                throw new System.ArgumentNullException(nameof(animationSettings));
             if (animations != null && animations.Idle.Length > 0) sprite = animations.Idle[0];
             _height = height;
             _root = new GameObject("UnitView"); _root.transform.SetParent(parent, false);
@@ -34,7 +40,7 @@ namespace Game.Presentation.Views
             _shadow.sortingLayerName = BattleRenderSorting.ShadowLayer;
             _shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
             _body = Child("Sprite", sprite, Color.white);
-            float scale = height / (sprite.bounds.size.y * (animations != null ? animations.BodyHeightFraction : 1));
+            float scale = height / (sprite.bounds.size.y * (animations != null ? animationSettings.BodyHeightFraction : 1));
             _body.transform.localScale = Vector3.one * scale;
             var back = Child("HealthBackground", white, new Color(0.1f, 0.12f, 0.09f, 1));
             back.transform.localPosition = new Vector3(0, height + 0.1f, 0);
@@ -91,15 +97,15 @@ namespace Game.Presentation.Views
                 double hitAge = simulationTime - state.LastHitTime;
                 double attackAge = simulationTime - state.LastAttackTime;
                 // 同次接触同时挥击和受伤：先播完整挥击，再接受伤反馈，避免某一类动作永久被遮蔽。
-                double hurtDelay = state.LastAttackTime == state.LastHitTime ? _animations.AttackDuration : 0;
+                double hurtDelay = state.LastAttackTime == state.LastHitTime ? AttackDuration : 0;
                 Sprite frame;
-                if (attackAge >= 0 && attackAge < _animations.AttackDuration)
-                    frame = _animations.Frame(_animations.Attack, attackAge, _animations.AttackFps, false);
-                else if (hitAge >= hurtDelay && hitAge < hurtDelay + _animations.HurtDuration)
-                    frame = _animations.Frame(_animations.Hurt, hitAge - hurtDelay, _animations.HurtFps, false);
+                if (attackAge >= 0 && attackAge < AttackDuration)
+                    frame = _animations.Frame(_animations.Attack, attackAge, _animationSettings.AttackFps, false);
+                else if (hitAge >= hurtDelay && hitAge < hurtDelay + HurtDuration)
+                    frame = _animations.Frame(_animations.Hurt, hitAge - hurtDelay, _animationSettings.HurtFps, false);
                 else
                     frame = _animations.Frame(moving ? _animations.Move : _animations.Idle,
-                        simulationTime - _loopStart, moving ? _animations.MoveFps : _animations.IdleFps, true);
+                        simulationTime - _loopStart, moving ? _animationSettings.MoveFps : _animationSettings.IdleFps, true);
                 if (frame != null) _body.sprite = frame;
             }
             // 受伤发生时点来自模拟；这里只决定反馈颜色，不通过动画回调决定伤害。
@@ -127,7 +133,7 @@ namespace Game.Presentation.Views
             if (_animations != null && _animations.Death != null && _animations.Death.Length > 0)
             {
                 _body.transform.localScale = Vector3.one * (_height /
-                    (_animations.Death[0].bounds.size.y * _animations.DeathBodyHeightFraction));
+                    (_animations.Death[0].bounds.size.y * _animationSettings.DeathBodyHeightFraction));
                 float fps = _animations.Death.Length / _deathSettings.Duration;
                 _body.sprite = _animations.Frame(_animations.Death, age, fps, false);
             }

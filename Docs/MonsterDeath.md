@@ -1,13 +1,13 @@
 # 怪物死亡与延迟移除
 
-统一配置：`Assets/Content/Combat/Prototype/unit-death-settings.asset`。
+统一配置：`Assets/Content/Combat/Prototype/presentation.json` 的 `Death` 节点。
 
-在 Unity Project 中选中此资源，直接修改 Inspector：
+直接编辑 JSON，重新启动或重启对局后生效：
 
 | 字段 | 默认值 | 含义 |
 | --- | --- | --- |
-| Animation Seconds | 0.6 秒 | 完整死亡动画的播放时长 |
-| Corpse Hold Seconds | 1.5 秒 | 动画结束后保留倒地姿势的时长 |
+| AnimationSeconds | 0.6 秒 | 完整死亡动画的播放时长 |
+| CorpseHoldSeconds | 1.5 秒 | 动画结束后保留倒地姿势的时长 |
 
 默认从首次显示死亡状态起约 2.1 秒后移除。停留设为 0 时，动画播完就移除。两种怪物共用同一个配置；重新导入动作资源不会覆盖已修改的时长。
 

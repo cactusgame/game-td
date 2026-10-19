@@ -268,10 +268,10 @@ TextureImporter:
       name: Idle_3
       rect:
         serializedVersion: 2
-        x: 940.5
-        y: 940.5
-        width: 313.5
-        height: 313.5
+        x: 940
+        y: 940
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.16427432}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -291,9 +291,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 627
-        width: 313.5
-        height: 313.5
+        y: 628
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.16267942}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -312,10 +312,10 @@ TextureImporter:
       name: Move_1
       rect:
         serializedVersion: 2
-        x: 313.5
-        y: 627
-        width: 313.5
-        height: 313.5
+        x: 314
+        y: 629
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.15948963}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -335,9 +335,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 627
-        y: 627
-        width: 313.5
-        height: 313.5
+        y: 630
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.18500797}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -356,10 +356,10 @@ TextureImporter:
       name: Move_3
       rect:
         serializedVersion: 2
-        x: 940.5
-        y: 627
-        width: 313.5
-        height: 313.5
+        x: 940
+        y: 628
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.15948963}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -400,10 +400,10 @@ TextureImporter:
       name: Attack_1
       rect:
         serializedVersion: 2
-        x: 313.5
-        y: 313.5
-        width: 313.5
-        height: 313.5
+        x: 314
+        y: 314
+        width: 314
+        height: 314
       alignment: 9
       pivot: {x: 0.5, y: 0.19617225}
       border: {x: 0, y: 0, z: 0, w: 0}

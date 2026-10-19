@@ -12,15 +12,15 @@ namespace Game.Presentation.Views
         [SerializeField] private Sprite knight, goblin, runner, white, circle;
         [SerializeField] private Camera battleCamera;
         [SerializeField] private UnitAnimationSet knightAnimations, goblinAnimations, runnerAnimations;
-        [SerializeField] private UnitDeathSettings deathSettings;
-        [SerializeField] private BattleMapViewSettings mapViewSettings;
+        [SerializeField] private TextAsset presentationConfig;
+        private BattlePresentationSettings _settings;
+        private BattleMapViewSettings mapViewSettings => _settings.Map;
         [SerializeField] private BattleArenaView arenaView;
-        public void ConfigureMapView(BattleMapViewSettings settings, BattleArenaView arena)
+        public void ConfigureMapView(TextAsset settings, BattleArenaView arena)
         {
-            mapViewSettings = settings;
+            presentationConfig = settings;
             arenaView = arena;
         }
-        public void ConfigureDeath(UnitDeathSettings settings) { deathSettings = settings; }
         public void ConfigureAnimations(UnitAnimationSet hero, UnitAnimationSet basic, UnitAnimationSet fast)
         { knightAnimations = hero; goblinAnimations = basic; runnerAnimations = fast; }
         private BattleSession _session;
@@ -39,6 +39,8 @@ namespace Game.Presentation.Views
             if (_session?.Definition == null) return;
             if (_generation != _session.Generation)
             {
+                _settings = BattlePresentationSettings.Parse(presentationConfig != null ? presentationConfig.text
+                    : throw new System.InvalidOperationException("Presentation JSON is missing."));
                 // 重启后单位 ID 可以重新使用，因此先清除上一局的显示对象，避免复用旧配置或残留单位。
                 foreach (Transform child in transform) Destroy(child.gameObject);
                 _views.Clear();
@@ -58,7 +60,7 @@ namespace Game.Presentation.Views
                     var sprite = unit.Kind == UnitKind.Hero ? knight : unit.Kind == UnitKind.Goblin ? goblin : runner;
                     var animations = unit.Kind == UnitKind.Hero ? knightAnimations : unit.Kind == UnitKind.Goblin ? goblinAnimations : runnerAnimations;
                     view = new UnitView(transform, sprite, white, circle, definition.VisualHeight, definition.Radius,
-                        unit.Kind == UnitKind.Hero ? new Color(0.38f, 0.78f, 0.98f) : new Color(0.83f, 0.38f, 0.29f), animations, deathSettings);
+                        unit.Kind == UnitKind.Hero ? new Color(0.38f, 0.78f, 0.98f) : new Color(0.83f, 0.38f, 0.29f), animations, _settings.Death, _settings.AnimationFor(unit.Kind));
                     _views.Add(unit.Id, view);
                 }
                 // 传递的是数据副本。显示位置、血条和朝向不会反向修改模拟的真实状态。

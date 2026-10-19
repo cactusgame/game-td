@@ -17,8 +17,7 @@ namespace Game.Battle.Tests
         [Test] public void DefaultLargeMapIsNineLandscapeViewsAndNavigationCoversIt()
         {
             var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
-            var settings = UnityEditor.AssetDatabase.LoadAssetAtPath<BattleMapViewSettings>(
-                "Assets/Content/Maps/Prototype/map-view-settings.asset");
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Map;
             Assert.That(settings, Is.Not.Null);
             float visibleWidth = settings.VisibleWorldHeight * 16 / 9;
             Assert.That(definition.Width / visibleWidth, Is.EqualTo(3).Within(0.0001));

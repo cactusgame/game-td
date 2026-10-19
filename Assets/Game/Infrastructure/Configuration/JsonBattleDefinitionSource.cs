@@ -23,7 +23,7 @@ namespace Game.Infrastructure.Configuration
             return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin),
                 data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners,
                 data.arena.width, data.arena.height, data.fixedStep, data.seed,
-                new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds));
+                new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius));
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
@@ -41,6 +41,7 @@ namespace Game.Infrastructure.Configuration
         {
             public float cellSize;
             public float detectionRadius;
+            public float loseTargetRadius;
             public float repathSeconds;
         }
         [Serializable] private sealed class ArenaJson { public float width, height; }

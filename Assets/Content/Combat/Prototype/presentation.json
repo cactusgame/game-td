@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "Death": {
+    "AnimationSeconds": 0.6,
+    "CorpseHoldSeconds": 1.5
+  },
+  "Map": {
+    "VisibleWorldHeight": 18,
+    "EdgeMargin": 0.75,
+    "TopEdgeMargin": 2,
+    "BorderThickness": 0.3,
+    "GroundPatternSize": 1,
+    "GroundLight": {
+      "r": 0.31,
+      "g": 0.41,
+      "b": 0.25,
+      "a": 1
+    },
+    "GroundDark": {
+      "r": 0.3,
+      "g": 0.4,
+      "b": 0.245,
+      "a": 1
+    },
+    "BorderColor": {
+      "r": 0.93,
+      "g": 0.73,
+      "b": 0.32,
+      "a": 1
+    }
+  },
+  "Knight": {
+    "IdleFps": 5,
+    "MoveFps": 9,
+    "AttackFps": 10,
+    "HurtFps": 14,
+    "BodyHeightFraction": 0.6539075,
+    "DeathBodyHeightFraction": 0.6
+  },
+  "Goblin": {
+    "IdleFps": 5,
+    "MoveFps": 9,
+    "AttackFps": 10,
+    "HurtFps": 14,
+    "BodyHeightFraction": 0.6092504,
+    "DeathBodyHeightFraction": 0.7448166
+  },
+  "Runner": {
+    "IdleFps": 5,
+    "MoveFps": 9,
+    "AttackFps": 10,
+    "HurtFps": 14,
+    "BodyHeightFraction": 0.6698565,
+    "DeathBodyHeightFraction": 0.7001595
+  }
+}

@@ -35,7 +35,6 @@ namespace Game.Battle.Simulation
             var heroGround = SystemAPI.GetComponent<GroundTransform>(hero);
             bool heroAlive = SystemAPI.GetComponent<Vitals>(hero).Health > 0;
             double now = SystemAPI.Time.ElapsedTime;
-            float rangeSquared = _definition.DetectionRadius * _definition.DetectionRadius;
             bool heroInMap = _map.TryWorldToCell(heroGround.Position.x, heroGround.Position.y, out var goal);
 
             // Query 会完成此前移动 Job 对位置、导航进度和路径 Buffer 的冲突依赖。
@@ -44,6 +43,9 @@ namespace Game.Battle.Simulation
                 RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>,
                 RefRW<WanderState>, DynamicBuffer<NavigationWaypoint>>().WithAll<MonsterTag>())
             {
+                float radius = navigation.ValueRO.IsChasing != 0
+                    ? _definition.LoseTargetRadius : _definition.DetectionRadius;
+                float rangeSquared = radius * radius;
                 float distanceSquared = math.lengthsq(heroGround.Position - ground.ValueRO.Position);
                 bool shouldChase = heroAlive && heroInMap && vitals.ValueRO.Health > 0 && distanceSquared <= rangeSquared;
                 if (!shouldChase)

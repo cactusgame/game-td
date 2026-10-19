@@ -1332,8 +1332,7 @@ MonoBehaviour:
   knightAnimations: {fileID: 11400000, guid: 79bf4676fe38f114d942be252546168c, type: 2}
   goblinAnimations: {fileID: 11400000, guid: ba3e8ffc9f93c6549b5ea83fba70dc69, type: 2}
   runnerAnimations: {fileID: 11400000, guid: edf4c18ee27262149a7d8837156aba5a, type: 2}
-  deathSettings: {fileID: 11400000, guid: 9babc3009a681c64caa90166800fd20c, type: 2}
-  mapViewSettings: {fileID: 11400000, guid: bbc0a456b0539754280f6d3f41aada24, type: 2}
+  presentationConfig: {fileID: 4900000, guid: 96b8bcc4c2245834ebb959a67adbe370, type: 3}
   arenaView: {fileID: 1231984343}
 --- !u!4 &1362957773
 Transform:

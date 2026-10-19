@@ -108,6 +108,28 @@ namespace Game.Battle.Tests
             Assert.That(Path(monster).Length, Is.GreaterThan(0));
         }
 
+        [Test] public void SeparateReleaseRadiusKeepsExistingChaseButDoesNotAcquireOutsideDetection()
+        {
+            _world.GetExistingSystemManaged<MonsterNavigationSystem>().Configure(
+                GridMap.CreateOpenArena(20, 20, 1), new NavigationDefinition(1, 5, 0.25f, 7));
+            var monster = Spawn(UnitKind.Goblin, new float2(6, 0), 2);
+            Step();
+            Assert.That(Navigation(monster).IsChasing, Is.Zero);
+            Move(monster, new float2(5, 0));
+            Step();
+            Assert.That(Navigation(monster).IsChasing, Is.EqualTo(1));
+            Move(monster, new float2(7, 0));
+            Step();
+            Assert.That(Navigation(monster).IsChasing, Is.EqualTo(1));
+            Move(monster, new float2(7.01f, 0));
+            Step();
+            Assert.That(Navigation(monster).IsChasing, Is.Zero);
+            Assert.That(Path(monster).Length, Is.Zero);
+            Move(monster, new float2(6, 0));
+            Step();
+            Assert.That(Navigation(monster).IsChasing, Is.Zero);
+        }
+
         [Test] public void ExactRangeBoundaryIsIncluded()
         {
             var monster = Spawn(UnitKind.Goblin, new float2(5, 0), 2);

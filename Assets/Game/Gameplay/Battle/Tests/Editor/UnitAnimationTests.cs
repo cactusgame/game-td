@@ -9,6 +9,14 @@ namespace Game.Battle.Tests
 {
     public sealed class UnitAnimationTests
     {
+        private static UnitAnimationSettings AnimationSettings(string path)
+        {
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json"));
+            if (path.Contains("Knight")) return settings.Knight;
+            if (path.Contains("Goblin")) return settings.Goblin;
+            return settings.Runner;
+        }
+
         [TestCase("Enemies/Goblin/Sprites/goblin", UnitKind.Goblin)]
         [TestCase("Enemies/Runner/Sprites/runner", UnitKind.Runner)]
         public void MonsterPlaysDeathHoldsLastFrameAndOnlyThenBecomesRemovable(string path, UnitKind kind)
@@ -16,14 +24,14 @@ namespace Game.Battle.Tests
             var set = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>("Assets/Content/Units/" + path + "-actions.asset");
             Assert.That(set.Death.Length, Is.EqualTo(4));
             foreach (var frame in set.Death) Assert.That(frame, Is.Not.Null);
-            var settings = ScriptableObject.CreateInstance<UnitDeathSettings>();
+            var settings = new UnitDeathSettings();
             // 使用不同于默认值的时长，验证播放和移除确实读取统一配置。
             settings.AnimationSeconds = 1; settings.CorpseHoldSeconds = 2;
             var root = new GameObject("Death animation test");
             try
             {
                 var sprite = set.Idle[0];
-                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.3f, 0.4f, Color.red, set, settings);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.3f, 0.4f, Color.red, set, settings, AnimationSettings(path));
                 var unit = root.transform.GetChild(0);
                 var body = unit.Find("Sprite").GetComponent<SpriteRenderer>();
                 var state = new UnitSnapshot(2, kind, 3, 4, -1, 0, 10, 10, 10);
@@ -46,13 +54,12 @@ namespace Game.Battle.Tests
                 view.Render(state, 13, 0.01f);
                 Assert.That(view.ReadyForRemoval, Is.True);
             }
-            finally { Object.DestroyImmediate(root); Object.DestroyImmediate(settings); }
+            finally { Object.DestroyImmediate(root); }
         }
 
-        [Test] public void DeathSettingsAssetIsSharedAndHasValidDurations()
+        [Test] public void DeathJsonHasValidDurations()
         {
-            var settings = AssetDatabase.LoadAssetAtPath<UnitDeathSettings>(
-                "Assets/Content/Combat/Prototype/unit-death-settings.asset");
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Death;
             Assert.That(settings, Is.Not.Null);
             Assert.That(settings.Duration, Is.GreaterThan(0));
             Assert.That(settings.Hold, Is.GreaterThanOrEqualTo(0));
@@ -74,7 +81,7 @@ namespace Game.Battle.Tests
             try
             {
                 var sprite = set.Idle[0];
-                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f, Color.white, set);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f, Color.white, set, null, AnimationSettings(path));
                 var body = root.transform.GetChild(0).Find("Sprite").GetComponent<SpriteRenderer>();
                 UnitSnapshot State(float x = 0, float facing = 1, int hp = 10, float hit = -100, float attack = -100)
                     => new UnitSnapshot(1, UnitKind.Hero, x, 0, facing, hp, 10, hit, attack);
@@ -85,7 +92,7 @@ namespace Game.Battle.Tests
                 Assert.That(body.flipX, Is.True);
                 view.Render(State(x: 1, hit: 1, attack: 1), 1.11, 0.1f);
                 Assert.That(body.sprite, Is.EqualTo(set.Attack[1]));
-                view.Render(State(x: 1, hit: 1, attack: 1), 1 + set.AttackDuration + 0.08, 0.1f);
+                view.Render(State(x: 1, hit: 1, attack: 1), 1 + set.Attack.Length / (double)AnimationSettings(path).AttackFps + 0.08, 0.1f);
                 Assert.That(body.sprite, Is.EqualTo(set.Hurt[1]));
                 view.Render(State(x: 1, hit: 1, attack: 1), 2, 0.1f);
                 Assert.That(set.Idle, Does.Contain(body.sprite));
