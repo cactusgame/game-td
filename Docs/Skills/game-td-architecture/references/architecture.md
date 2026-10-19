@@ -45,7 +45,8 @@ Docs/                         规范、模型、决策与验证记录
 ```
 
 模块内部按需使用 `Contracts/Domain/Application/Simulation/Unity/Editor/Tests`；不要为简单模块建立无用层次。
-Contracts 包含 Commands、Results、ReadModels、Ports；Domain 包含 Models、ValueObjects、Rules、Events。
+Contracts 包含 Commands、Results、ReadModels、Ports；Domain 按实际需要使用 Definitions、ValueObjects、Rules、Aggregates、Entities、Services、Repositories、Events 等分类，不再新增笼统的 Models 目录。具体命名采用 `Docs/Skills/unity-ddd-ecs-architecture/references/code-conventions.md`。
+Application 中有状态、跨帧的会话编排放 Sessions；一次性业务用例才放 UseCases，不把 BattleSession 机械改名为 UseCase。
 Unity 包含 Authoring、Views、Adapters；Simulation 包含 Components、Systems、Bridges。
 现有 Presentation 集中组织可继续使用；Editor-only 代码用 Editor 程序集约束，不能由 Runtime 程序集引用。
 

@@ -1,9 +1,10 @@
-using Game.Battle.Domain;
+using Game.Battle.Simulation.Components;
+using Game.Battle.Domain.ValueObjects;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace Game.Battle.Simulation
+namespace Game.Battle.Simulation.Systems
 {
     /// <summary>唯一写入单位位移的系统：英雄消费输入，怪物消费路径或自身随机方向。</summary>
     [DisableAutoCreation]
@@ -15,12 +16,7 @@ namespace Game.Battle.Simulation
         public void OnUpdate(ref SystemState state)
         {
             var settings = SystemAPI.GetSingleton<BattleSettings>();
-            state.Dependency = new MovementJob
-            {
-                DeltaTime = SystemAPI.Time.DeltaTime,
-                HalfSize = settings.HalfSize,
-                HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))
-            }.ScheduleParallel(state.Dependency);
+            state.Dependency = new MovementJob{DeltaTime = SystemAPI.Time.DeltaTime, HalfSize = settings.HalfSize, HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))}.ScheduleParallel(state.Dependency);
         }
 
         [BurstCompile]
@@ -29,14 +25,12 @@ namespace Game.Battle.Simulation
             public float DeltaTime;
             public float2 HalfSize;
             public float2 HeroInput;
-
             // 每个 Job 实例只写当前实体，路径来自导航系统完成的 Buffer。
-            private void Execute(ref GroundTransform ground, ref WanderState wander,
-                ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path,
-                in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
+            private void Execute(ref GroundTransform ground, ref WanderState wander, ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path, in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
             {
                 ground.Previous = ground.Position;
-                if (vitals.Health <= 0) return;
+                if (vitals.Health <= 0)
+                    return;
                 float2 limit = HalfSize - motion.Radius;
                 float2 next;
                 if (identity.Kind == UnitKind.Hero)
@@ -56,18 +50,21 @@ namespace Game.Battle.Simulation
                         wander.Direction = new float2(math.cos(angle), math.sin(angle));
                         wander.Remaining = wander.Random.NextFloat(0.6f, 2.2f);
                     }
+
                     next = ground.Position + wander.Direction * motion.Speed * DeltaTime;
-                    if (next.x < -limit.x || next.x > limit.x) wander.Direction.x *= -1;
-                    if (next.y < -limit.y || next.y > limit.y) wander.Direction.y *= -1;
+                    if (next.x < -limit.x || next.x > limit.x)
+                        wander.Direction.x *= -1;
+                    if (next.y < -limit.y || next.y > limit.y)
+                        wander.Direction.y *= -1;
                 }
 
                 ground.Position = math.clamp(next, -limit, limit);
                 float facing = ground.Position.x - ground.Previous.x;
-                if (math.abs(facing) > 0.00001f) ground.FacingX = facing;
+                if (math.abs(facing) > 0.00001f)
+                    ground.FacingX = facing;
             }
 
-            private static float2 FollowPath(float2 position, float2 limit, float distanceBudget,
-                in DynamicBuffer<NavigationWaypoint> path, ref MonsterNavigationState navigation)
+            private static float2 FollowPath(float2 position, float2 limit, float distanceBudget, in DynamicBuffer<NavigationWaypoint> path, ref MonsterNavigationState navigation)
             {
                 // 一步可以走过多个路径点，仍只消费 speed * deltaTime 的距离，避免高速穿点后倒退。
                 const float arrivalTolerance = 0.0001f;
@@ -79,7 +76,8 @@ namespace Game.Battle.Simulation
                     bool lastWaypoint = navigation.WaypointIndex == path.Length - 1;
                     if (distance <= arrivalTolerance)
                     {
-                        if (lastWaypoint) break;
+                        if (lastWaypoint)
+                            break;
                         navigation.WaypointIndex++;
                         continue;
                     }
@@ -87,9 +85,11 @@ namespace Game.Battle.Simulation
                     float travel = math.min(distance, distanceBudget);
                     position += offset * (travel / distance);
                     distanceBudget -= travel;
-                    if (travel < distance || lastWaypoint) break;
+                    if (travel < distance || lastWaypoint)
+                        break;
                     navigation.WaypointIndex++;
                 }
+
                 return position;
             }
         }

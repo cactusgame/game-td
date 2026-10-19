@@ -8,7 +8,6 @@ namespace Game.Presentation.Views
         public const string GroundLayer = "Battle Ground";
         public const string ShadowLayer = "Battle Shadows";
         public const string UnitLayer = "Battle Units";
-
         public static int UnitDepth(float groundY)
         {
             // SpriteRenderer 的排序范围是有符号 16 位，预留血条的两个偏移。

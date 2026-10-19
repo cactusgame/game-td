@@ -1,5 +1,5 @@
 using System;
-using Game.Battle.Domain;
+using Game.Battle.Domain.ValueObjects;
 using UnityEngine;
 
 namespace Game.Presentation.Views
@@ -12,23 +12,25 @@ namespace Game.Presentation.Views
         public UnitDeathSettings Death;
         public BattleMapViewSettings Map;
         public UnitAnimationSettings Knight, Goblin, Runner;
-
         public UnitAnimationSettings AnimationFor(UnitKind kind)
         {
             switch (kind)
             {
-                case UnitKind.Hero: return Knight;
-                case UnitKind.Goblin: return Goblin;
-                case UnitKind.Runner: return Runner;
-                default: throw new ArgumentOutOfRangeException(nameof(kind));
+                case UnitKind.Hero:
+                    return Knight;
+                case UnitKind.Goblin:
+                    return Goblin;
+                case UnitKind.Runner:
+                    return Runner;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind));
             }
         }
 
         public static BattlePresentationSettings Parse(string json)
         {
             var data = JsonUtility.FromJson<BattlePresentationSettings>(json);
-            if (data == null || data.schemaVersion != 1 || data.Death == null || data.Map == null
-                || data.Knight == null || data.Goblin == null || data.Runner == null)
+            if (data == null || data.schemaVersion != 1 || data.Death == null || data.Map == null || data.Knight == null || data.Goblin == null || data.Runner == null)
                 throw new FormatException("Presentation JSON requires schemaVersion 1, Death, Map, Knight, Goblin and Runner.");
             Positive(data.Death.AnimationSeconds, "Death.AnimationSeconds");
             Nonnegative(data.Death.CorpseHoldSeconds, "Death.CorpseHoldSeconds");
@@ -40,7 +42,7 @@ namespace Game.Presentation.Views
             ValidateColor(data.Map.GroundLight, "Map.GroundLight");
             ValidateColor(data.Map.GroundDark, "Map.GroundDark");
             ValidateColor(data.Map.BorderColor, "Map.BorderColor");
-            foreach (var animation in new[] { data.Knight, data.Goblin, data.Runner })
+            foreach (var animation in new[]{data.Knight, data.Goblin, data.Runner})
             {
                 Positive(animation.IdleFps, "IdleFps");
                 Positive(animation.MoveFps, "MoveFps");
@@ -49,6 +51,7 @@ namespace Game.Presentation.Views
                 Fraction(animation.BodyHeightFraction, "BodyHeightFraction");
                 Fraction(animation.DeathBodyHeightFraction, "DeathBodyHeightFraction");
             }
+
             return data;
         }
 
@@ -67,7 +70,8 @@ namespace Game.Presentation.Views
         private static void Fraction(float value, string name)
         {
             Positive(value, name);
-            if (value > 1) throw new FormatException(name + " must not exceed 1.");
+            if (value > 1)
+                throw new FormatException(name + " must not exceed 1.");
         }
 
         private static void ValidateColor(Color color, string name)
@@ -75,7 +79,8 @@ namespace Game.Presentation.Views
             for (int channel = 0; channel < 4; channel++)
             {
                 Nonnegative(color[channel], name);
-                if (color[channel] > 1) throw new FormatException(name + " channels must not exceed 1.");
+                if (color[channel] > 1)
+                    throw new FormatException(name + " channels must not exceed 1.");
             }
         }
     }

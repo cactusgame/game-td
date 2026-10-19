@@ -18,7 +18,8 @@ namespace Game.Tools.Prototype
             var goblin = Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png");
             var runner = Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png");
             var view = UnityEngine.Object.FindAnyObjectByType<BattleView>();
-            if (view == null) throw new InvalidOperationException("Open the battle scene before applying animations.");
+            if (view == null)
+                throw new InvalidOperationException("Open the battle scene before applying animations.");
             Undo.RecordObject(view, "Apply unit animations");
             view.ConfigureAnimations(hero, goblin, runner);
             ImportDeathAssets();
@@ -41,7 +42,8 @@ namespace Game.Tools.Prototype
             int grid = death ? 2 : 4;
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer == null) throw new InvalidOperationException("Missing action sheet: " + path);
+            if (importer == null)
+                throw new InvalidOperationException("Missing action sheet: " + path);
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Multiple;
             importer.spritePixelsPerUnit = 256;
@@ -51,13 +53,14 @@ namespace Game.Tools.Prototype
             importer.filterMode = FilterMode.Bilinear;
             importer.maxTextureSize = 2048;
             importer.SaveAndReimport();
-            var factory = new SpriteDataProviderFactories(); factory.Init();
+            var factory = new SpriteDataProviderFactories();
+            factory.Init();
             var provider = factory.GetSpriteEditorDataProviderFromObject(importer);
-            if (provider == null) throw new InvalidOperationException("No sprite data provider: " + path);
+            if (provider == null)
+                throw new InvalidOperationException("No sprite data provider: " + path);
             provider.InitSpriteEditorDataProvider();
             var capability = provider.GetDataProvider<ISpriteFrameEditCapability>();
-            var required = new[] { EEditCapability.CreateAndDeleteSprite, EEditCapability.EditSpriteName,
-                EEditCapability.EditSpriteRect, EEditCapability.EditPivot };
+            var required = new[]{EEditCapability.CreateAndDeleteSprite, EEditCapability.EditSpriteName, EEditCapability.EditSpriteRect, EEditCapability.EditPivot};
             if (capability == null || required.Any(c => !capability.GetEditCapability().HasCapability(c)))
                 throw new InvalidOperationException("Importer does not support safe animation slicing: " + path);
             importer.GetSourceTextureWidthAndHeight(out int width, out int height);
@@ -75,16 +78,23 @@ namespace Game.Tools.Prototype
                 float left = col * cellWidth, right = (col + 1) * cellWidth;
                 if (!death && row == 2 && path.Contains("runner-actions"))
                 {
-                    if (col == 1) right += cellWidth * 0.08f;
-                    if (col == 2) left += cellWidth * 0.08f;
+                    if (col == 1)
+                        right += cellWidth * 0.08f;
+                    if (col == 2)
+                        left += cellWidth * 0.08f;
                 }
+
                 if (!death && row == 2 && path.Contains("goblin-actions"))
                 {
-                    if (col == 2) right += cellWidth * 0.08f;
-                    if (col == 3) left += cellWidth * 0.08f;
+                    if (col == 2)
+                        right += cellWidth * 0.08f;
+                    if (col == 3)
+                        left += cellWidth * 0.08f;
                 }
+
                 return new Rect(left, height - (row + 1) * cellHeight, right - left, cellHeight);
             }
+
             int Bottom(int col, int row)
             {
                 var frame = FrameRect(col, row);
@@ -92,14 +102,17 @@ namespace Game.Tools.Prototype
                 int bottom = Mathf.CeilToInt(height - (row + 1) * cellHeight), top = Mathf.FloorToInt(height - row * cellHeight);
                 for (int y = bottom; y < top; y++)
                     for (int x = left; x < right; x++)
-                        if (pixels[y * width + x].a > 127) return y;
+                        if (pixels[y * width + x].a > 127)
+                            return y;
                 throw new InvalidOperationException("Empty animation frame: " + path);
             }
+
             int idleBottom = Bottom(0, 0), idleTop = idleBottom;
             for (int y = idleBottom; y < height; y++)
                 for (int x = 0; x < Mathf.FloorToInt(cellWidth); x++)
-                    if (pixels[y * width + x].a > 127) idleTop = y;
-            string[] actions = { "Idle", "Move", "Attack", "Hurt" };
+                    if (pixels[y * width + x].a > 127)
+                        idleTop = y;
+            string[] actions = {"Idle", "Move", "Attack", "Hurt"};
             var previous = provider.GetSpriteRects();
             var rects = new SpriteRect[grid * grid];
             for (int row = 0; row < grid; row++)
@@ -108,23 +121,27 @@ namespace Game.Tools.Prototype
                     string name = death ? "Death_" + (row * grid + col) : actions[row] + "_" + col;
                     var existing = previous.FirstOrDefault(r => r.name == name);
                     var frame = FrameRect(col, row);
-                    rects[row * grid + col] = new SpriteRect { name = name,
-                        spriteID = existing != null ? existing.spriteID : GUID.Generate(),
-                        rect = frame,
-                        alignment = SpriteAlignment.Custom,
-                        pivot = new Vector2(((col + 0.5f) * cellWidth - frame.x) / frame.width,
-                            (Bottom(col, row) - frame.y) / cellHeight) };
+                    rects[row * grid + col] = new SpriteRect{name = name, spriteID = existing != null ? existing.spriteID : GUID.Generate(), rect = frame, alignment = SpriteAlignment.Custom, pivot = new Vector2(((col + 0.5f) * cellWidth - frame.x) / frame.width, (Bottom(col, row) - frame.y) / cellHeight)};
                 }
+
             provider.SetSpriteRects(rects);
             var names = provider.GetDataProvider<ISpriteNameFileIdDataProvider>();
-            if (names == null) throw new InvalidOperationException("Missing sprite name/file ID provider.");
+            if (names == null)
+                throw new InvalidOperationException("Missing sprite name/file ID provider.");
             names.SetNameFileIdPairs(rects.Select(r => new SpriteNameFileIdPair(r.name, r.spriteID)));
-            provider.Apply(); importer.SaveAndReimport();
+            provider.Apply();
+            importer.SaveAndReimport();
             var sprites = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().ToArray();
-            if (sprites.Length != grid * grid) throw new InvalidOperationException("Incorrect sliced frame count: " + path);
+            if (sprites.Length != grid * grid)
+                throw new InvalidOperationException("Incorrect sliced frame count: " + path);
             string setPath = death ? path.Replace("-death.png", "-actions.asset") : path.Replace(".png", ".asset");
             var set = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>(setPath);
-            if (set == null) { set = ScriptableObject.CreateInstance<UnitAnimationSet>(); AssetDatabase.CreateAsset(set, setPath); }
+            if (set == null)
+            {
+                set = ScriptableObject.CreateInstance<UnitAnimationSet>();
+                AssetDatabase.CreateAsset(set, setPath);
+            }
+
             Sprite[] Frames(string action) => sprites.Where(s => s.name.StartsWith(action + "_", StringComparison.Ordinal)).OrderBy(s => s.name).ToArray();
             if (death)
             {
@@ -132,9 +149,12 @@ namespace Game.Tools.Prototype
             }
             else
             {
-                set.Idle = Frames("Idle"); set.Move = Frames("Move");
-                set.Attack = Frames("Attack"); set.Hurt = Frames("Hurt");
+                set.Idle = Frames("Idle");
+                set.Move = Frames("Move");
+                set.Attack = Frames("Attack");
+                set.Hurt = Frames("Hurt");
             }
+
             EditorUtility.SetDirty(set);
             return set;
         }

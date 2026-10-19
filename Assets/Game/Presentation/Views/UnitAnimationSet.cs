@@ -8,7 +8,8 @@ namespace Game.Presentation.Views
         public Sprite[] Idle, Move, Attack, Hurt, Death;
         public Sprite Frame(Sprite[] frames, double age, float fps, bool loop)
         {
-            if (frames == null || frames.Length == 0) return null;
+            if (frames == null || frames.Length == 0)
+                return null;
             int index = Mathf.Max(0, (int)(age * fps));
             return frames[loop ? index % frames.Length : Mathf.Min(index, frames.Length - 1)];
         }

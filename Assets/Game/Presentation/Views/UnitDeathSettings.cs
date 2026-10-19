@@ -6,7 +6,6 @@ namespace Game.Presentation.Views
     {
         public float AnimationSeconds;
         public float CorpseHoldSeconds;
-
         public float Duration => AnimationSeconds;
         public float Hold => CorpseHoldSeconds;
     }

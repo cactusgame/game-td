@@ -1,5 +1,5 @@
-using Game.Battle.Contracts;
-using Game.Battle.Domain;
+using Game.Battle.Contracts.ReadModels;
+using Game.Battle.Domain.ValueObjects;
 using Game.Presentation.Views;
 using NUnit.Framework;
 using UnityEditor;
@@ -23,8 +23,7 @@ namespace Game.Battle.Tests
             try
             {
                 var sprite = animations.Idle[0];
-                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.65f, 0.4f, Color.white, animations, settings,
-                    BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).AnimationFor(kind));
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.65f, 0.4f, Color.white, animations, settings, BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).AnimationFor(kind));
                 var unit = root.transform.GetChild(0);
                 var body = unit.Find("Sprite").GetComponent<SpriteRenderer>();
                 var shadow = unit.Find("GroundShadow").GetComponent<SpriteRenderer>();
@@ -32,7 +31,7 @@ namespace Game.Battle.Tests
                 var health = background.transform.GetChild(0).GetComponent<SpriteRenderer>();
                 int previous = int.MinValue;
                 // 原缺陷在 Y>22 时出现；覆盖上沿、中部、下沿和比当前地图更远的位置。
-                foreach (float y in new[] { 1000f, 26.58f, 24f, 0f, -26.58f, -1000f })
+                foreach (float y in new[]{1000f, 26.58f, 24f, 0f, -26.58f, -1000f})
                 {
                     view.Render(new UnitSnapshot(1, kind, 0, y, 1, 10, 10, -100), 1, 0);
                     AssertDrawnAfter(shadow, ground);
@@ -42,6 +41,7 @@ namespace Game.Battle.Tests
                     Assert.That(body.sortingOrder, Is.GreaterThanOrEqualTo(previous));
                     previous = body.sortingOrder;
                 }
+
                 if (kind != UnitKind.Hero)
                 {
                     view.Render(new UnitSnapshot(1, kind, 0, 26.58f, 1, 0, 10, 2), 2, 0);
@@ -49,7 +49,10 @@ namespace Game.Battle.Tests
                     AssertDrawnAfter(body, ground);
                 }
             }
-            finally { Object.DestroyImmediate(root); }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
 
         [TestCase(100000)]
@@ -61,12 +64,12 @@ namespace Game.Battle.Tests
             Assert.That(order + 2, Is.LessThanOrEqualTo(short.MaxValue));
         }
 
-        [Test] public void UpperEdgeCameraLeavesRoomForHeroAndHealthBar()
+        [Test]
+        public void UpperEdgeCameraLeavesRoomForHeroAndHealthBar()
         {
             var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Map;
             float heroFeet = 27 - 0.42f;
-            var center = BattleCameraFraming.Center(new Vector2(0, heroFeet), 96, 54,
-                settings.VisibleWorldHeight, 16f / 9, settings.EdgeMargin, settings.TopEdgeMargin);
+            var center = BattleCameraFraming.Center(new Vector2(0, heroFeet), 96, 54, settings.VisibleWorldHeight, 16f / 9, settings.EdgeMargin, settings.TopEdgeMargin);
             float viewportTop = center.y + settings.VisibleWorldHeight * 0.5f;
             Assert.That(viewportTop, Is.GreaterThan(heroFeet + 1.65f + 0.2f));
             Assert.That(center.y, Is.EqualTo(20).Within(0.0001));
@@ -76,9 +79,7 @@ namespace Game.Battle.Tests
         {
             int frontLayer = SortingLayer.GetLayerValueFromID(foreground.sortingLayerID);
             int backLayer = SortingLayer.GetLayerValueFromID(background.sortingLayerID);
-            Assert.That(frontLayer > backLayer ||
-                (frontLayer == backLayer && foreground.sortingOrder > background.sortingOrder), Is.True,
-                foreground.name + " must be drawn after " + background.name);
+            Assert.That(frontLayer > backLayer || (frontLayer == backLayer && foreground.sortingOrder > background.sortingOrder), Is.True, foreground.name + " must be drawn after " + background.name);
         }
     }
 }

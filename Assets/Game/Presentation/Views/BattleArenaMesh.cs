@@ -19,7 +19,8 @@ namespace Game.Presentation.Views
                 vertices.Add(new Vector3(x + w, y));
                 vertices.Add(new Vector3(x + w, y + h));
                 vertices.Add(new Vector3(x, y + h));
-                for (int i = 0; i < 4; i++) colors.Add(color);
+                for (int i = 0; i < 4; i++)
+                    colors.Add(color);
                 triangles.Add(index);
                 triangles.Add(index + 2);
                 triangles.Add(index + 1);
@@ -38,8 +39,7 @@ namespace Game.Presentation.Views
                 for (int x = 0; x < columns; x++)
                 {
                     Color color = (x + y) % 2 == 0 ? settings.GroundDark : settings.GroundLight;
-                    Quad(left + x * size, bottom + y * size,
-                        Mathf.Min(size, width - x * size), Mathf.Min(size, height - y * size), color);
+                    Quad(left + x * size, bottom + y * size, Mathf.Min(size, width - x * size), Mathf.Min(size, height - y * size), color);
                 }
             }
 

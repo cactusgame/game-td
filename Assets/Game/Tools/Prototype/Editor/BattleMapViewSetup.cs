@@ -11,11 +11,11 @@ namespace Game.Tools.Prototype
     public static class BattleMapViewSetup
     {
         public const string SettingsPath = "Assets/Content/Combat/Prototype/presentation.json";
-
         public static TextAsset LoadSettingsAsset()
         {
             var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(SettingsPath);
-            if (asset == null) throw new InvalidOperationException("Missing presentation JSON: " + SettingsPath);
+            if (asset == null)
+                throw new InvalidOperationException("Missing presentation JSON: " + SettingsPath);
             return asset;
         }
 
@@ -26,7 +26,8 @@ namespace Game.Tools.Prototype
 
         public static void Apply()
         {
-            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode before updating the map preview.");
+            if (EditorApplication.isPlaying)
+                throw new InvalidOperationException("Exit Play Mode before updating the map preview.");
             BattleSortingSetup.EnsureLayers();
             var view = UnityEngine.Object.FindAnyObjectByType<BattleView>();
             var ground = GameObject.Find("TrainingGround");
@@ -36,9 +37,11 @@ namespace Game.Tools.Prototype
             var definition = JsonBattleDefinitionSource.Parse(config.text);
             var settings = EnsureSettings();
             var arena = ground.GetComponent<BattleArenaView>();
-            if (arena == null) arena = Undo.AddComponent<BattleArenaView>(ground);
+            if (arena == null)
+                arena = Undo.AddComponent<BattleArenaView>(ground);
             var mesh = ground.GetComponent<MeshFilter>().sharedMesh;
-            if (mesh == null) throw new InvalidOperationException("The existing ground mesh is missing.");
+            if (mesh == null)
+                throw new InvalidOperationException("The existing ground mesh is missing.");
             Undo.RecordObject(mesh, "Resize battle ground");
             BattleArenaMesh.Build(mesh, definition.Width, definition.Height, settings);
             EditorUtility.SetDirty(mesh);
@@ -51,8 +54,9 @@ namespace Game.Tools.Prototype
             view.ConfigureMapView(LoadSettingsAsset(), arena);
             EditorUtility.SetDirty(view);
             var camera = Camera.main;
-            if (camera == null) throw new InvalidOperationException("The battle camera is missing.");
-            Undo.RecordObjects(new UnityEngine.Object[] { camera, camera.transform }, "Configure following camera");
+            if (camera == null)
+                throw new InvalidOperationException("The battle camera is missing.");
+            Undo.RecordObjects(new UnityEngine.Object[]{camera, camera.transform}, "Configure following camera");
             camera.orthographicSize = settings.VisibleWorldHeight * 0.5f;
             camera.transform.position = new Vector3(0, 0, camera.transform.position.z);
             EditorSceneManager.MarkSceneDirty(view.gameObject.scene);

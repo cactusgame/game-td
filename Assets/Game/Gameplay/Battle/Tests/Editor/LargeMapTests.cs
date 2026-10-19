@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
-using Game.Battle.Contracts;
-using Game.Battle.Domain;
-using Game.Battle.Simulation;
+using Game.Battle.Contracts.Commands;
+using Game.Battle.Contracts.ReadModels;
+using Game.Battle.Domain.Definitions;
+using Game.Battle.Domain.ValueObjects;
+using Game.Battle.Simulation.Bridges;
 using Game.Infrastructure.Configuration;
 using Game.MapEngine.Domain;
 using Game.Presentation.Views;
@@ -14,7 +16,8 @@ namespace Game.Battle.Tests
 {
     public sealed class LargeMapTests
     {
-        [Test] public void DefaultLargeMapIsNineLandscapeViewsAndNavigationCoversIt()
+        [Test]
+        public void DefaultLargeMapIsNineLandscapeViewsAndNavigationCoversIt()
         {
             var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
             var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Map;
@@ -26,8 +29,7 @@ namespace Game.Battle.Tests
             Assert.That(definition.NavigationMap.Height, Is.EqualTo(definition.Height));
             var path = new List<GridCell>();
             var map = definition.NavigationMap;
-            Assert.That(new GridPathfinder(map).TryFindPath(new GridCell(0, 0),
-                new GridCell(map.Columns - 1, map.Rows - 1), path), Is.True);
+            Assert.That(new GridPathfinder(map).TryFindPath(new GridCell(0, 0), new GridCell(map.Columns - 1, map.Rows - 1), path), Is.True);
         }
 
         [TestCase(0, 0, 0, 0)]
@@ -52,34 +54,36 @@ namespace Game.Battle.Tests
             Assert.That(BattleCameraFraming.Center(Vector2.one * 100, 8, 6, 18, aspect, 0.75f), Is.EqualTo(Vector2.zero));
         }
 
-        [Test] public void HeroStartsAtCenterCanReachEveryCornerAndRestartsAtCenter()
+        [Test]
+        public void HeroStartsAtCenterCanReachEveryCornerAndRestartsAtCenter()
         {
             var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
             var hero = new UnitDefinition(UnitKind.Hero, 100, 15, 3, 100, 0.42f, 1.65f);
-            var definition = new BattleDefinition(hero, configured.Goblin, configured.Runner,
-                0, 0, 96, 54, 0.02f, 123, configured.Navigation);
+            var definition = new BattleDefinition(hero, configured.Goblin, configured.Runner, 0, 0, 96, 54, 0.02f, 123, configured.Navigation);
             using var simulation = new EcsBattleSimulation();
             var units = new List<UnitSnapshot>();
             simulation.Reset(definition);
             simulation.CopyUnits(units);
             Assert.That(new float2(units[0].X, units[0].Y), Is.EqualTo(float2.zero));
-            foreach (var direction in new[] { new float2(1, 1), new float2(-1, 1), new float2(-1, -1), new float2(1, -1) })
+            foreach (var direction in new[]{new float2(1, 1), new float2(-1, 1), new float2(-1, -1), new float2(1, -1)})
             {
-                for (int i = 0; i < 120; i++) simulation.Step(0.02f, new MoveIntent(direction.x, direction.y));
+                for (int i = 0; i < 120; i++)
+                    simulation.Step(0.02f, new MoveIntent(direction.x, direction.y));
                 simulation.CopyUnits(units);
                 Assert.That(units[0].X, Is.EqualTo(direction.x * (48 - hero.Radius)).Within(0.001));
                 Assert.That(units[0].Y, Is.EqualTo(direction.y * (27 - hero.Radius)).Within(0.001));
             }
+
             simulation.Reset(definition);
             simulation.CopyUnits(units);
             Assert.That(new float2(units[0].X, units[0].Y), Is.EqualTo(float2.zero));
         }
 
-        [Test] public void MonstersSpawnAcrossTheLargeMapAndStayInsideItsNavigationCoverage()
+        [Test]
+        public void MonstersSpawnAcrossTheLargeMapAndStayInsideItsNavigationCoverage()
         {
             var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
-            var definition = new BattleDefinition(configured.Hero, configured.Goblin, configured.Runner,
-                6, 4, 96, 54, 0.02f, 123, configured.Navigation);
+            var definition = new BattleDefinition(configured.Hero, configured.Goblin, configured.Runner, 6, 4, 96, 54, 0.02f, 123, configured.Navigation);
             using var simulation = new EcsBattleSimulation();
             var units = new List<UnitSnapshot>();
             simulation.Reset(definition);
@@ -87,10 +91,12 @@ namespace Game.Battle.Tests
             bool outsideOldArena = false;
             foreach (var unit in units)
             {
-                if (unit.Kind == UnitKind.Hero) continue;
+                if (unit.Kind == UnitKind.Hero)
+                    continue;
                 outsideOldArena |= math.abs(unit.X) > 13 || math.abs(unit.Y) > 7;
                 Assert.That(definition.NavigationMap.TryWorldToCell(unit.X, unit.Y, out _), Is.True);
             }
+
             Assert.That(outsideOldArena, Is.True);
         }
     }

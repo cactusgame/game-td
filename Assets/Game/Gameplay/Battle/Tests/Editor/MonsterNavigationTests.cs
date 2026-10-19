@@ -1,5 +1,7 @@
-using Game.Battle.Domain;
-using Game.Battle.Simulation;
+using Game.Battle.Domain.Definitions;
+using Game.Battle.Domain.ValueObjects;
+using Game.Battle.Simulation.Components;
+using Game.Battle.Simulation.Systems;
 using Game.MapEngine.Domain;
 using NUnit.Framework;
 using Unity.Core;
@@ -15,8 +17,8 @@ namespace Game.Battle.Tests
         private BattleSystemGroup _group;
         private Entity _hero;
         private double _time;
-
-        [SetUp] public void SetUp()
+        [SetUp]
+        public void SetUp()
         {
             _time = 0;
             _world = new World("Monster navigation tests");
@@ -27,25 +29,26 @@ namespace Game.Battle.Tests
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<MovementSystem>());
             _group.SortSystems();
             var settings = _world.EntityManager.CreateEntity(typeof(BattleSettings));
-            _world.EntityManager.SetComponentData(settings, new BattleSettings { HalfSize = new float2(10, 10) });
+            _world.EntityManager.SetComponentData(settings, new BattleSettings{HalfSize = new float2(10, 10)});
             _hero = Spawn(UnitKind.Hero, float2.zero, 1);
         }
 
-        [TearDown] public void TearDown() => _world.Dispose();
-
+        [TearDown]
+        public void TearDown() => _world.Dispose();
         private Entity Spawn(UnitKind kind, float2 position, uint seed)
         {
             var em = _world.EntityManager;
-            var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals),
-                typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
+            var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
             em.AddBuffer<NavigationWaypoint>(entity);
-            if (kind == UnitKind.Hero) em.AddComponent<HeroTag>(entity);
-            else em.AddComponent<MonsterTag>(entity);
-            em.SetComponentData(entity, new UnitIdentity { Id = seed, Kind = kind });
-            em.SetComponentData(entity, new GroundTransform { Position = position, Previous = position, FacingX = 1 });
-            em.SetComponentData(entity, new Vitals { Health = 10, MaxHealth = 10 });
-            em.SetComponentData(entity, new UnitMotion { Speed = 1, Radius = 0.1f });
-            em.SetComponentData(entity, new WanderState { Random = new Random(seed) });
+            if (kind == UnitKind.Hero)
+                em.AddComponent<HeroTag>(entity);
+            else
+                em.AddComponent<MonsterTag>(entity);
+            em.SetComponentData(entity, new UnitIdentity{Id = seed, Kind = kind});
+            em.SetComponentData(entity, new GroundTransform{Position = position, Previous = position, FacingX = 1});
+            em.SetComponentData(entity, new Vitals{Health = 10, MaxHealth = 10});
+            em.SetComponentData(entity, new UnitMotion{Speed = 1, Radius = 0.1f});
+            em.SetComponentData(entity, new WanderState{Random = new Random(seed)});
             return entity;
         }
 
@@ -64,14 +67,11 @@ namespace Game.Battle.Tests
             _world.EntityManager.SetComponentData(entity, ground);
         }
 
-        private MonsterNavigationState Navigation(Entity entity)
-            => _world.EntityManager.GetComponentData<MonsterNavigationState>(entity);
-        private DynamicBuffer<NavigationWaypoint> Path(Entity entity)
-            => _world.EntityManager.GetBuffer<NavigationWaypoint>(entity);
-        private float2 Position(Entity entity)
-            => _world.EntityManager.GetComponentData<GroundTransform>(entity).Position;
-
-        [Test] public void EachMonsterUsesItsOwnPerceptionAndPath()
+        private MonsterNavigationState Navigation(Entity entity) => _world.EntityManager.GetComponentData<MonsterNavigationState>(entity);
+        private DynamicBuffer<NavigationWaypoint> Path(Entity entity) => _world.EntityManager.GetBuffer<NavigationWaypoint>(entity);
+        private float2 Position(Entity entity) => _world.EntityManager.GetComponentData<GroundTransform>(entity).Position;
+        [Test]
+        public void EachMonsterUsesItsOwnPerceptionAndPath()
         {
             var near = Spawn(UnitKind.Goblin, new float2(3, 0), 2);
             var far = Spawn(UnitKind.Runner, new float2(8, 0), 3);
@@ -81,7 +81,6 @@ namespace Game.Battle.Tests
             Assert.That(Path(near).Length, Is.GreaterThan(0));
             Assert.That(Path(far).Length, Is.Zero);
             Assert.That(Position(near).x, Is.LessThan(3));
-
             Move(far, new float2(-3, 0));
             Step();
             Assert.That(Navigation(far).IsChasing, Is.EqualTo(1));
@@ -91,7 +90,8 @@ namespace Game.Battle.Tests
             Assert.That(Path(far)[0].Position, Is.EqualTo(farWaypoint));
         }
 
-        [Test] public void LeavingRangeCancelsImmediatelyAndReentryDoesNotWaitForRepathTimer()
+        [Test]
+        public void LeavingRangeCancelsImmediatelyAndReentryDoesNotWaitForRepathTimer()
         {
             var monster = Spawn(UnitKind.Goblin, new float2(3, 0), 2);
             Step();
@@ -108,10 +108,10 @@ namespace Game.Battle.Tests
             Assert.That(Path(monster).Length, Is.GreaterThan(0));
         }
 
-        [Test] public void SeparateReleaseRadiusKeepsExistingChaseButDoesNotAcquireOutsideDetection()
+        [Test]
+        public void SeparateReleaseRadiusKeepsExistingChaseButDoesNotAcquireOutsideDetection()
         {
-            _world.GetExistingSystemManaged<MonsterNavigationSystem>().Configure(
-                GridMap.CreateOpenArena(20, 20, 1), new NavigationDefinition(1, 5, 0.25f, 7));
+            _world.GetExistingSystemManaged<MonsterNavigationSystem>().Configure(GridMap.CreateOpenArena(20, 20, 1), new NavigationDefinition(1, 5, 0.25f, 7));
             var monster = Spawn(UnitKind.Goblin, new float2(6, 0), 2);
             Step();
             Assert.That(Navigation(monster).IsChasing, Is.Zero);
@@ -130,7 +130,8 @@ namespace Game.Battle.Tests
             Assert.That(Navigation(monster).IsChasing, Is.Zero);
         }
 
-        [Test] public void ExactRangeBoundaryIsIncluded()
+        [Test]
+        public void ExactRangeBoundaryIsIncluded()
         {
             var monster = Spawn(UnitKind.Goblin, new float2(5, 0), 2);
             Step();
@@ -154,10 +155,12 @@ namespace Game.Battle.Tests
             Step();
             Assert.That(Navigation(monster).IsChasing, Is.Zero);
             Assert.That(Path(monster).Length, Is.Zero);
-            if (killMonster) Assert.That(Position(monster), Is.EqualTo(before));
+            if (killMonster)
+                Assert.That(Position(monster), Is.EqualTo(before));
         }
 
-        [Test] public void HeroMovementInsideCellUpdatesEndpointWithoutReplanning()
+        [Test]
+        public void HeroMovementInsideCellUpdatesEndpointWithoutReplanning()
         {
             Move(_hero, new float2(0.1f, 0.1f));
             var monster = Spawn(UnitKind.Goblin, new float2(3, 0.1f), 2);
@@ -170,7 +173,8 @@ namespace Game.Battle.Tests
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(Position(_hero)));
         }
 
-        [Test] public void MovingHeroToAnotherCellReplansAtConfiguredInterval()
+        [Test]
+        public void MovingHeroToAnotherCellReplansAtConfiguredInterval()
         {
             var monster = Spawn(UnitKind.Goblin, new float2(3, 0), 2);
             Step();
@@ -178,20 +182,24 @@ namespace Game.Battle.Tests
             Move(_hero, new float2(0, 2));
             Step();
             Assert.That(Navigation(monster).GoalCell, Is.EqualTo(firstGoal));
-            while (_time < 0.3) Step();
+            while (_time < 0.3)
+                Step();
             Assert.That(Navigation(monster).GoalCell, Is.EqualTo(new int2(10, 12)));
         }
 
-        [Test] public void SameCellPursuitReachesExactHeroPositionWithoutOvershoot()
+        [Test]
+        public void SameCellPursuitReachesExactHeroPositionWithoutOvershoot()
         {
             Move(_hero, new float2(0.1f, 0.1f));
             var monster = Spawn(UnitKind.Runner, new float2(0.8f, 0.1f), 2);
-            for (int i = 0; i < 60; i++) Step();
+            for (int i = 0; i < 60; i++)
+                Step();
             Assert.That(math.distance(Position(monster), Position(_hero)), Is.LessThan(0.0001f));
             Assert.That(Navigation(monster).IsChasing, Is.EqualTo(1));
         }
 
-        [Test] public void FastMovementConsumesMultipleWaypointsWithoutExceedingSpeed()
+        [Test]
+        public void FastMovementConsumesMultipleWaypointsWithoutExceedingSpeed()
         {
             var monster = Spawn(UnitKind.Runner, new float2(3, 0), 2);
             var motion = _world.EntityManager.GetComponentData<UnitMotion>(monster);

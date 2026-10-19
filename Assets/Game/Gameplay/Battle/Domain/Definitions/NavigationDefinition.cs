@@ -1,11 +1,14 @@
-namespace Game.Battle.Domain
+namespace Game.Battle.Domain.Definitions
 {
     /// <summary>寻路与感知的只读配置；不存储某只怪物的当前路径。</summary>
     public sealed class NavigationDefinition
     {
         public float CellSize { get; }
+
         public float DetectionRadius { get; }
+
         public float LoseTargetRadius { get; }
+
         public float RepathSeconds { get; }
 
         public NavigationDefinition(float cellSize = 1, float detectionRadius = 5, float repathSeconds = 0.25f, float? loseTargetRadius = null)

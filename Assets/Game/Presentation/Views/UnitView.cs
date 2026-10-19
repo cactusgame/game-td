@@ -1,5 +1,5 @@
-using Game.Battle.Contracts;
-using Game.Battle.Domain;
+using Game.Battle.Contracts.ReadModels;
+using Game.Battle.Domain.ValueObjects;
 using UnityEngine;
 
 namespace Game.Presentation.Views
@@ -21,21 +21,22 @@ namespace Game.Presentation.Views
         private double AttackDuration => (_animations.Attack?.Length ?? 0) / (double)_animationSettings.AttackFps;
         private double HurtDuration => (_animations.Hurt?.Length ?? 0) / (double)_animationSettings.HurtFps;
         private double _deathStart = -1;
-        public bool ReadyForRemoval { get; private set; }
+        public bool IsReadyForRemoval { get; private set; }
+
         private double _lastRenderTime = -1, _loopStart;
         private bool _moving;
-        public UnitView(Transform parent, Sprite sprite, Sprite white, Sprite circle,
-            float height, float radius, Color teamColor, UnitAnimationSet animations = null,
-            UnitDeathSettings deathSettings = null, UnitAnimationSettings animationSettings = null)
+        public UnitView(Transform parent, Sprite sprite, Sprite white, Sprite circle, float height, float radius, Color teamColor, UnitAnimationSet animations = null, UnitDeathSettings deathSettings = null, UnitAnimationSettings animationSettings = null)
         {
             _animations = animations;
             _deathSettings = deathSettings;
             _animationSettings = animationSettings;
             if (animations != null && animationSettings == null)
                 throw new System.ArgumentNullException(nameof(animationSettings));
-            if (animations != null && animations.Idle.Length > 0) sprite = animations.Idle[0];
+            if (animations != null && animations.Idle.Length > 0)
+                sprite = animations.Idle[0];
             _height = height;
-            _root = new GameObject("UnitView"); _root.transform.SetParent(parent, false);
+            _root = new GameObject("UnitView");
+            _root.transform.SetParent(parent, false);
             _shadow = Child("GroundShadow", circle, new Color(0.07f, 0.11f, 0.07f, 0.3f));
             _shadow.sortingLayerName = BattleRenderSorting.ShadowLayer;
             _shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
@@ -47,18 +48,21 @@ namespace Game.Presentation.Views
             back.transform.localScale = new Vector3(0.72f, 0.095f, 1);
             var fill = new GameObject("HealthFill").AddComponent<SpriteRenderer>();
             fill.transform.SetParent(back.transform, false);
-            fill.sprite = white; fill.color = teamColor;
+            fill.sprite = white;
+            fill.color = teamColor;
             fill.sortingLayerName = BattleRenderSorting.UnitLayer;
             fill.transform.localScale = new Vector3(0.92f, 0.60f, 1);
             _healthFill = fill.transform;
-            _healthRenderer = fill; _healthBackground = back;
+            _healthRenderer = fill;
+            _healthBackground = back;
         }
 
         private SpriteRenderer Child(string name, Sprite sprite, Color color)
         {
             var renderer = new GameObject(name).AddComponent<SpriteRenderer>();
             renderer.transform.SetParent(_root.transform, false);
-            renderer.sprite = sprite; renderer.color = color;
+            renderer.sprite = sprite;
+            renderer.color = color;
             renderer.sortingLayerName = BattleRenderSorting.UnitLayer;
             return renderer;
         }
@@ -66,14 +70,21 @@ namespace Game.Presentation.Views
         // ECS 的 Entity 与这里的 GameObject 是两个对象，通过快照 Id 在 BattleView 中关联。
         public void Render(UnitSnapshot state, double simulationTime, float deltaTime)
         {
-            if (ReadyForRemoval) return;
+            if (IsReadyForRemoval)
+                return;
             if (state.Health <= 0)
             {
                 // 英雄保留现有隐藏行为；怪物死亡表现完成后由 BattleView 销毁视图。
-                if (state.Kind == UnitKind.Hero) { _root.SetActive(false); return; }
+                if (state.Kind == UnitKind.Hero)
+                {
+                    _root.SetActive(false);
+                    return;
+                }
+
                 RenderDeath(state, simulationTime);
                 return;
             }
+
             _root.SetActive(true);
             var position = new Vector2(state.X, state.Y);
             // 模拟暂停或本渲染帧没有新步长时，保留上次移动状态，不误切回待机。
@@ -83,10 +94,13 @@ namespace Game.Presentation.Views
                 moving = _lastRenderTime >= 0 && (position - _last).sqrMagnitude > 0.000001f;
                 _lastRenderTime = simulationTime;
             }
-            if (moving != _moving) _loopStart = simulationTime;
+
+            if (moving != _moving)
+                _loopStart = simulationTime;
             _moving = moving;
             _last = position;
-            if (moving) _walkPhase += deltaTime * 12;
+            if (moving)
+                _walkPhase += deltaTime * 12;
             // 起伏只作用于 Sprite 子对象，逻辑地面位置和碰撞圆不会上下跳动。
             float bob = _animations == null && moving ? Mathf.Abs(Mathf.Sin(_walkPhase)) * 0.045f : 0;
             _root.transform.position = new Vector3(position.x, position.y, 0);
@@ -104,10 +118,11 @@ namespace Game.Presentation.Views
                 else if (hitAge >= hurtDelay && hitAge < hurtDelay + HurtDuration)
                     frame = _animations.Frame(_animations.Hurt, hitAge - hurtDelay, _animationSettings.HurtFps, false);
                 else
-                    frame = _animations.Frame(moving ? _animations.Move : _animations.Idle,
-                        simulationTime - _loopStart, moving ? _animationSettings.MoveFps : _animationSettings.IdleFps, true);
-                if (frame != null) _body.sprite = frame;
+                    frame = _animations.Frame(moving ? _animations.Move : _animations.Idle, simulationTime - _loopStart, moving ? _animationSettings.MoveFps : _animationSettings.IdleFps, true);
+                if (frame != null)
+                    _body.sprite = frame;
             }
+
             // 受伤发生时点来自模拟；这里只决定反馈颜色，不通过动画回调决定伤害。
             _body.color = simulationTime - state.LastHitTime < 0.12 ? new Color(1, 0.45f, 0.4f) : Color.white;
             // 用地面 Y 排序，而不是图片中心或建筑视觉高度；靠下的对象显示在前。
@@ -122,7 +137,8 @@ namespace Game.Presentation.Views
         {
             if (_deathSettings == null)
                 throw new System.InvalidOperationException("Monster death presentation settings are missing.");
-            if (_deathStart < 0) _deathStart = simulationTime;
+            if (_deathStart < 0)
+                _deathStart = simulationTime;
             double age = System.Math.Max(0, simulationTime - _deathStart);
             _healthBackground.gameObject.SetActive(false);
             _body.color = Color.white;
@@ -132,17 +148,16 @@ namespace Game.Presentation.Views
             SetDepth(state.Y);
             if (_animations != null && _animations.Death != null && _animations.Death.Length > 0)
             {
-                _body.transform.localScale = Vector3.one * (_height /
-                    (_animations.Death[0].bounds.size.y * _animationSettings.DeathBodyHeightFraction));
+                _body.transform.localScale = Vector3.one * (_height / (_animations.Death[0].bounds.size.y * _animationSettings.DeathBodyHeightFraction));
                 float fps = _animations.Death.Length / _deathSettings.Duration;
                 _body.sprite = _animations.Frame(_animations.Death, age, fps, false);
             }
+
             // 使用模拟时钟，暂停冻结倒地/停留计时；每次渲染不会重置死亡开始时刻。
-            ReadyForRemoval = age >= _deathSettings.Duration + _deathSettings.Hold;
+            IsReadyForRemoval = age >= _deathSettings.Duration + _deathSettings.Hold;
         }
 
         public void Destroy() => Object.Destroy(_root);
-
         private void SetDepth(float groundY)
         {
             int order = BattleRenderSorting.UnitDepth(groundY);

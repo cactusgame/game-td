@@ -22,9 +22,9 @@
 
 1. 场景：`Assets/Scenes/Gameplay/BattlePrototype.unity`。
 2. 组装与入口：`Assets/Game/Bootstrap/BattleLifetimeScope.cs` 中的 Configure 与 BattleEntryPoint。
-3. 应用流程：`Assets/Game/Gameplay/Battle/Application/BattleSession.cs` 的 Restart、Advance、Refresh。
-4. 契约：同模块 `Contracts/BattlePorts.cs`。
-5. ECS：`Simulation/Components/BattleComponents.cs`、`Bridges/EcsBattleSimulation.cs`，再看移动和接触系统。
+3. 应用流程：`Assets/Game/Gameplay/Battle/Application/Sessions/BattleSession.cs` 的 Restart、Advance、Refresh。
+4. 契约：同模块 `Contracts/Commands/MoveIntent.cs`、`ReadModels/UnitSnapshot.cs` 与 `Ports/` 的三个独立接口。
+5. ECS：`Simulation/Components/` 的独立组件、`Bridges/EcsBattleSimulation.cs` 与 `Systems/BattleSystemGroup.cs`，再看导航、移动和接触系统。
 6. 配置：`Assets/Game/Infrastructure/Configuration/JsonBattleDefinitionSource.cs` 与 `Assets/Content/Combat/Prototype/battle.json`。
 7. 输入与画面：`Assets/Game/Presentation/Input`、`Views`、`UI`。
 8. 工具与测试：`Assets/Game/Tools/Prototype/Editor`、Battle 的 Tests。

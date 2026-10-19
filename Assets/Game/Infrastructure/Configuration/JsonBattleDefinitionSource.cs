@@ -1,6 +1,7 @@
 using System;
-using Game.Battle.Contracts;
-using Game.Battle.Domain;
+using Game.Battle.Contracts.Ports;
+using Game.Battle.Domain.Definitions;
+using Game.Battle.Domain.ValueObjects;
 using UnityEngine;
 
 namespace Game.Infrastructure.Configuration
@@ -9,25 +10,25 @@ namespace Game.Infrastructure.Configuration
     public sealed class JsonBattleDefinitionSource : IBattleDefinitionSource
     {
         private readonly TextAsset _asset;
-        public JsonBattleDefinitionSource(TextAsset asset) { _asset = asset; }
-        public BattleDefinition Load() => Parse(_asset != null ? _asset.text : throw new InvalidOperationException("Battle JSON is missing."));
+        public JsonBattleDefinitionSource(TextAsset asset)
+        {
+            _asset = asset;
+        }
 
+        public BattleDefinition Load() => Parse(_asset != null ? _asset.text : throw new InvalidOperationException("Battle JSON is missing."));
         // JSON DTO 只负责序列化格式；Build/构造函数负责建立有约束的领域定义。
         // 先验证再初始化模拟，避免运行时单位共享并修改配置对象。
         public static BattleDefinition Parse(string json)
         {
             var data = JsonUtility.FromJson<BattleJson>(json);
-            if (data == null || data.schemaVersion != 1 || data.arena == null || data.hero == null
-                || data.goblin == null || data.runner == null || data.spawn == null || data.navigation == null)
+            if (data == null || data.schemaVersion != 1 || data.arena == null || data.hero == null || data.goblin == null || data.runner == null || data.spawn == null || data.navigation == null)
                 throw new FormatException("Battle JSON must use schemaVersion 1 and contain arena, hero, goblin, runner, spawn and navigation.");
-            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin),
-                data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners,
-                data.arena.width, data.arena.height, data.fixedStep, data.seed,
-                new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius));
+            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius));
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
-        [Serializable] private sealed class BattleJson
+        [Serializable]
+        private sealed class BattleJson
         {
             public int schemaVersion;
             public uint seed;
@@ -37,16 +38,30 @@ namespace Game.Infrastructure.Configuration
             public UnitJson hero, goblin, runner;
             public NavigationJson navigation;
         }
-        [Serializable] private sealed class NavigationJson
+
+        [Serializable]
+        private sealed class NavigationJson
         {
             public float cellSize;
             public float detectionRadius;
             public float loseTargetRadius;
             public float repathSeconds;
         }
-        [Serializable] private sealed class ArenaJson { public float width, height; }
-        [Serializable] private sealed class SpawnJson { public int goblins, runners; }
-        [Serializable] private sealed class UnitJson
+
+        [Serializable]
+        private sealed class ArenaJson
+        {
+            public float width, height;
+        }
+
+        [Serializable]
+        private sealed class SpawnJson
+        {
+            public int goblins, runners;
+        }
+
+        [Serializable]
+        private sealed class UnitJson
         {
             public int maxHealth, attack, defense;
             public float speed, radius, visualHeight;

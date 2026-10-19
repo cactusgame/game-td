@@ -6,6 +6,7 @@ namespace Game.MapEngine.Domain
     public readonly struct GridCell : IEquatable<GridCell>
     {
         public int X { get; }
+
         public int Y { get; }
 
         public GridCell(int x, int y)

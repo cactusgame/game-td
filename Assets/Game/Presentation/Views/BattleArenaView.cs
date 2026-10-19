@@ -7,10 +7,10 @@ namespace Game.Presentation.Views
     public sealed class BattleArenaView : MonoBehaviour
     {
         private Mesh _runtimeMesh;
-
         public void Configure(float width, float height, BattleMapViewSettings settings)
         {
-            if (_runtimeMesh == null) _runtimeMesh = new Mesh { name = "Battle ground (runtime)" };
+            if (_runtimeMesh == null)
+                _runtimeMesh = new Mesh{name = "Battle ground (runtime)"};
             BattleArenaMesh.Build(_runtimeMesh, width, height, settings);
             GetComponent<MeshFilter>().sharedMesh = _runtimeMesh;
             var renderer = GetComponent<MeshRenderer>();
@@ -20,7 +20,8 @@ namespace Game.Presentation.Views
 
         private void OnDestroy()
         {
-            if (_runtimeMesh != null) Destroy(_runtimeMesh);
+            if (_runtimeMesh != null)
+                Destroy(_runtimeMesh);
         }
     }
 }

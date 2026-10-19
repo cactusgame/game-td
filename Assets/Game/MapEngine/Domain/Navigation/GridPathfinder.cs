@@ -15,7 +15,6 @@ namespace Game.MapEngine.Domain
         private readonly int[] _parent, _heap, _heapPosition;
         private readonly byte[] _state;
         private int _heapCount;
-
         public GridPathfinder(GridMap map)
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
@@ -30,9 +29,11 @@ namespace Game.MapEngine.Domain
         /// <summary>写入包含起点和终点的格子序列；失败时清空输出，不返回上次路径。</summary>
         public bool TryFindPath(GridCell start, GridCell goal, List<GridCell> output)
         {
-            if (output == null) throw new ArgumentNullException(nameof(output));
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
             output.Clear();
-            if (!_map.IsWalkable(start) || !_map.IsWalkable(goal)) return false;
+            if (!_map.IsWalkable(start) || !_map.IsWalkable(goal))
+                return false;
             Array.Clear(_state, 0, _state.Length);
             _heapCount = 0;
             int startIndex = _map.IndexOf(start);
@@ -41,7 +42,6 @@ namespace Game.MapEngine.Domain
             _parent[startIndex] = -1;
             _estimatedTotal[startIndex] = Distance(start, goal);
             Push(startIndex);
-
             while (_heapCount > 0)
             {
                 int currentIndex = Pop();
@@ -60,19 +60,25 @@ namespace Game.MapEngine.Domain
                     for (int dx = -1; dx <= 1; dx++)
                     {
                         var next = new GridCell(current.X + dx, current.Y + dy);
-                        if (!_map.CanStep(current, next)) continue;
+                        if (!_map.CanStep(current, next))
+                            continue;
                         int nextIndex = _map.IndexOf(next);
-                        if (_state[nextIndex] == 2) continue;
+                        if (_state[nextIndex] == 2)
+                            continue;
                         float cost = _cost[currentIndex] + Distance(current, next);
-                        if (_state[nextIndex] == 1 && cost >= _cost[nextIndex]) continue;
+                        if (_state[nextIndex] == 1 && cost >= _cost[nextIndex])
+                            continue;
                         _cost[nextIndex] = cost;
                         _parent[nextIndex] = currentIndex;
                         _estimatedTotal[nextIndex] = cost + Distance(next, goal);
-                        if (_state[nextIndex] == 0) Push(nextIndex);
-                        else SiftUp(_heapPosition[nextIndex]);
+                        if (_state[nextIndex] == 0)
+                            Push(nextIndex);
+                        else
+                            SiftUp(_heapPosition[nextIndex]);
                     }
                 }
             }
+
             return false;
         }
 
@@ -89,8 +95,7 @@ namespace Game.MapEngine.Domain
         // 固定容量二叉堆，无每次搜索的节点对象分配；相同估值用格子索引稳定排序。
         private bool ComesBefore(int left, int right)
         {
-            return _estimatedTotal[left] < _estimatedTotal[right] ||
-                (_estimatedTotal[left] == _estimatedTotal[right] && left < right);
+            return _estimatedTotal[left] < _estimatedTotal[right] || (_estimatedTotal[left] == _estimatedTotal[right] && left < right);
         }
 
         private void Push(int index)
@@ -105,18 +110,22 @@ namespace Game.MapEngine.Domain
         {
             int result = _heap[0];
             _heapCount--;
-            if (_heapCount == 0) return result;
+            if (_heapCount == 0)
+                return result;
             _heap[0] = _heap[_heapCount];
             _heapPosition[_heap[0]] = 0;
             int position = 0;
             while (position * 2 + 1 < _heapCount)
             {
                 int child = position * 2 + 1;
-                if (child + 1 < _heapCount && ComesBefore(_heap[child + 1], _heap[child])) child++;
-                if (!ComesBefore(_heap[child], _heap[position])) break;
+                if (child + 1 < _heapCount && ComesBefore(_heap[child + 1], _heap[child]))
+                    child++;
+                if (!ComesBefore(_heap[child], _heap[position]))
+                    break;
                 Swap(position, child);
                 position = child;
             }
+
             return result;
         }
 
@@ -125,7 +134,8 @@ namespace Game.MapEngine.Domain
             while (position > 0)
             {
                 int parent = (position - 1) / 2;
-                if (!ComesBefore(_heap[position], _heap[parent])) break;
+                if (!ComesBefore(_heap[position], _heap[parent]))
+                    break;
                 Swap(position, parent);
                 position = parent;
             }
