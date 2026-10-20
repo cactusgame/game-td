@@ -11,15 +11,6 @@ namespace Game.Presentation.Views
     /// <summary>画面入口：读取应用层快照，把业务单位 ID 关联到 Sprite 视图，不访问 ECS 组件。</summary>
     public sealed class BattleView : MonoBehaviour
     {
-        [FormerlySerializedAs("knight")]
-        [SerializeField]
-        private Sprite _knight;
-        [FormerlySerializedAs("goblin")]
-        [SerializeField]
-        private Sprite _goblin;
-        [FormerlySerializedAs("runner")]
-        [SerializeField]
-        private Sprite _runner;
         [FormerlySerializedAs("white")]
         [SerializeField]
         private Sprite _white;
@@ -29,15 +20,10 @@ namespace Game.Presentation.Views
         [FormerlySerializedAs("battleCamera")]
         [SerializeField]
         private Camera _battleCamera;
-        [FormerlySerializedAs("knightAnimations")]
         [SerializeField]
-        private UnitAnimationSet _knightAnimations;
-        [FormerlySerializedAs("goblinAnimations")]
-        [SerializeField]
-        private UnitAnimationSet _goblinAnimations;
-        [FormerlySerializedAs("runnerAnimations")]
-        [SerializeField]
-        private UnitAnimationSet _runnerAnimations;
+        private UnitAnimationSet[] _animationSets;
+        private readonly Dictionary<string, UnitAnimationSet> _resources = new Dictionary<string, UnitAnimationSet>();
+        private readonly Dictionary<string, UnitAnimationPlayer> _players = new Dictionary<string, UnitAnimationPlayer>();
         [FormerlySerializedAs("presentationConfig")]
         [SerializeField]
         private TextAsset _presentationConfig;
@@ -52,11 +38,34 @@ namespace Game.Presentation.Views
             _arenaView = arena;
         }
 
-        public void ConfigureAnimations(UnitAnimationSet hero, UnitAnimationSet basic, UnitAnimationSet fast)
+        public void ConfigureAnimations(params UnitAnimationSet[] resources)
         {
-            _knightAnimations = hero;
-            _goblinAnimations = basic;
-            _runnerAnimations = fast;
+            _animationSets = resources;
+        }
+
+        /// <summary>在创建视图前验证全部映射，避免资源错误到战斗中途才暴露。</summary>
+        private void ValidateAnimations()
+        {
+            _resources.Clear();
+            _players.Clear();
+            if (_animationSets == null)
+                throw new System.FormatException("Animation resource catalog is missing.");
+            foreach (var resource in _animationSets)
+            {
+                if (resource == null || !_resources.TryAdd(resource.name, resource))
+                    throw new System.FormatException("Animation resources must have unique names and valid references.");
+            }
+            foreach (var profile in _settings.Units)
+            {
+                if (!_resources.TryGetValue(profile.ResourceId, out var resource))
+                    throw new System.FormatException("Missing animation resource: " + profile.ResourceId);
+                var player = new UnitAnimationPlayer(resource);
+                player.Require(UnitAction.Idle);
+                player.Require(UnitAction.Walk);
+                _players.Add(profile.UnitKind, player);
+            }
+            foreach (var unit in _session.Units)
+                _settings.AnimationFor(unit.Kind);
         }
 
         private BattleSession _session;
@@ -64,11 +73,8 @@ namespace Game.Presentation.Views
         private readonly Dictionary<ulong, UnitView> _views = new Dictionary<ulong, UnitView>();
         // ECS 保留死亡快照直到重启；记录已移除 ID，避免尸体视图下一帧被重新创建。
         private readonly HashSet<ulong> _removedViews = new HashSet<ulong>();
-        public void Configure(Sprite hero, Sprite basic, Sprite fast, Sprite solid, Sprite disc, Camera camera)
+        public void Configure(Sprite solid, Sprite disc, Camera camera)
         {
-            _knight = hero;
-            _goblin = basic;
-            _runner = fast;
             _white = solid;
             _circle = disc;
             _battleCamera = camera;
@@ -89,6 +95,7 @@ namespace Game.Presentation.Views
             if (_generation != _session.Generation)
             {
                 _settings = BattlePresentationSettings.Parse(_presentationConfig != null ? _presentationConfig.text : throw new System.InvalidOperationException("Presentation JSON is missing."));
+                ValidateAnimations();
                 // 重启后单位 ID 可以重新使用，因此先清除上一局的显示对象，避免复用旧配置或残留单位。
                 foreach (Transform child in transform)
                     Destroy(child.gameObject);
@@ -133,33 +140,15 @@ namespace Game.Presentation.Views
         /// <summary>根据已验证的领域分类选取表现资源；此处只创建视图，不创建或修改模拟单位。</summary>
         private UnitView CreateUnitView(UnitSnapshot unit)
         {
-            Sprite sprite;
-            UnitAnimationSet animations;
-            switch (unit.Kind)
-            {
-                case UnitKind.Hero:
-                    sprite = _knight;
-                    animations = _knightAnimations;
-                    break;
-                case UnitKind.Goblin:
-                    sprite = _goblin;
-                    animations = _goblinAnimations;
-                    break;
-                case UnitKind.Runner:
-                    sprite = _runner;
-                    animations = _runnerAnimations;
-                    break;
-                default:
-                    throw new System.ArgumentOutOfRangeException(nameof(unit), "Unknown unit kind.");
-            }
-
+            var profile = _settings.AnimationFor(unit.Kind);
+            var sprite = _players[profile.UnitKind].Require(UnitAction.Idle).Frame(0);
             var definition = _session.Definition.GetUnit(unit.Kind);
             var teamColor = unit.Kind == UnitKind.Hero
                 ? new Color(0.38f, 0.78f, 0.98f)
                 : new Color(0.83f, 0.38f, 0.29f);
             return new UnitView(
                 transform, sprite, _white, _circle, definition.VisualHeight, definition.Radius,
-                teamColor, animations, _settings.Death, _settings.AnimationFor(unit.Kind));
+                teamColor, _players[profile.UnitKind], _settings.Death);
         }
     }
 }

@@ -59,8 +59,12 @@ namespace Game.Tools.Prototype
             var definition = Game.Infrastructure.Configuration.JsonBattleDefinitionSource.Parse(config.text);
             var arena = CreateArena(definition, white);
             var view = new GameObject("UnitViews").AddComponent<BattleView>();
-            view.Configure(LoadSprite("Assets/Content/Units/Heroes/Knight/Sprites/knight.png"), LoadSprite("Assets/Content/Units/Enemies/Goblin/Sprites/goblin.png"), LoadSprite("Assets/Content/Units/Enemies/Runner/Sprites/runner.png"), white, circle, camera);
-            view.ConfigureAnimations(BattleAnimationSetup.Import("Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.png"), BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png"), BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png"));
+            view.Configure(white, circle, camera);
+            view.ConfigureAnimations(
+                AlienAnimationImport.Load(),
+                BattleAnimationSetup.Import("Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.png"),
+                BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png"),
+                BattleAnimationSetup.Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png"));
             BattleAnimationSetup.ImportDeathAssets();
             view.ConfigureMapView(BattleMapViewSetup.LoadSettingsAsset(), arena);
             var canvas = new GameObject("BattleCanvas", typeof(RectTransform), typeof(Canvas), typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));

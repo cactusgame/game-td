@@ -11,28 +11,23 @@ namespace Game.Presentation.Views
         public int schemaVersion;
         public UnitDeathSettings Death;
         public BattleMapViewSettings Map;
-        public UnitAnimationSettings Knight, Goblin, Runner;
+        public UnitAnimationSettings[] Units;
+
         public UnitAnimationSettings AnimationFor(UnitKind kind)
         {
-            switch (kind)
+            foreach (var unit in Units)
             {
-                case UnitKind.Hero:
-                    return Knight;
-                case UnitKind.Goblin:
-                    return Goblin;
-                case UnitKind.Runner:
-                    return Runner;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(kind));
+                if (unit.UnitKind == kind.ToString())
+                    return unit;
             }
+            throw new FormatException("Missing animation profile for unit kind: " + kind);
         }
 
         public static BattlePresentationSettings Parse(string json)
         {
             var data = JsonUtility.FromJson<BattlePresentationSettings>(json);
-            if (data == null || data.schemaVersion != 1 || data.Death == null || data.Map == null || data.Knight == null || data.Goblin == null || data.Runner == null)
-                throw new FormatException("Presentation JSON requires schemaVersion 1, Death, Map, Knight, Goblin and Runner.");
-            Positive(data.Death.AnimationSeconds, "Death.AnimationSeconds");
+            if (data == null || data.schemaVersion != 3 || data.Death == null || data.Map == null || data.Units == null || data.Units.Length == 0)
+                throw new FormatException("Presentation JSON requires schemaVersion 3, Death, Map and Units.");
             Nonnegative(data.Death.CorpseHoldSeconds, "Death.CorpseHoldSeconds");
             Positive(data.Map.VisibleWorldHeight, "Map.VisibleWorldHeight");
             Nonnegative(data.Map.EdgeMargin, "Map.EdgeMargin");
@@ -42,14 +37,13 @@ namespace Game.Presentation.Views
             ValidateColor(data.Map.GroundLight, "Map.GroundLight");
             ValidateColor(data.Map.GroundDark, "Map.GroundDark");
             ValidateColor(data.Map.BorderColor, "Map.BorderColor");
-            foreach (var animation in new[]{data.Knight, data.Goblin, data.Runner})
+            var kinds = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal);
+            foreach (var animation in data.Units)
             {
-                Positive(animation.IdleFps, "IdleFps");
-                Positive(animation.MoveFps, "MoveFps");
-                Positive(animation.AttackFps, "AttackFps");
-                Positive(animation.HurtFps, "HurtFps");
-                Fraction(animation.BodyHeightFraction, "BodyHeightFraction");
-                Fraction(animation.DeathBodyHeightFraction, "DeathBodyHeightFraction");
+                if (animation == null || !Enum.TryParse<UnitKind>(animation.UnitKind, out var kind) ||
+                    !Enum.IsDefined(typeof(UnitKind), kind) || animation.UnitKind != kind.ToString() || !kinds.Add(animation.UnitKind) ||
+                    string.IsNullOrWhiteSpace(animation.ResourceId))
+                    throw new FormatException("Unit visuals require unique known UnitKind and ResourceId.");
             }
 
             return data;
@@ -65,13 +59,6 @@ namespace Game.Presentation.Views
         {
             if (float.IsNaN(value) || float.IsInfinity(value) || value < 0)
                 throw new FormatException(name + " must be finite and nonnegative.");
-        }
-
-        private static void Fraction(float value, string name)
-        {
-            Positive(value, name);
-            if (value > 1)
-                throw new FormatException(name + " must not exceed 1.");
         }
 
         private static void ValidateColor(Color color, string name)

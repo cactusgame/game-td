@@ -2,11 +2,11 @@ using System;
 
 namespace Game.Presentation.Views
 {
-    /// <summary>JSON 中的动画参数；与 Sprite 资源引用分离。</summary>
+    /// <summary>产品可变的单位外观选择，不包含素材制作参数或实例状态。</summary>
     [Serializable]
     public sealed class UnitAnimationSettings
     {
-        public float IdleFps, MoveFps, AttackFps, HurtFps;
-        public float BodyHeightFraction, DeathBodyHeightFraction;
+        public string UnitKind;
+        public string ResourceId;
     }
 }

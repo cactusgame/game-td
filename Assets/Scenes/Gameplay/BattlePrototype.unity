@@ -1323,17 +1323,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35160b63ad744d2459044492dc880865, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.BattleView
-  knight: {fileID: 21300000, guid: 69ce71138da4e3449a4795db8d96e484, type: 3}
-  goblin: {fileID: 21300000, guid: 934945535f8889a4d80cf93716cc2b90, type: 3}
-  runner: {fileID: 21300000, guid: 5c9d77bf0fdd31c4890e5eaafe5e70fc, type: 3}
-  white: {fileID: 4966732595609684114, guid: 6b39d7c08e4474242bbe49c259a67c67, type: 3}
-  circle: {fileID: -6231044458718751821, guid: 61a18cb62a940ac4abe5521ac9ed63b5, type: 3}
-  battleCamera: {fileID: 682556579}
-  knightAnimations: {fileID: 11400000, guid: 79bf4676fe38f114d942be252546168c, type: 2}
-  goblinAnimations: {fileID: 11400000, guid: ba3e8ffc9f93c6549b5ea83fba70dc69, type: 2}
-  runnerAnimations: {fileID: 11400000, guid: edf4c18ee27262149a7d8837156aba5a, type: 2}
-  presentationConfig: {fileID: 4900000, guid: 96b8bcc4c2245834ebb959a67adbe370, type: 3}
-  arenaView: {fileID: 1231984343}
+  _white: {fileID: 4966732595609684114, guid: 6b39d7c08e4474242bbe49c259a67c67, type: 3}
+  _circle: {fileID: -6231044458718751821, guid: 61a18cb62a940ac4abe5521ac9ed63b5, type: 3}
+  _battleCamera: {fileID: 682556579}
+  _animationSets:
+  - {fileID: 11400000, guid: 699aff57e3762884dbff13b9eb2f0d0d, type: 2}
+  - {fileID: 11400000, guid: 79bf4676fe38f114d942be252546168c, type: 2}
+  - {fileID: 11400000, guid: ba3e8ffc9f93c6549b5ea83fba70dc69, type: 2}
+  - {fileID: 11400000, guid: edf4c18ee27262149a7d8837156aba5a, type: 2}
+  _presentationConfig: {fileID: 4900000, guid: 96b8bcc4c2245834ebb959a67adbe370, type: 3}
+  _arenaView: {fileID: 1231984343}
 --- !u!4 &1362957773
 Transform:
   m_ObjectHideFlags: 0
@@ -1611,7 +1610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5f915e6625d3c54eb82d5eaef1614c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Input.VirtualJoystick
-  handle: {fileID: 1857544930}
+  _handle: {fileID: 1857544930}
 --- !u!1 &1628489397
 GameObject:
   m_ObjectHideFlags: 0
@@ -1645,7 +1644,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43681e9cd121334409a297622a39a64c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.UI.PerformanceHud
-  label: {fileID: 1409004496}
+  _label: {fileID: 1409004496}
 --- !u!224 &1628489399
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1678,9 +1677,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 325c893eee919dc41ad2574726187cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.UI.BattleHud
-  status: {fileID: 1019198122}
-  heroHealth: {fileID: 359791048}
-  restart: {fileID: 388397002}
+  _status: {fileID: 1019198122}
+  _heroHealth: {fileID: 359791048}
+  _restart: {fileID: 388397002}
 --- !u!114 &1628489401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2129,11 +2128,11 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
-  definition: {fileID: 4900000, guid: 8cf5d691761345d44b46d97a52079090, type: 3}
-  joystick: {fileID: 1616658743}
-  battleView: {fileID: 1362957772}
-  battleHud: {fileID: 1628489400}
-  performanceHud: {fileID: 1628489398}
+  _definition: {fileID: 4900000, guid: 8cf5d691761345d44b46d97a52079090, type: 3}
+  _joystick: {fileID: 1616658743}
+  _battleView: {fileID: 1362957772}
+  _battleHud: {fileID: 1628489400}
+  _performanceHud: {fileID: 1628489398}
 --- !u!4 &2027527916
 Transform:
   m_ObjectHideFlags: 0

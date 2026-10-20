@@ -15,25 +15,27 @@ namespace Game.Presentation.Views
         private readonly float _height;
         private Vector2 _last;
         private float _walkPhase;
-        private readonly UnitAnimationSet _animations;
+        private readonly UnitAnimationPlayer _animations;
         private readonly UnitDeathSettings _deathSettings;
-        private readonly UnitAnimationSettings _animationSettings;
-        private double AttackDuration => (_animations.Attack?.Length ?? 0) / (double)_animationSettings.AttackFps;
-        private double HurtDuration => (_animations.Hurt?.Length ?? 0) / (double)_animationSettings.HurtFps;
+        private double AttackDuration => _animations.Find(UnitAction.Attack)?.Duration ?? 0;
+        private double HurtDuration => _animations.Find(UnitAction.Hurt)?.Duration ?? 0;
         private double _deathStart = -1;
         public bool IsReadyForRemoval { get; private set; }
 
         private double _lastRenderTime = -1, _loopStart;
         private bool _moving;
-        public UnitView(Transform parent, Sprite sprite, Sprite white, Sprite circle, float height, float radius, Color teamColor, UnitAnimationSet animations = null, UnitDeathSettings deathSettings = null, UnitAnimationSettings animationSettings = null)
+        public UnitView(
+            Transform parent, Sprite sprite, Sprite white, Sprite circle,
+            float height, float radius, Color teamColor,
+            UnitAnimationPlayer animations = null,
+            UnitDeathSettings deathSettings = null)
         {
             _animations = animations;
             _deathSettings = deathSettings;
-            _animationSettings = animationSettings;
-            if (animations != null && animationSettings == null)
-                throw new System.ArgumentNullException(nameof(animationSettings));
-            if (animations != null && animations.Idle.Length > 0)
-                sprite = animations.Idle[0];
+            if (animations != null)
+            {
+                sprite = _animations.Require(UnitAction.Idle).Frame(0);
+            }
             _height = height;
             _root = new GameObject("UnitView");
             _root.transform.SetParent(parent, false);
@@ -41,7 +43,7 @@ namespace Game.Presentation.Views
             _shadow.sortingLayerName = BattleRenderSorting.ShadowLayer;
             _shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
             _body = Child("Sprite", sprite, Color.white);
-            float scale = height / (sprite.bounds.size.y * (animations != null ? animationSettings.BodyHeightFraction : 1));
+            float scale = height / (sprite.bounds.size.y * (animations != null ? animations.BodyHeightFraction : 1));
             _body.transform.localScale = Vector3.one * scale;
             var back = Child("HealthBackground", white, new Color(0.1f, 0.12f, 0.09f, 1));
             back.transform.localPosition = new Vector3(0, height + 0.1f, 0);
@@ -105,7 +107,7 @@ namespace Game.Presentation.Views
             float bob = _animations == null && moving ? Mathf.Abs(Mathf.Sin(_walkPhase)) * 0.045f : 0;
             _root.transform.position = new Vector3(position.x, position.y, 0);
             _body.transform.localPosition = new Vector3(0, bob, 0);
-            _body.flipX = state.FacingX < 0;
+            _body.flipX = (state.FacingX < 0) != (_animations?.FacesLeft ?? false);
             if (_animations != null)
             {
                 double hitAge = simulationTime - state.LastHitTime;
@@ -114,11 +116,11 @@ namespace Game.Presentation.Views
                 double hurtDelay = state.LastAttackTime == state.LastHitTime ? AttackDuration : 0;
                 Sprite frame;
                 if (attackAge >= 0 && attackAge < AttackDuration)
-                    frame = _animations.Frame(_animations.Attack, attackAge, _animationSettings.AttackFps, false);
+                    frame = _animations.Require(UnitAction.Attack).Frame(attackAge);
                 else if (hitAge >= hurtDelay && hitAge < hurtDelay + HurtDuration)
-                    frame = _animations.Frame(_animations.Hurt, hitAge - hurtDelay, _animationSettings.HurtFps, false);
+                    frame = _animations.Require(UnitAction.Hurt).Frame(hitAge - hurtDelay);
                 else
-                    frame = _animations.Frame(moving ? _animations.Move : _animations.Idle, simulationTime - _loopStart, moving ? _animationSettings.MoveFps : _animationSettings.IdleFps, true);
+                    frame = _animations.Require(moving ? UnitAction.Walk : UnitAction.Idle).Frame(simulationTime - _loopStart);
                 if (frame != null)
                     _body.sprite = frame;
             }
@@ -144,17 +146,17 @@ namespace Game.Presentation.Views
             _body.color = Color.white;
             _root.transform.position = new Vector3(state.X, state.Y, 0);
             _body.transform.localPosition = Vector3.zero;
-            _body.flipX = state.FacingX < 0;
+            _body.flipX = (state.FacingX < 0) != (_animations?.FacesLeft ?? false);
             SetDepth(state.Y);
-            if (_animations != null && _animations.Death != null && _animations.Death.Length > 0)
+            var death = _animations?.Find(UnitAction.Death);
+            if (death != null)
             {
-                _body.transform.localScale = Vector3.one * (_height / (_animations.Death[0].bounds.size.y * _animationSettings.DeathBodyHeightFraction));
-                float fps = _animations.Death.Length / _deathSettings.Duration;
-                _body.sprite = _animations.Frame(_animations.Death, age, fps, false);
+                _body.transform.localScale = Vector3.one * (_height / (death.Frame(0).bounds.size.y * _animations.DeathBodyHeightFraction));
+                _body.sprite = death.Frame(age);
             }
 
             // 使用模拟时钟，暂停冻结倒地/停留计时；每次渲染不会重置死亡开始时刻。
-            IsReadyForRemoval = age >= _deathSettings.Duration + _deathSettings.Hold;
+            IsReadyForRemoval = age >= (death?.Duration ?? 0) + _deathSettings.Hold;
         }
 
         public void Destroy() => Object.Destroy(_root);

@@ -12,24 +12,83 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
   m_Name: knight-actions
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
-  Idle:
+  Frames:
   - {fileID: -1001277650, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -215601015, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -773615552, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: 1976686455, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
-  Move:
   - {fileID: 1816643512, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -622181408, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -1452901080, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: 526396373, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
-  Attack:
   - {fileID: 15672672, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -578750636, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: 1026902884, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -1137742555, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
-  Hurt:
   - {fileID: -135045025, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: -314106451, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: 299411910, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
   - {fileID: 1020396431, guid: 869837dc2b580424eb8ec03b44bb0076, type: 3}
-  Death: []
+  BodyHeightFraction: 0.6539075
+  DeathBodyHeightFraction: 0.6
+  FacesLeft: 0
+  Idle:
+    FirstFrame: 1
+    LastFrame: 4
+    Fps: 5
+    Loop: 1
+  Walk:
+    FirstFrame: 5
+    LastFrame: 8
+    Fps: 9
+    Loop: 1
+  Attack:
+    FirstFrame: 9
+    LastFrame: 12
+    Fps: 10
+    Loop: 0
+  Run:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Hurt:
+    FirstFrame: 13
+    LastFrame: 16
+    Fps: 14
+    Loop: 0
+  Death:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill2:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill3:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Jump:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Spawn:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  WalkBack:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0

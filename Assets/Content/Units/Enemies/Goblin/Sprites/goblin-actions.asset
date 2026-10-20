@@ -12,28 +12,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
   m_Name: goblin-actions
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
-  Idle:
+  Frames:
   - {fileID: -1078866195, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 2073696235, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 1613708232, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 702208735, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
-  Move:
   - {fileID: 1225283458, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: -691968452, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 2112248119, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 1513450687, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
-  Attack:
   - {fileID: -1014183664, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: -1756707157, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 456465276, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 1438064068, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
-  Hurt:
   - {fileID: -1426944032, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 262138742, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: -964390495, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
   - {fileID: 617130311, guid: fddb3c3fc0a3d454689d421d2a897b48, type: 3}
-  Death:
   - {fileID: -319555471, guid: b0d91c07f3fd99842a807902be55fcb5, type: 3}
   - {fileID: 129152666, guid: b0d91c07f3fd99842a807902be55fcb5, type: 3}
   - {fileID: 2030559192, guid: b0d91c07f3fd99842a807902be55fcb5, type: 3}
   - {fileID: 987344831, guid: b0d91c07f3fd99842a807902be55fcb5, type: 3}
+  BodyHeightFraction: 0.6092504
+  DeathBodyHeightFraction: 0.7448166
+  FacesLeft: 0
+  Idle:
+    FirstFrame: 1
+    LastFrame: 4
+    Fps: 5
+    Loop: 1
+  Walk:
+    FirstFrame: 5
+    LastFrame: 8
+    Fps: 9
+    Loop: 1
+  Attack:
+    FirstFrame: 9
+    LastFrame: 12
+    Fps: 10
+    Loop: 0
+  Run:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Hurt:
+    FirstFrame: 13
+    LastFrame: 16
+    Fps: 14
+    Loop: 0
+  Death:
+    FirstFrame: 17
+    LastFrame: 20
+    Fps: 6.6666665
+    Loop: 0
+  Skill:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill2:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill3:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Jump:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Spawn:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  WalkBack:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0

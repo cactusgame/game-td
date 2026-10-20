@@ -1,7 +1,6 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "Death": {
-    "AnimationSeconds": 0.6,
     "CorpseHoldSeconds": 1.5
   },
   "Map": {
@@ -29,28 +28,18 @@
       "a": 1
     }
   },
-  "Knight": {
-    "IdleFps": 5,
-    "MoveFps": 9,
-    "AttackFps": 10,
-    "HurtFps": 14,
-    "BodyHeightFraction": 0.6539075,
-    "DeathBodyHeightFraction": 0.6
-  },
-  "Goblin": {
-    "IdleFps": 5,
-    "MoveFps": 9,
-    "AttackFps": 10,
-    "HurtFps": 14,
-    "BodyHeightFraction": 0.6092504,
-    "DeathBodyHeightFraction": 0.7448166
-  },
-  "Runner": {
-    "IdleFps": 5,
-    "MoveFps": 9,
-    "AttackFps": 10,
-    "HurtFps": 14,
-    "BodyHeightFraction": 0.6698565,
-    "DeathBodyHeightFraction": 0.7001595
-  }
+  "Units": [
+    {
+      "UnitKind": "Hero",
+      "ResourceId": "alien-actions"
+    },
+    {
+      "UnitKind": "Goblin",
+      "ResourceId": "goblin-actions"
+    },
+    {
+      "UnitKind": "Runner",
+      "ResourceId": "runner-actions"
+    }
+  ]
 }

@@ -14,14 +14,15 @@ namespace Game.Tools.Prototype
     {
         public static void Apply()
         {
-            var hero = Import("Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.png");
+            var hero = AlienAnimationImport.Load();
+            var knight = Import("Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.png");
             var goblin = Import("Assets/Content/Units/Enemies/Goblin/Sprites/goblin-actions.png");
             var runner = Import("Assets/Content/Units/Enemies/Runner/Sprites/runner-actions.png");
             var view = UnityEngine.Object.FindAnyObjectByType<BattleView>();
             if (view == null)
                 throw new InvalidOperationException("Open the battle scene before applying animations.");
             Undo.RecordObject(view, "Apply unit animations");
-            view.ConfigureAnimations(hero, goblin, runner);
+            view.ConfigureAnimations(hero, knight, goblin, runner);
             ImportDeathAssets();
             EditorUtility.SetDirty(view);
             EditorSceneManager.MarkSceneDirty(view.gameObject.scene);
@@ -120,6 +121,12 @@ namespace Game.Tools.Prototype
                 {
                     string name = death ? "Death_" + (row * grid + col) : actions[row] + "_" + col;
                     var existing = previous.FirstOrDefault(r => r.name == name);
+                    // 已有 Sprite 保留美术手调的边界与 pivot；重跑导入只补齐缺失帧。
+                    if (existing != null)
+                    {
+                        rects[row * grid + col] = existing;
+                        continue;
+                    }
                     var frame = FrameRect(col, row);
                     rects[row * grid + col] = new SpriteRect{name = name, spriteID = existing != null ? existing.spriteID : GUID.Generate(), rect = frame, alignment = SpriteAlignment.Custom, pivot = new Vector2(((col + 0.5f) * cellWidth - frame.x) / frame.width, (Bottom(col, row) - frame.y) / cellHeight)};
                 }
@@ -145,14 +152,11 @@ namespace Game.Tools.Prototype
             Sprite[] Frames(string action) => sprites.Where(s => s.name.StartsWith(action + "_", StringComparison.Ordinal)).OrderBy(s => s.name).ToArray();
             if (death)
             {
-                set.Death = Frames("Death");
+                set.Frames = (set.Frames ?? Array.Empty<Sprite>()).Take(16).Concat(Frames("Death")).ToArray();
             }
             else
             {
-                set.Idle = Frames("Idle");
-                set.Move = Frames("Move");
-                set.Attack = Frames("Attack");
-                set.Hurt = Frames("Hurt");
+                set.Frames = Frames("Idle").Concat(Frames("Move")).Concat(Frames("Attack")).Concat(Frames("Hurt")).Concat((set.Frames ?? Array.Empty<Sprite>()).Skip(16)).ToArray();
             }
 
             EditorUtility.SetDirty(set);

@@ -11,23 +11,22 @@ namespace Game.Battle.Tests
         private const string PresentationPath = "Assets/Content/Combat/Prototype/presentation.json";
         private const string BattlePath = "Assets/Content/Combat/Prototype/battle.json";
         [Test]
-        public void DeathAndAnimationValuesAreReloadedFromJson()
+        public void ProductCanReloadResourceSelectionWithoutAnyAnimationAuthoringParameters()
         {
             var configured = BattlePresentationSettings.Parse(File.ReadAllText(PresentationPath));
-            Assert.That(configured.Death.AnimationSeconds, Is.EqualTo(0.6f));
             Assert.That(configured.Death.CorpseHoldSeconds, Is.EqualTo(1.5f));
-            string changed = UnityEngine.JsonUtility.ToJson(configured);
-            changed = changed.Replace("\"AnimationSeconds\":0.6", "\"AnimationSeconds\":1.2").Replace("\"AttackFps\":10.0", "\"AttackFps\":20.0");
+            string changed = UnityEngine.JsonUtility.ToJson(configured)
+                .Replace("alien-actions", "knight-actions").Replace("1.5", "2.5");
             var reloaded = BattlePresentationSettings.Parse(changed);
-            Assert.That(reloaded.Death.AnimationSeconds, Is.EqualTo(1.2f));
-            Assert.That(reloaded.Knight.AttackFps, Is.EqualTo(20));
-            Assert.That(configured.Knight.AttackFps, Is.EqualTo(10));
+            Assert.That(reloaded.Death.CorpseHoldSeconds, Is.EqualTo(2.5f));
+            Assert.That(reloaded.AnimationFor(Game.Battle.Domain.ValueObjects.UnitKind.Hero).ResourceId, Is.EqualTo("knight-actions"));
+            Assert.That(configured.AnimationFor(Game.Battle.Domain.ValueObjects.UnitKind.Hero).ResourceId, Is.EqualTo("alien-actions"));
+            string binding = UnityEngine.JsonUtility.ToJson(configured.Units[0]);
+            Assert.That(binding, Is.EqualTo("{\"UnitKind\":\"Hero\",\"ResourceId\":\"alien-actions\"}"));
         }
 
-        [TestCase("AnimationSeconds", -1)]
         [TestCase("CorpseHoldSeconds", -1)]
-        [TestCase("AttackFps", 0)]
-        [TestCase("BodyHeightFraction", 2)]
+        [TestCase("VisibleWorldHeight", 0)]
         public void InvalidPresentationValuesAreRejected(string field, float value)
         {
             string json = File.ReadAllText(PresentationPath);

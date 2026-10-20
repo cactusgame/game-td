@@ -9,7 +9,7 @@ namespace Game.Battle.Tests
 {
     public sealed class UnitRenderSortingTests
     {
-        [TestCase("Heroes/Knight/Sprites/knight", UnitKind.Hero)]
+        [TestCase("Heroes/Alien/alien", UnitKind.Hero)]
         [TestCase("Enemies/Goblin/Sprites/goblin", UnitKind.Goblin)]
         [TestCase("Enemies/Runner/Sprites/runner", UnitKind.Runner)]
         public void UnitsAndHealthStayAboveGroundAcrossTheWholeMap(string path, UnitKind kind)
@@ -22,8 +22,9 @@ namespace Game.Battle.Tests
             ground.sortingOrder = 0;
             try
             {
-                var sprite = animations.Idle[0];
-                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.65f, 0.4f, Color.white, animations, settings, BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).AnimationFor(kind));
+                var player = new UnitAnimationPlayer(animations);
+                var sprite = player.Require(UnitAction.Idle).Frame(0);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.65f, 0.4f, Color.white, player, settings);
                 var unit = root.transform.GetChild(0);
                 var body = unit.Find("Sprite").GetComponent<SpriteRenderer>();
                 var shadow = unit.Find("GroundShadow").GetComponent<SpriteRenderer>();
@@ -45,7 +46,7 @@ namespace Game.Battle.Tests
                 if (kind != UnitKind.Hero)
                 {
                     view.Render(new UnitSnapshot(1, kind, 0, 26.58f, 1, 0, 10, 2), 2, 0);
-                    Assert.That(animations.Death, Does.Contain(body.sprite));
+                    Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(0)));
                     AssertDrawnAfter(body, ground);
                 }
             }
