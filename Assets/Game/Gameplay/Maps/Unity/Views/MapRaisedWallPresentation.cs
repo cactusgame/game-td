@@ -58,22 +58,50 @@ namespace Game.Maps.Unity.Views
                 yield return entry;
         }
 
+        /// <summary>
+        /// 为一条墙边的指定区间生成表现：墙身立面 → 墙顶铺地 → 两侧女墙和垛口。
+        /// Build 已扣除敌台占用的端部；有城门时，门两侧分别调用本方法。
+        /// 输出只包含可重建的渲染片段，不创建新的墙边，也不修改地图或导航状态。
+        /// </summary>
+        /// <param name="id">原墙边的稳定 ID；本段生成的所有片段仍归属于该墙边。</param>
+        /// <param name="start">整条墙边规范方向后的地面起点，同时作为墙面纹理和垛口排列的共同基准。</param> 规则是：优先从左向右；如果是纵墙，则从下向上。
+        /// <param name="direction">沿墙的单位向量。</param>
+        /// <param name="normal">地面内垂直于墙的单位向量，用于向两侧扩出墙宽。</param>
+        /// <param name="first">本段起点距 start 的距离，使用地面世界单位。</param>
+        /// <param name="last">本段终点距 start 的距离；它是终点距离，不是本段长度。</param>
+        /// <param name="geometry">墙身、敌台接口、女墙和垛口共用的表现尺寸。</param>
+        /// <param name="masonry">立面石砖素材。</param>
+        /// <param name="paving">平台及女墙、垛口顶面使用的铺地素材。</param>
         private static IEnumerable<MapSceneSprites.Entry> BuildSection(string id, Vector2 start, Vector2 direction,
             Vector2 normal, float first, float last, MapWallGeometry geometry, Sprite masonry, Sprite paving)
         {
             if (last <= first)
                 yield break;
+
+            // 将沿墙的一维距离还原为地面端点，再向法线两侧各扩展半个墙宽。
+            // footprint 是完整墙顶平台的矩形轮廓，与墙的朝向无关，不包含立面向上的高度。
             Vector2 a = start + direction * first;
             Vector2 b = start + direction * last;
             var footprint = Rectangle(a, b, normal * geometry.Width * 0.5f);
+
+            // 同一墙边可能被城门分成两段，用区间起点区分排序键，领域身份仍保留为 id。
+            // builder 收集表面，并在加入表面时按地面深度、纹理重复边界进行裁切。
             var builder = new MapWallSurfaceBuilder(id, "wall/" + id + "/" + first.ToString("R", System.Globalization.CultureInfo.InvariantCulture), geometry, footprint);
 
-            // 端面属于敌台连接口，只绘制墙的长边；不能在走道相接处留下竖直封口。
+            // 两条长边从地面升到墙顶高度，使用立面石砖；两端接敌台或门框，不生成封口面。
+            // 两次 Side 都保留整条墙的 start 作为纹理原点，避免城门两侧各自重置砖纹。
             Side(builder, footprint[0], footprint[1], 0, geometry.DeckHeight, start, direction, geometry, masonry, 0);
             Side(builder, footprint[2], footprint[3], 0, geometry.DeckHeight, start, direction, geometry, masonry, 0);
+
+            // 先铺满整个墙顶，再在两侧叠加女墙；中间留下的路面净宽为 Width - 2 * RailWidth。
+            // Deck 的纹理按世界地面坐标采样，使墙顶与敌台平台采用同一套铺地坐标。
             builder.Deck(footprint, geometry.DeckHeight, paving, new Color(0.94f, 0.92f, 0.86f), 1);
+
+            // +1、-1 分别表示法线两侧。AddRail 同时生成连续的矮女墙与固定间距的高垛口。
             AddRail(builder, start, direction, normal, first, last, 1, geometry, masonry, paving);
             AddRail(builder, start, direction, normal, first, last, -1, geometry, masonry, paving);
+
+            // 按深度条带、表面层级和素材归并后输出，供编辑器画布与游戏 Mesh 视图共同使用。
             foreach (var entry in builder.Finish())
                 yield return entry;
         }

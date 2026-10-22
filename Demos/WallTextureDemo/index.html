@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>两张纹理，怎样变成一段城墙</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #111a21; color: #e7edf0; font: 15px/1.7 "Segoe UI", "Microsoft YaHei", sans-serif; }
+    main { max-width: 1180px; margin: auto; padding: 28px 24px 48px; }
+    h1 { font-size: 27px; margin: 0 0 6px; }
+    p { margin: 5px 0 16px; }
+    .muted { color: #a8bac6; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 16px 0; }
+    button, select { font: inherit; padding: 7px 12px; color: inherit; background: #253540; border: 1px solid #536b7c; border-radius: 5px; }
+    button { cursor: pointer; }
+    button[aria-pressed="true"] { background: #28594e; border-color: #91d4b4; }
+    label { display: inline-flex; align-items: center; gap: 7px; }
+    input[type="range"] { width: 130px; }
+    canvas { display: block; width: 100%; height: auto; background: #1b292f; border-radius: 8px; cursor: crosshair; }
+    #description { min-height: 55px; }
+    .sources { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 22px 0; }
+    figure { margin: 0; }
+    figure img { width: 100%; height: 125px; object-fit: cover; border-radius: 5px; }
+    figcaption { margin-top: 6px; }
+    code { color: #c2e6d5; }
+    pre { padding: 14px; background: #1b292f; white-space: pre-wrap; overflow-wrap: anywhere; }
+    details { margin-top: 18px; }
+    summary { cursor: pointer; }
+    #error { color: #ffb1a3; }
+    @media (max-width: 600px) { main { padding: 18px 12px; } h1 { font-size: 22px; } .sources { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>两张纹理，怎样变成一段城墙</h1>
+  <p class="muted">独立教学示例 · 固定坐标 · 无 Unity、无安装、无联网依赖</p>
+  <p>先点“纯色”，观察程序生成的形状，再切到“贴纹理”。垛口的空缺来自几何，石砖细节来自图片。</p>
+  <div class="controls" aria-label="构建步骤">
+    <button data-step="0">0 地面轮廓</button>
+    <button data-step="1">1 墙身</button>
+    <button data-step="2">2 墙顶路面</button>
+    <button data-step="3">3 女墙</button>
+    <button data-step="4" aria-pressed="true">4 垛口</button>
+  </div>
+  <div class="controls">
+    <label>表面显示 <select id="mode"><option value="texture">贴纹理</option><option value="solid">纯色</option></select></label>
+    <label><input type="checkbox" id="wire">显示三角形边线</label>
+    <label>纹理尺寸 <input id="textureScale" type="range" min="0.6" max="1.6" step="0.1" value="1"><output id="scaleValue">1.0 倍</output></label>
+    <button id="reset">恢复演示</button>
+  </div>
+  <p id="description" aria-live="polite"></p>
+  <canvas id="scene" width="1100" height="500" aria-label="由矩形表面和三角形构成的城墙演示，可点击表面查看纹理坐标">浏览器需要支持 Canvas 2D。</canvas>
+  <p id="stats" class="muted"></p>
+  <p id="error" role="alert" hidden></p>
+  <div class="sources">
+    <figure><img id="masonryPreview" src="textures/wall-masonry.png" alt="原始石砌立面纹理"><figcaption><strong>wall-masonry.png</strong>：墙身、女墙、垛口的竖直表面。</figcaption></figure>
+    <figure><img id="walkwayPreview" src="textures/wall-walkway.png" alt="原始铺地纹理"><figcaption><strong>wall-walkway.png</strong>：路面、女墙和垛口的顶面。</figcaption></figure>
+  </div>
+  <p><strong>点击墙上的一个表面：</strong>下面会显示它的四个顶点、两组三角形，以及 UV 纹理坐标。</p>
+  <pre id="faceInfo" aria-live="polite"></pre>
+  <details open>
+    <summary>本例如何对应 Unity 项目</summary>
+    <p>这个小程序把长度、高度、厚度直接写在 <code>demo.js</code> 的 <code>SIZE</code> 中，省去了墙网、敌台、导航和复杂遮挡切片。为方便看清立体结构，本例使用固定斜俯视投影，与游戏当前投影参数不同；所有面最后仍投到二维画布。</p>
+    <p><code>buildFaces()</code> 生成表面，相当于项目里的 <code>BuildSection / AddRail / Prism</code>；<code>drawTexturedTriangle()</code> 展示“顶点＋UV→贴图”的过程。在 Unity 中，这一步由 Mesh 的顶点、UV、三角形索引和 Shader/GPU 完成。</p>
+    <p>UV 是图片的坐标：<code>(0,0)</code> 到 <code>(1,1)</code> 对应一张完整图片。本例使用普通重复采样；例如 U 从 0 到 3 就横向重复三次。游戏还包含重复边界裁切和镜像采样，本例省略这些处理。</p>
+    <p>女墙位于平台两侧，路面净宽＝总宽 − 2 × 女墙厚度。间隔里不生成高垛口，但下方的矮女墙始终连续。拖动“纹理尺寸”只改变 UV，不改变任何顶点或垛口数量。</p>
+  </details>
+</main>
+<script src="demo.js"></script>
+</body>
+</html>
