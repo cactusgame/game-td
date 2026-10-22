@@ -1,0 +1,18 @@
+.controls {
+    background-color: rgba(17, 27, 36, 0.94);
+    color: rgb(236, 241, 238);
+    padding: 10px 16px;
+    -unity-font: url("project://database/Assets/Content/Shared/Fonts/Inter-Regular.otf");
+    font-size: 14px;
+}
+.title { font-size: 19px; -unity-font-style: bold; }
+.buttons { flex-direction: row; margin-top: 6px; margin-bottom: 5px; }
+.buttons Button {
+    margin-right: 7px;
+    padding: 5px 12px;
+    background-color: rgb(44, 69, 80);
+    color: white;
+    border-color: rgb(98, 131, 142);
+    border-width: 1px;
+}
+.buttons Button:hover { background-color: rgb(57, 104, 111); }

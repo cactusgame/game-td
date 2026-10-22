@@ -1,0 +1,23 @@
+{
+  "name": "Game.MapAuthoring.Tests",
+  "references": [
+    "Game.MapAuthoring.Core",
+    "Game.MapAuthoring.Editor",
+    "Game.MapContent",
+    "Game.Maps.Unity",
+    "Game.MapEngine.Domain",
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.Battle.Simulation",
+    "Game.Configuration",
+    "Game.Maps.Serialization",
+    "Game.MapPlaytest.Unity",
+    "Game.MapPlaytest.Application"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

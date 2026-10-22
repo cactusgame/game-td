@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Game.MapEngine.Domain;
 using Game.Battle.Domain.ValueObjects;
 
@@ -30,8 +32,10 @@ namespace Game.Battle.Domain.Definitions
         public NavigationDefinition Navigation { get; }
 
         public GridMap NavigationMap { get; }
+        public MapPoint HeroSpawn { get; }
+        public IReadOnlyList<MapPoint> EnemySpawns { get; }
 
-        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null)
+        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null)
         {
             Hero = hero ?? throw new ArgumentNullException(nameof(hero));
             Goblin = goblin ?? throw new ArgumentNullException(nameof(goblin));
@@ -46,8 +50,11 @@ namespace Game.Battle.Domain.Definitions
             float maxRadius = Math.Max(hero.Radius, Math.Max(goblin.Radius, runner.Radius));
             if (Math.Min(width, height) <= maxRadius * 2 + 2)
                 throw new ArgumentException("Arena is too small for the configured units.");
-            ValidateSpawnSpace(hero, goblin, goblinCount, width, height);
-            ValidateSpawnSpace(hero, runner, runnerCount, width, height);
+            if (enemySpawns == null || enemySpawns.Count == 0)
+            {
+                ValidateSpawnSpace(hero, goblin, goblinCount, width, height);
+                ValidateSpawnSpace(hero, runner, runnerCount, width, height);
+            }
             if (fixedStep > 0.1f)
                 throw new ArgumentOutOfRangeException(nameof(fixedStep));
             GoblinCount = goblinCount;
@@ -60,10 +67,25 @@ namespace Game.Battle.Domain.Definitions
             NavigationMap = navigationMap ?? GridMap.CreateOpenArena(width, height, Navigation.CellSize);
             // 战斗场地与导航坐标必须相同；以后编辑器可传入已导出的纯地图定义。
             const float geometryTolerance = 0.0001f;
-            if (Math.Abs(NavigationMap.Width - width) > geometryTolerance || Math.Abs(NavigationMap.Height - height) > geometryTolerance || Math.Abs(NavigationMap.OriginX + width * 0.5f) > geometryTolerance || Math.Abs(NavigationMap.OriginY + height * 0.5f) > geometryTolerance)
+            if (Math.Abs(NavigationMap.Width - width) > geometryTolerance || Math.Abs(NavigationMap.Height - height) > geometryTolerance)
             {
                 throw new ArgumentException("Navigation map must cover the battle arena in the same ground coordinates.", nameof(navigationMap));
             }
+            HeroSpawn = heroSpawn ?? new MapPoint(NavigationMap.OriginX + width * 0.5f, NavigationMap.OriginY + height * 0.5f);
+            if (!NavigationMap.CanOccupy(HeroSpawn.X, HeroSpawn.Y, Hero.Radius))
+                throw new ArgumentException("Hero spawn has insufficient clearance.", nameof(heroSpawn));
+            var spawnCopy = new List<MapPoint>();
+            if (enemySpawns != null)
+            {
+                float enemyRadius = Math.Max(Goblin.Radius, Runner.Radius);
+                foreach (var point in enemySpawns)
+                {
+                    if (!NavigationMap.CanOccupy(point.X, point.Y, enemyRadius))
+                        throw new ArgumentException("Enemy entry has insufficient clearance.", nameof(enemySpawns));
+                    spawnCopy.Add(point);
+                }
+            }
+            EnemySpawns = new ReadOnlyCollection<MapPoint>(spawnCopy);
         }
 
         public UnitDefinition GetUnit(UnitKind kind)

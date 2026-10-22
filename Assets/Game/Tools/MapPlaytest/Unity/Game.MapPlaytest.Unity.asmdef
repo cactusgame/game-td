@@ -1,0 +1,15 @@
+{
+  "name": "Game.MapPlaytest.Unity",
+  "references": [
+    "Game.MapPlaytest.Application",
+    "Game.MapContent",
+    "Game.MapEngine.Domain",
+    "Game.Maps.Unity",
+    "Game.Maps.Serialization",
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.Battle.Simulation",
+    "Game.Configuration",
+    "Unity.InputSystem"
+  ]
+}

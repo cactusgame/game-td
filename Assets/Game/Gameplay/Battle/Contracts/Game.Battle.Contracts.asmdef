@@ -1,5 +1,5 @@
 {
   "name": "Game.Battle.Contracts",
-  "references": ["Game.Battle.Domain"],
+  "references": ["Game.Battle.Domain", "Game.MapEngine.Domain"],
   "noEngineReferences": true
 }

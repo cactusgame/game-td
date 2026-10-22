@@ -1,0 +1,41 @@
+.editor-root { flex-grow: 1; background-color: rgb(28, 34, 40); }
+.toolbar { flex-direction: row; flex-wrap: wrap; padding: 5px; background-color: rgb(39, 48, 57); }
+.toolbar Button { margin-right: 4px; padding: 4px 10px; }
+.primary { background-color: rgb(42, 107, 89); color: white; }
+.path { padding: 5px 12px; color: rgb(177, 192, 202); }
+.body { flex-direction: row; flex-grow: 1; }
+.sidebar { width: 248px; flex-shrink: 0; padding: 8px; background-color: rgb(36, 43, 50); }
+.palette-sidebar { width: 322px; flex-shrink: 0; padding: 8px; background-color: rgb(36, 43, 50); }
+.sidebar .unity-base-field__label { min-width: 70px; }
+.heading { font-size: 14px; -unity-font-style: bold; margin-top: 12px; margin-bottom: 6px; color: rgb(167, 220, 197); }
+.hint { white-space: normal; margin-top: 6px; margin-bottom: 6px; color: rgb(191, 204, 212); }
+.canvas-host { flex-grow: 1; overflow: hidden; }
+.canvas-panel { flex-grow: 1; overflow: hidden; }
+.view-toolbar { flex-direction: row; flex-shrink: 0; padding: 4px; background-color: rgb(39, 48, 57); }
+.view-toolbar Button { padding: 4px 10px; }
+.view-toolbar Button.view-active { background-color: rgb(43, 91, 80); color: rgb(245, 235, 190); border-color: rgb(221, 188, 105); }
+.map-canvas { flex-grow: 1; overflow: hidden; background-color: rgb(19, 26, 32); }
+.status { padding: 7px 12px; background-color: rgb(39, 48, 57); }
+.issue { white-space: normal; -unity-text-align: middle-left; margin-top: 4px; color: rgb(255, 188, 135); }
+.palette-current { white-space: normal; color: rgb(245, 218, 139); padding: 7px 5px; background-color: rgb(29, 37, 43); }
+.palette-heading { color: rgb(167, 220, 197); -unity-font-style: bold; margin-top: 12px; margin-bottom: 5px; }
+.palette-grid { flex-direction: row; flex-wrap: wrap; }
+.palette-card {
+    width: 94px;
+    height: 94px;
+    margin: 3px;
+    padding: 3px;
+    flex-shrink: 0;
+    background-color: rgb(25, 33, 40);
+    border-width: 2px;
+    border-color: rgb(63, 77, 89);
+    border-radius: 5px;
+    align-items: stretch;
+}
+.palette-tools .palette-card { width: 69px; height: 81px; }
+.palette-card:hover { background-color: rgb(49, 66, 76); border-color: rgb(133, 174, 190); }
+.palette-card.palette-selected { background-color: rgb(43, 72, 70); border-color: rgb(247, 205, 100); }
+.palette-thumbnail { height: 62px; flex-shrink: 0; position: relative; }
+.palette-tools .palette-thumbnail { height: 49px; }
+.palette-overlay { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
+.palette-caption { -unity-text-align: middle-center; font-size: 12px; color: rgb(235, 243, 245); white-space: normal; flex-grow: 1; }

@@ -19,11 +19,12 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed class EcsBattleSimulation : IBattleSimulation
+    public sealed class EcsBattleSimulation : ISpatialBattleSimulation
     {
         private readonly World _world;
         private readonly BattleSystemGroup _group;
         private readonly MonsterNavigationSystem _navigation;
+        private readonly TerrainCollisionSystem _terrainCollision;
         private readonly EntityQuery _units;
         // Entity 只是这个 World 中的句柄；数据在它所挂载的组件里。
         private readonly Entity _settings;
@@ -40,6 +41,8 @@ namespace Game.Battle.Simulation.Bridges
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
+            _terrainCollision = _world.GetOrCreateSystemManaged<TerrainCollisionSystem>();
+            _group.AddSystemToUpdateList(_terrainCollision);
             // MovementSystem/CircleContactSystem 是 ISystem 结构体，这里的 GetOrCreate 返回 SystemHandle。
             // “取得或创建系统”和“加入组的更新列表”是两步；这两步都没有执行一次模拟。
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<MovementSystem>());
@@ -64,14 +67,16 @@ namespace Game.Battle.Simulation.Bridges
             // 创建/销毁实体是结构性变更。先等待原有 Job，防止其继续访问即将被清空的数据。
             em.CompleteAllTrackedJobs();
             _navigation.Configure(definition.NavigationMap, definition.Navigation);
+            _terrainCollision.Configure(definition.NavigationMap);
             // 只销毁单位查询匹配的实体，保留 _settings 与系统本身。
             em.DestroyEntity(_units);
             ElapsedTime = 0;
-            em.SetComponentData(_settings, new BattleSettings{HalfSize = new float2(definition.Width, definition.Height) * 0.5f});
+            var center = new float2(definition.NavigationMap.OriginX + definition.Width * 0.5f, definition.NavigationMap.OriginY + definition.Height * 0.5f);
+            em.SetComponentData(_settings, new BattleSettings{HalfSize = new float2(definition.Width, definition.Height) * 0.5f, Center = center});
             em.SetComponentData(_settings, new ContactStatistics());
             // 重置种子，使同样的配置和输入在当前运行环境下可以重复验证；不承诺跨平台逐帧一致。
             var random = new Random(definition.Seed);
-            Spawn(1, definition.Hero, float2.zero, random.NextUInt(1, uint.MaxValue));
+            Spawn(1, definition.Hero, new float2(definition.HeroSpawn.X, definition.HeroSpawn.Y), random.NextUInt(1, uint.MaxValue));
             for (int i = 0; i < definition.MonsterCount; i++)
             {
                 var unit = i < definition.GoblinCount ? definition.Goblin : definition.Runner;
@@ -88,7 +93,43 @@ namespace Game.Battle.Simulation.Bridges
                     break;
                 }
 
+                position += center;
+                if (definition.EnemySpawns.Count > 0)
+                {
+                    var entry = definition.EnemySpawns[i % definition.EnemySpawns.Count];
+                    position = new float2(entry.X, entry.Y);
+                }
+                else if (!definition.NavigationMap.CanOccupy(position.x, position.y, unit.Radius))
+                {
+                    // 导入地图未指定入口时，只从确有净空的格子生成，不能把兜底放在障碍里。
+                    bool found = false;
+                    for (int cellIndex = 0; cellIndex < definition.NavigationMap.CellCount; cellIndex++)
+                    {
+                        var candidate = definition.NavigationMap.CellCenter(definition.NavigationMap.CellAt(cellIndex));
+                        if (!definition.NavigationMap.CanOccupy(candidate.X, candidate.Y, unit.Radius))
+                            continue;
+                        position = new float2(candidate.X, candidate.Y);
+                        found = true;
+                        break;
+                    }
+                    if (!found)
+                        throw new InvalidOperationException("Map has no clear enemy spawn.");
+                }
                 Spawn((ulong)i + 2, unit, position, random.NextUInt(1, uint.MaxValue));
+            }
+        }
+
+        /// <summary>建设提交的同步边界：先完成旧步，再同时替换路径查询与实际碰撞地图。</summary>
+        public void UpdateNavigationMap(Game.MapEngine.Domain.GridMap map, NavigationDefinition navigation)
+        {
+            _world.EntityManager.CompleteAllTrackedJobs();
+            _navigation.Configure(map, navigation);
+            _terrainCollision.Configure(map);
+            using var query = _world.EntityManager.CreateEntityQuery(typeof(MonsterNavigationState));
+            using var entities = query.ToEntityArray(Allocator.Temp);
+            foreach (var state in entities)
+            {
+                _world.EntityManager.SetComponentData(state, default(MonsterNavigationState));
             }
         }
 

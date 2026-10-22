@@ -81,6 +81,33 @@ namespace Game.MapEngine.Domain
             return Contains(cell) && _walkable[cell.Y * Columns + cell.X];
         }
 
+        /// <summary>连续地面上的圆形占位查询，按真实格宽高检查，地形外视为阻挡。</summary>
+        public bool CanOccupy(float x, float y, float radius)
+        {
+            if (float.IsNaN(x) || float.IsNaN(y) || float.IsNaN(radius) || float.IsInfinity(x) || float.IsInfinity(y) || float.IsInfinity(radius) || radius < 0 ||
+                x - radius < OriginX - 0.0001f || y - radius < OriginY - 0.0001f || x + radius > OriginX + Width + 0.0001f || y + radius > OriginY + Height + 0.0001f)
+                return false;
+            int minX = Math.Max(0, (int)Math.Floor((x - radius - OriginX) / CellWidth));
+            int maxX = Math.Min(Columns - 1, (int)Math.Floor((x + radius - OriginX) / CellWidth));
+            int minY = Math.Max(0, (int)Math.Floor((y - radius - OriginY) / CellHeight));
+            int maxY = Math.Min(Rows - 1, (int)Math.Floor((y + radius - OriginY) / CellHeight));
+            for (int cy = minY; cy <= maxY; cy++)
+            {
+                for (int cx = minX; cx <= maxX; cx++)
+                {
+                    if (IsWalkable(new GridCell(cx, cy)))
+                        continue;
+                    float nearestX = Math.Max(OriginX + cx * CellWidth, Math.Min(x, OriginX + (cx + 1) * CellWidth));
+                    float nearestY = Math.Max(OriginY + cy * CellHeight, Math.Min(y, OriginY + (cy + 1) * CellHeight));
+                    float dx = x - nearestX;
+                    float dy = y - nearestY;
+                    if (dx * dx + dy * dy < radius * radius || radius == 0)
+                        return false;
+                }
+            }
+            return true;
+        }
+
         public int IndexOf(GridCell cell)
         {
             if (!Contains(cell))

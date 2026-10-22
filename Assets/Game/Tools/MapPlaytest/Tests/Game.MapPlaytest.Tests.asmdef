@@ -1,0 +1,20 @@
+{
+  "name": "Game.MapPlaytest.Tests",
+  "references": [
+    "Game.MapPlaytest.Application",
+    "Game.MapContent",
+    "Game.MapEngine.Domain",
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.Battle.Simulation",
+    "Game.Configuration",
+    "Unity.Entities",
+    "Unity.Collections"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

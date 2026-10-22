@@ -1,0 +1,53 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+  <ui:Style src="MapEditorWindow.uss" />
+  <ui:VisualElement class="editor-root">
+    <ui:VisualElement class="toolbar">
+      <ui:Button name="newMap" text="新建" />
+      <ui:Button name="open" text="打开" />
+      <ui:Button name="save" text="保存" />
+      <ui:Button name="saveAs" text="另存为" />
+      <ui:Button name="undo" text="撤销" />
+      <ui:Button name="redo" text="重做" />
+      <ui:Button name="validate" text="校验" />
+      <ui:Button name="export" text="导出地图" />
+      <ui:Button name="play" text="独立试玩" class="primary" />
+      <ui:Button name="fit" text="适配画布" />
+      <ui:Button name="artShowcase" text="美术示例地图" />
+    </ui:VisualElement>
+    <ui:Label name="documentPath" class="path" />
+    <ui:VisualElement class="body">
+      <ui:ScrollView class="palette-sidebar">
+        <ui:Label text="素材与工具" class="heading" />
+        <ui:Label text="点击图片直接使用 · 悬停查看用途" class="hint" />
+        <ui:VisualElement name="paletteHost" />
+        <ui:Label text="Q：平移视图，V：选择。空格 + 左键 / 中键临时平移；滚轮围绕鼠标缩放。" class="hint" />
+      </ui:ScrollView>
+      <ui:VisualElement class="canvas-panel">
+        <ui:VisualElement class="view-toolbar">
+          <ui:Button name="toggleGrid" text="显示 Tile 网格" />
+          <ui:Button name="toggleRules" text="显示实际通行" tooltip="显示地形、建筑和城墙共同决定的实际通行状态" />
+        </ui:VisualElement>
+        <ui:VisualElement name="canvasHost" class="canvas-host" />
+      </ui:VisualElement>
+      <ui:ScrollView class="sidebar">
+        <ui:Label text="地图设置" class="heading" />
+        <ui:TextField name="mapId" label="地图 ID" />
+        <ui:IntegerField name="columns" label="列数" value="24" />
+        <ui:IntegerField name="rows" label="行数" value="16" />
+        <ui:FloatField name="cellWidth" label="格宽" value="1" />
+        <ui:FloatField name="cellHeight" label="格高" value="1" />
+        <ui:FloatField name="originX" label="原点 X" value="-12" />
+        <ui:FloatField name="originY" label="原点 Y" value="-8" />
+        <ui:Button name="applyGeometry" text="应用设置（保留重叠范围地形）" />
+        <ui:Label text="当前选择" class="heading" />
+        <ui:Label name="selection" class="hint" text="尚未选择对象" />
+        <ui:TextField name="markerName" label="标记名称" />
+        <ui:Button name="rename" text="修改标记名称" />
+        <ui:Button name="delete" text="删除选择（Delete）" />
+        <ui:Label text="内容校验 · 点击定位" class="heading" />
+        <ui:VisualElement name="issues" />
+      </ui:ScrollView>
+    </ui:VisualElement>
+    <ui:Label name="status" class="status" text="准备就绪" />
+  </ui:VisualElement>
+</ui:UXML>

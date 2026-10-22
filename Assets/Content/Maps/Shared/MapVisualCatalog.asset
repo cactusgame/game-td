@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b31dd78612df94b846accf04ee4f0d, type: 3}
+  m_Name: MapVisualCatalog
+  m_EditorClassIdentifier: Game.MapContent.Unity::Game.Maps.Unity.MapVisualCatalog
+  terrain:
+  - kind: 0
+    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 0}
+  - kind: 1
+    ground: {fileID: 1174476821, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 0}
+  - kind: 2
+    ground: {fileID: 1174476821, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 0}
+  - kind: 3
+    ground: {fileID: -738241883, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 0}
+  - kind: 4
+    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 993705528, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - kind: 5
+    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    obstacle: {fileID: 441193185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  facilities:
+  - definitionId: tower
+    sprite: {fileID: 1061127068, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - definitionId: hall
+    sprite: {fileID: -1550626581, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - definitionId: mage
+    sprite: {fileID: -62259185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - definitionId: foundry
+    sprite: {fileID: -1342872335, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - definitionId: farm
+    sprite: {fileID: -769758246, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  wall: {fileID: 1742936543, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wallBodyRegion:
+    serializedVersion: 2
+    x: 0.11
+    y: 0
+    width: 0.78
+    height: 1
+  facilityRules: {fileID: 4900000, guid: 1578c53a365e65841885b117ad2e413c, type: 3}
+  blendTerrain: 1
+  treeVariants:
+  - {fileID: 441193185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - {fileID: 347042586, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  rockVariants:
+  - {fileID: 993705528, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  wallVertical: {fileID: 352153532, guid: e21488fa35a4558459c07c6c9ad91f13, type: 3}
+  wallDiagonalUp: {fileID: 1968300453, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wallDiagonalDown: {fileID: 523776443, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wallCorner: {fileID: 1780187553, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wallEnd: {fileID: -342200862, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wallMasonry: {fileID: -1083218287, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}

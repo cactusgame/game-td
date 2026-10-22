@@ -1,0 +1,7 @@
+{
+  "name": "Game.Maps.Unity",
+  "references": [
+    "Game.MapContent",
+    "Game.MapEngine.Domain"
+  ]
+}

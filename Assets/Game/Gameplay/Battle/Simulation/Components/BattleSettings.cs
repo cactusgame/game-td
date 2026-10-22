@@ -7,6 +7,7 @@ namespace Game.Battle.Simulation.Components
     public struct BattleSettings : IComponentData
     {
         public float2 HalfSize;
+        public float2 Center;
         public float2 MoveInput;
     }
 }

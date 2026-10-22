@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:Style src="MapPlayHud.uss" />
+  <ui:VisualElement name="mapControls" class="controls">
+    <ui:Label text="MAP PLAYTEST" class="title" />
+    <ui:Label text="WASD / arrows: move hero. Choose Build or Remove, then click the map. Changes belong to this session." />
+    <ui:VisualElement class="buttons">
+      <ui:Button name="inspect" text="Inspect" />
+      <ui:Button name="build" text="Build tower" />
+      <ui:Button name="remove" text="Remove building / wall" />
+      <ui:Button name="restart" text="Restart from map" />
+      <ui:Button name="exit" text="Exit playtest" />
+    </ui:VisualElement>
+    <ui:Label name="status" text="Loading map..." />
+  </ui:VisualElement>
+</ui:UXML>

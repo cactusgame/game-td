@@ -1,0 +1,5 @@
+{
+  "name": "Game.MapAuthoring.Core",
+  "references": ["Game.MapContent", "Game.MapEngine.Domain"],
+  "noEngineReferences": true
+}

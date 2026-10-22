@@ -1,0 +1,7 @@
+{
+  "name": "Game.Maps.Serialization",
+  "references": [
+    "Game.MapContent",
+    "Game.MapEngine.Domain"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Game.Maps.Tests",
+  "references": [
+    "Game.MapContent",
+    "Game.MapEngine.Domain",
+    "Game.Maps.Serialization",
+    "Game.Maps.Unity"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

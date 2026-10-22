@@ -1,0 +1,104 @@
+using Game.Maps.Unity.Assets;
+using System.Collections.Generic;
+using Game.MapEngine.Domain;
+using Game.Maps.Domain;
+using UnityEngine;
+
+namespace Game.Maps.Unity.Views
+{
+    /// <summary>共享装饰与建筑的脚底锚点、尺寸、稳定排序，以及所有方向一致的实体墙几何。</summary>
+    public static class MapSceneSprites
+    {
+        public sealed class Entry
+        {
+            public string Id;
+            public Sprite Sprite;
+            public Vector2 Center;
+            public float Width;
+            public float Height;
+            public float Angle;
+            public float GroundY;
+            public float GroundX;
+            public string SortKey;
+            public int DepthLayer;
+            public MapRaisedWallPresentation.Shape Wall;
+        }
+
+        public static List<Entry> Build(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
+        {
+            var entries = new List<Entry>();
+            var geometry = layout.Geometry;
+            for (int y = 0; y < layout.rows; y++)
+            {
+                for (int x = 0; x < layout.columns; x++)
+                {
+                    var sprite = visuals.Obstacle(layout, x, y);
+                    if (sprite == null)
+                        continue;
+                    var point = geometry.CellCenter(new GridCell(x, y));
+                    float width = layout.cellWidth * (layout.terrain[y * layout.columns + x] == TerrainKind.Tree ? 1.6f : 1.25f);
+                    uint hash = unchecked((uint)(x * 73856093 ^ y * 19349663));
+                    float jitterX = ((hash & 255) / 255f - 0.5f) * layout.cellWidth * 0.32f;
+                    float jitterY = (((hash >> 8) & 255) / 255f - 0.5f) * layout.cellHeight * 0.32f;
+                    width *= 0.9f + ((hash >> 16) & 255) / 255f * 0.2f;
+                    AddFoot(entries, "Obstacle", sprite, new Vector2(point.X + jitterX, point.Y + jitterY), width, "obstacle/" + x + "/" + y);
+                }
+            }
+            foreach (var item in layout.facilities)
+            {
+                var definition = catalog.Find(item.definitionId);
+                if (definition == null)
+                    continue;
+                float x = layout.originX + (item.x + definition.width * 0.5f) * layout.cellWidth;
+                float y = layout.originY + (item.y + 0.5f) * layout.cellHeight;
+                AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * 1.2f);
+            }
+            foreach (var edge in layout.wallEdges)
+                entries.AddRange(MapRaisedWallPresentation.Build(layout, edge, visuals));
+            if (visuals.wallCorner != null)
+            {
+                foreach (var node in layout.wallNodes)
+                {
+                    int degree = 0;
+                    foreach (var edge in layout.wallEdges)
+                        if (edge.from == node.id || edge.to == node.id) degree++;
+                    if (degree == 0)
+                        continue;
+                    var sprite = degree == 1 && visuals.wallEnd != null ? visuals.wallEnd : visuals.wallCorner;
+                    var position = new Vector2(node.x, node.y);
+                    if (degree == 1)
+                    {
+                        var edge = layout.wallEdges.Find(item => item.from == node.id || item.to == node.id);
+                        if (MapWallPresentation.TryGetSpan(layout, edge, out var start, out var end))
+                            position = edge.from == node.id ? start : end;
+                    }
+                    AddFoot(entries, node.id, sprite, position, Mathf.Min(layout.cellWidth, layout.cellHeight) * 0.72f);
+                }
+            }
+            entries.Sort(CompareDepth);
+            return entries;
+        }
+
+        private static int CompareDepth(Entry left, Entry right)
+        {
+            int result = right.GroundY.CompareTo(left.GroundY);
+            if (result != 0)
+                return result;
+            result = left.DepthLayer.CompareTo(right.DepthLayer);
+            if (result != 0)
+                return result;
+            result = left.GroundX.CompareTo(right.GroundX);
+            if (result != 0)
+                return result;
+            return System.StringComparer.Ordinal.Compare(left.SortKey, right.SortKey);
+        }
+
+        private static void AddFoot(List<Entry> entries, string id, Sprite sprite, Vector2 ground, float width, string sortKey = null)
+        {
+            if (sprite == null)
+                return;
+            float height = width * sprite.rect.height / sprite.rect.width;
+            entries.Add(new Entry { Id = id, SortKey = sortKey ?? "object/" + id, DepthLayer = 1, Sprite = sprite, Center = ground + Vector2.up * height * 0.45f, Width = width, Height = height, GroundY = ground.y, GroundX = ground.x });
+        }
+    }
+}

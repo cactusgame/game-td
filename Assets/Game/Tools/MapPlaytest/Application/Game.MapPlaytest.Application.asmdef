@@ -1,0 +1,11 @@
+{
+  "name": "Game.MapPlaytest.Application",
+  "references": [
+    "Game.MapContent",
+    "Game.MapEngine.Domain",
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.Battle.Application"
+  ],
+  "noEngineReferences": true
+}

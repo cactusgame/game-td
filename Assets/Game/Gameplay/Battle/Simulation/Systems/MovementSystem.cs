@@ -16,7 +16,7 @@ namespace Game.Battle.Simulation.Systems
         public void OnUpdate(ref SystemState state)
         {
             var settings = SystemAPI.GetSingleton<BattleSettings>();
-            state.Dependency = new MovementJob{DeltaTime = SystemAPI.Time.DeltaTime, HalfSize = settings.HalfSize, HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))}.ScheduleParallel(state.Dependency);
+            state.Dependency = new MovementJob{DeltaTime = SystemAPI.Time.DeltaTime, HalfSize = settings.HalfSize, Center = settings.Center, HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))}.ScheduleParallel(state.Dependency);
         }
 
         [BurstCompile]
@@ -24,6 +24,7 @@ namespace Game.Battle.Simulation.Systems
         {
             public float DeltaTime;
             public float2 HalfSize;
+            public float2 Center;
             public float2 HeroInput;
             // 每个 Job 实例只写当前实体，路径来自导航系统完成的 Buffer。
             private void Execute(ref GroundTransform ground, ref WanderState wander, ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path, in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
@@ -39,7 +40,7 @@ namespace Game.Battle.Simulation.Systems
                 }
                 else if (navigation.IsChasing != 0)
                 {
-                    next = FollowPath(ground.Position, limit, motion.Speed * DeltaTime, path, ref navigation);
+                    next = FollowPath(ground.Position, limit, Center, motion.Speed * DeltaTime, path, ref navigation);
                 }
                 else
                 {
@@ -52,25 +53,25 @@ namespace Game.Battle.Simulation.Systems
                     }
 
                     next = ground.Position + wander.Direction * motion.Speed * DeltaTime;
-                    if (next.x < -limit.x || next.x > limit.x)
+                    if (next.x < Center.x - limit.x || next.x > Center.x + limit.x)
                         wander.Direction.x *= -1;
-                    if (next.y < -limit.y || next.y > limit.y)
+                    if (next.y < Center.y - limit.y || next.y > Center.y + limit.y)
                         wander.Direction.y *= -1;
                 }
 
-                ground.Position = math.clamp(next, -limit, limit);
+                ground.Position = math.clamp(next, Center - limit, Center + limit);
                 float facing = ground.Position.x - ground.Previous.x;
                 if (math.abs(facing) > 0.00001f)
                     ground.FacingX = facing;
             }
 
-            private static float2 FollowPath(float2 position, float2 limit, float distanceBudget, in DynamicBuffer<NavigationWaypoint> path, ref MonsterNavigationState navigation)
+            private static float2 FollowPath(float2 position, float2 limit, float2 center, float distanceBudget, in DynamicBuffer<NavigationWaypoint> path, ref MonsterNavigationState navigation)
             {
                 // 一步可以走过多个路径点，仍只消费 speed * deltaTime 的距离，避免高速穿点后倒退。
                 const float arrivalTolerance = 0.0001f;
                 while (distanceBudget > 0 && navigation.WaypointIndex < path.Length)
                 {
-                    float2 target = math.clamp(path[navigation.WaypointIndex].Position, -limit, limit);
+                    float2 target = math.clamp(path[navigation.WaypointIndex].Position, center - limit, center + limit);
                     float2 offset = target - position;
                     float distance = math.length(offset);
                     bool lastWaypoint = navigation.WaypointIndex == path.Length - 1;

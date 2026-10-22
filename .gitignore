@@ -134,5 +134,9 @@ InitTestScene*.unity*
 # UI Toolkit auto generated files
 /UIElementsSchema/
 
+# 地图编辑器每次独立试玩生成的隔离快照与场景
+/Assets/Generated/MapPlaytest/
+/Assets/Generated/MapPlaytest.meta
+
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
