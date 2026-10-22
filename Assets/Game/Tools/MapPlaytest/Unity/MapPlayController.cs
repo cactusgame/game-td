@@ -63,6 +63,7 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("inspect").clicked += () => _tool = "Inspect";
                     root.Q<Button>("build").clicked += () => _tool = "Build";
                     root.Q<Button>("remove").clicked += () => _tool = "Remove";
+                    root.Q<Button>("gate").clicked += () => _tool = "Gate";
                     root.Q<Button>("restart").clicked += Restart;
                     root.Q<Button>("exit").clicked += Exit;
                 }
@@ -103,6 +104,8 @@ namespace Game.Tools.MapPlaytest.Unity
                     TryBuild(cell.X, cell.Y);
                 else if (_tool == "Remove")
                     TryRemove(point.x, point.y);
+                else if (_tool == "Gate")
+                    TryToggleGate(point.x, point.y);
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
@@ -130,6 +133,25 @@ namespace Game.Tools.MapPlaytest.Unity
         {
             if (!_session.TryRemove(x, y, out _))
                 return false;
+            RefreshMapView();
+            return true;
+        }
+
+        public bool TryToggleGate(float x, float y)
+        {
+            var map = _session.Snapshot;
+            string id = MapSceneSprites.PickGate(map, visuals, new Vector2(x, y));
+            var edge = map.wallEdges.Find(item => item.id == id);
+            string reason = "该位置没有城门";
+            if (edge == null || !_session.TrySetGateOpen(edge.id, !edge.gate.isOpen, out reason))
+            {
+                if (_status != null)
+                {
+                    _status.text = reason;
+                    _feedbackUntil = Time.unscaledTime + 2;
+                }
+                return false;
+            }
             RefreshMapView();
             return true;
         }

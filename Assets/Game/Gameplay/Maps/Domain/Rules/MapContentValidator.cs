@@ -75,6 +75,8 @@ namespace Game.Maps.Domain
                     continue;
                 }
                 string key = string.CompareOrdinal(edge.from, edge.to) < 0 ? edge.from + "/" + edge.to : edge.to + "/" + edge.from;
+                if (!WallGateRules.Validate(layout, edge, out var gateReason))
+                    issues.Add(new MapIssue(gateReason, objectId: edge.id));
                 if (!connections.Add(key))
                     issues.Add(new MapIssue("两个墙节点之间存在重复墙边", objectId: edge.id));
                 float length = SegmentGeometry.DistanceToSegment(b.x, b.y, a.x, a.y, a.x, a.y);

@@ -32,7 +32,7 @@ namespace Game.Tools.MapAuthoring.Tests
                 var palette = root.Q<MapPalette>();
                 Assert.That(root.Query<DropdownField>().ToList(), Is.Empty);
                 var liveCatalog = FacilityCatalogJson.Read(AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(MapEditorWindow.VisualPath).facilityRules.text);
-                Assert.That(root.Query<Button>(className: "palette-card").ToList().Count, Is.EqualTo(5 + 6 + liveCatalog.FacilityIds.Count));
+                Assert.That(root.Query<Button>(className: "palette-card").ToList().Count, Is.EqualTo(6 + 6 + liveCatalog.FacilityIds.Count));
                 var before = canvas.Layout.Copy();
                 palette.SelectTerrain(TerrainKind.Water);
                 Assert.That(palette.Tool, Is.EqualTo(MapEditorTool.Terrain));
@@ -60,6 +60,27 @@ namespace Game.Tools.MapAuthoring.Tests
                 canvas.Dragged(new Vector2(-11.5f, -7.5f));
                 canvas.Released();
                 Assert.That(canvas.Layout.facilities.Find(item => item.id == id).x, Is.EqualTo(5));
+
+                palette.SelectTool(MapEditorTool.Wall);
+                canvas.Pressed(new Vector2(-8.5f, 3.5f), 0);
+                canvas.Released();
+                canvas.Pressed(new Vector2(8.5f, 3.5f), 0);
+                canvas.Released();
+                palette.SelectTool(MapEditorTool.Gate);
+                canvas.Pressed(new Vector2(0.5f, 3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.wallEdges.Single().hasGate, Is.True);
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(0.5f).Within(0.001f));
+                root.Q<Toggle>("gateOpen").value = true;
+                canvas.Pressed(new Vector2(1.5f, 3.5f), 0);
+                canvas.Released();
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(1.5f).Within(0.001f));
+                Assert.That(canvas.Layout.wallEdges.Single().gate.isOpen, Is.True);
+                palette.SelectTool(MapEditorTool.Select);
+                canvas.Pressed(new Vector2(1.5f, 5), 0);
+                canvas.Dragged(new Vector2(2.5f, 5));
+                canvas.Released();
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(2.5f).Within(0.001f));
 
                 var export = MapJson.WriteDocument(canvas.Layout);
                 var reopened = MapJson.ReadDocument(export);

@@ -19,6 +19,7 @@ namespace Game.Maps.Unity.Views
             }
             _root = new GameObject("Map state view");
             _root.transform.SetParent(transform, false);
+            var wallMaterials = _root.AddComponent<MapWallMaterialLibrary>();
             if (visuals.blendTerrain)
                 _root.AddComponent<MapSurfaceView>().Build(layout, visuals);
             else
@@ -39,7 +40,7 @@ namespace Game.Maps.Unity.Views
                 {
                     go = new GameObject(entry.Id);
                     go.transform.SetParent(_root.transform, false);
-                    go.AddComponent<MapWallMeshView>().Build(entry, Sort(entry.GroundY));
+                    go.AddComponent<MapWallMeshView>().Build(entry, Sort(entry.GroundY), wallMaterials.Require(entry.Wall.Mesh.Sprite.texture));
                 }
                 else
                 {
@@ -65,6 +66,6 @@ namespace Game.Maps.Unity.Views
             return go;
         }
 
-        public static int Sort(float y) => Mathf.Clamp(1000 - Mathf.RoundToInt(y * 10), -1000, 30000);
+        public static int Sort(float y) => Mathf.Clamp(1000 - Mathf.RoundToInt(y * 100), -30000, 30000);
     }
 }

@@ -90,6 +90,25 @@ namespace Game.Maps.Domain
         public string id;
         public string from;
         public string to;
-        public WallEdge Copy() => (WallEdge)MemberwiseClone();
+        public bool hasGate;
+        public WallGate gate = new WallGate();
+
+        public WallEdge Copy()
+        {
+            var copy = (WallEdge)MemberwiseClone();
+            copy.gate = gate?.Copy();
+            return copy;
+        }
+    }
+
+    /// <summary>一条墙段上的城门。位置是 from 到 to 的比例；尺寸使用地面世界单位。</summary>
+    [Serializable]
+    public sealed class WallGate
+    {
+        public float position = 0.5f;
+        public float width = 4.5f;
+        public float openingWidth = 2;
+        public bool isOpen;
+        public WallGate Copy() => (WallGate)MemberwiseClone();
     }
 }

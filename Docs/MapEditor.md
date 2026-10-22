@@ -9,7 +9,7 @@ Unity 菜单 **Game → 地图编辑器**。仓库已包含示例地图、素材
 2. 左侧“素材与工具”统一平铺所有缩略图。直接点击草地、泥地、道路、河流、岩石或树木图片，即切换到对应地形笔刷，无需另外选择绘制工具。按住左键绘制，一笔对应一次撤销。选中项以金色边框高亮，悬停可查看用途。打开“显示实际通行”，绿色可通行，红色受地形、建筑或墙体阻挡。
 3. 点击“英雄出生”或“敌人入口”图标放置标记。英雄出生位置唯一；可以有多个入口。青色圆点为英雄，橙色为入口。选中标记可修改名称。
 4. 直接点击示例箭塔或主堡缩略图，再在地图上放置。点击“选择移动”图标可拖动建筑、标记及墙节点；建筑落点无效时恢复原位。建筑占地用蓝框表示，选中后黄色高亮。
-5. 点击“城墙”缩略图，再依次点击节点，每两次点击形成一条稳定墙边。点击已有节点可连接到已有墙网，Esc 结束当前折线。移动节点会更新关联墙边，删除节点会删除关联边。交叉处必须显式共用同一个节点；未共享节点的交叉会报告错误，不会悄悄导出断开的拓扑。墙体自由端的显示延伸到端点格外缘，消除半格空隙；连接节点保持原位置。
+5. 点击“城墙”缩略图，再依次点击节点，每两次点击形成一条稳定墙边。点击已有节点可连接到已有墙网，Esc 结束当前折线。移动节点会更新关联墙边，删除节点会删除关联边。交叉处必须显式共用同一个节点；未共享节点的交叉会报告错误，不会悄悄导出断开的拓扑。节点代表敌台底座中心，自由端不再向所在格子的边缘延长。
 6. 选择后按 Delete 删除对象；也可点击左侧删除按钮。Ctrl+Z 撤销，Ctrl+Y 或 Ctrl+Shift+Z 重做。键盘快捷键在画布获得焦点时生效，不干扰文本输入。
 7. Q 选择平移工具后左键拖动，V 返回选择；也可中键拖动或空格加左键临时平移。滚轮围绕鼠标位置缩放，“适配画布”恢复全图视野。“显示网格”独立控制网格线，默认隐藏。
 8. 保存生成地图源 JSON，可以保留未完成的草稿。重新打开保留地图 ID、对象 ID、地形和墙网。导出地图必须通过校验。
@@ -41,27 +41,45 @@ Unity 菜单 **Game → 地图编辑器**。仓库已包含示例地图、素材
 - 示例地图：`Assets/Content/Maps/Example/example.map.json`。
 - 示例素材：`Assets/Content/Maps/Shared/Sprites/`，复制自本次指定的 `game-td-arts/tiles`。这些原始图片带透明边缘，并非正式无缝地形。后来修改为“Assets/Content/Maps/ArtV2下的Atlas“
 - 素材映射：`Assets/Content/Maps/Shared/MapVisualCatalog.asset`。替换 Sprite 引用即可换美术，不改变逻辑占地。
-- 墙身裁切：同一目录资产的 `Wall Body Region` 指定原 Sprite 内的归一化墙身区域，排除透明留白及重复端柱。编辑器和游戏通过 `MapWallPresentation` 共用端点覆盖与片段排列；原图片、墙网 ID 和源地图均不因此修改。
+- 当前地表、树石、墙材质与门图使用 `Assets/Content/Maps/ArtV3/`。`Wall Masonry` 提供立面石材，`Wall Walkway` 提供独立墙顶铺地，分别按墙长/高度和世界地面坐标铺设。`Wall Body Region` 为未提供石材时的旧素材回退，建筑仍保留原示例。
+- 城墙制作尺寸：同一资产的 `Wall Dimensions` 统一墙宽、敌台半径、墙顶高度、女墙和垛口尺寸，相对于较小的地形格长。它们属于本轮表现制作参数，不改变现有导航阻挡。
+- 2026-10-22 的城墙连接、铺地与遮挡调整，以及本轮验证边界，见 [城墙表现说明](WallPresentation.md)。
 - 建筑占地规则：`Assets/Content/Maps/Shared/facilities.json`。箭塔 1×1、主堡 2×2 是示例内容，不是长期数量或尺寸限制。
 - 格式版本：地图 JSON 的 `schemaVersion = 1`，不是对局运行版本。
 
-示例建筑具有预放、占地、运行建设与拆除能力，尚未接入攻击、升级、费用、经济产出或建筑承伤。墙体支持直线与折线、显式节点连接、稳定墙边身份和拆除，尚无门、承伤、升级和自动交叉切分。墙图像分片仅用于绘制，不改变墙网身份。
+示例建筑具有预放、占地、运行建设与拆除能力，尚未接入攻击、升级、费用、经济产出或建筑承伤。墙体支持直线与折线、显式节点连接、稳定墙边身份、城门和拆除，尚无承伤、升级和自动交叉切分。墙图像分片仅用于绘制，不改变墙网身份。
 首版墙体导航采用保守网格投影，窄缝可能被视为不可通行；这不是任意角度精确导航的最终实现。
 允许无步行路径的地图，不在编辑器提前否决未来破墙玩法。地图净空按当前英雄和怪物半径额外校验。
-V2 地面按 16×16 格合并 Mesh；障碍、建筑与墙柱使用 Sprite。未做百万格性能或移动端验收。新美术、自然道路与 72×48 示例的说明见 [地图美术 V2](MapArtV2.md)，工具栏“美术示例地图”可直接打开。
+V2 地面按 16×16 格合并 Mesh；障碍、建筑使用 Sprite，墙身和敌台使用共享投影的程序化 Mesh。未做百万格性能或移动端验收。新美术、自然道路与 72×48 示例的说明见 [地图美术 V2](MapArtV2.md)，工具栏“美术示例地图”可直接打开。
 
 ## 代码阅读路径
 
 1. `Assets/Game/Tools/MapAuthoring/Editor/MapEditorWindow.cs`：窗口入口，组织编辑、校验、保存、导出和试玩。
 2. `Assets/Game/Tools/MapAuthoring/Core/MapEditSession.cs`：工作文档、整笔操作历史、保存修订和重载恢复。
-3. `Assets/Game/Gameplay/Maps/Domain/MapLayout.cs`、`MapDefinition.cs`：可编辑初始描述与经过验证的只读定义。
-4. 同目录 `MapSpatialRules.cs`、`MapValidator.cs`：共享占地、墙网投影与带定位信息的校验。
-5. 同目录 `MapRuntimeState.cs`：首版设施与墙体运行状态；通过快照与编辑文档隔离。后续建设模块实现完整生命周期时迁出各自状态。
-6. `Assets/Game/Infrastructure/Maps/MapPlayController.cs`：独立对局加载和逐帧入口；`MapBattleDefinitionSource.cs` 将地图接入现有战斗模拟。
+3. `Assets/Game/Gameplay/Maps/Domain/Definitions/MapLayout.cs`、`MapDefinition.cs`：可编辑初始描述与经过验证的只读定义。
+4. `Assets/Game/Gameplay/Maps/Domain/Rules/`：共享占地、门洞、墙网投影与带定位信息的校验。
+5. `Assets/Game/Gameplay/Maps/Domain/Aggregates/MapPlacementState/MapPlacementState.cs`：设施、墙与门的运行状态，通过深复制快照与编辑文档隔离。
+6. `Assets/Game/Tools/MapPlaytest/Unity/MapPlayController.cs`：独立对局加载和逐帧入口；`Application/Sessions/MapPlaySession.cs` 完整提交空间变更后才推进模拟。
 7. `Assets/Game/Gameplay/Battle/Simulation/Systems/TerrainCollisionSystem.cs`：移动后、接触结算前完成连续圆形占位检查。
 
 编辑调用链：画布输入 → 工作副本 → `MapEditSession.Commit` → 文档快照 → 画布。
-试玩调用链：文档副本 → JSON → `MapDefinition` → `MapRuntimeState` / `MapBattleDefinitionSource` → `BattleSession` → ECS → 单位快照和地图视图。
+试玩调用链：文档副本 → JSON → `MapDefinition` → `MapPlaySession` → `MapPlacementState` / `MapBattleDefinitionSource` → `BattleSession` → ECS → 单位快照和地图视图。
+
+## 城门（ArtV3）
+
+打开 `Game/地图编辑器`，工具栏的“城门示例地图”可载入 `Assets/Content/Maps/Example/gates.map.json`。
+
+1. 先绘制足够长的横向墙段，再选“城门”，点击墙段插入。每条墙段支持一座门；再次点击该墙段可移动它，也可用“选择移动”拖动门图。
+2. 右侧调整总宽和“初始开门”，点击“应用到所选城门”。总宽使用世界地面单位，门洞净宽随当前门型按 4:9 等比缩放，默认总宽 4.5、净宽 2。
+3. “移除城门”恢复完整墙体；“删除选择”会删除整条墙段及其门。所有编辑支持撤销、重做、保存、重新打开和导出。非法方向、越过端点或无效尺寸的诊断定位到墙段。
+4. 独立试玩选择 `Open / close gate`，点击门图切换状态。开门只移除门洞阻挡，门框与两侧墙保留；任何阵营的单位都可通过。关门会重新检查存活单位的净空，失败不改变状态。
+5. 开关命令在本帧模拟推进前完成候选状态、导航和 ECS 空间同步，失败恢复旧空间；重启恢复地图初始状态，源文件不会被试玩改写。
+
+本轮只有正面城门素材，所以仅支持横向门，不把整张立面图片旋转成纵向或斜向门。尚未加入门动画、自动开门、阵营权限、费用、承伤或升级。门洞沿用现有保守导航网格；很小或未对齐的门洞仍可能不通，精确轮廓导航留待后续。
+
+素材接入制作入口：`SourceArt/MapEnvironmentV3/ImportEnvironment.cs`；已导入资源的城门接线和示例创建：`ConnectGates.cs`。两态共用裁切框、脚底锚点和宽高，墙身略伸入门框避免透明留白露缝。实际渲染对照见 `Docs/Validation/gates-v3.png`，由 `CaptureGates.cs` 在临时场景生成。
+
+本轮验证：Unity 6000.6.4f1 编译通过，地图创作与试玩相关 EditMode 测试 52 项全部通过。包含实际编辑工具放门及拖动、保存往返、撤销重做、门洞与门框通行区别、单位占门时拒绝关闭、同步失败回滚、源数据隔离，以及真实 ECS 英雄被关闭的门阻挡、开门后穿过并正确释放 World。已检查开关门实际渲染；未进行 Player 构建或移动端验收。
 
 ## 本次验证
 

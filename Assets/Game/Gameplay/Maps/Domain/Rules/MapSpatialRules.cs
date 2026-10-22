@@ -21,8 +21,20 @@ namespace Game.Maps.Domain
             {
                 var from = layout.wallNodes.Find(node => node.id == edge.from);
                 var to = layout.wallNodes.Find(node => node.id == edge.to);
-                if (from != null && to != null)
-                    obstacles.Add(ObstacleFootprint.Segment(new MapPoint(from.x, from.y), new MapPoint(to.x, to.y), WallThickness));
+                if (from == null || to == null)
+                    continue;
+                var a = new MapPoint(from.x, from.y);
+                var b = new MapPoint(to.x, to.y);
+                if (edge.hasGate && WallGateRules.Validate(layout, edge, out _) && edge.gate.isOpen)
+                {
+                    var center = WallGateRules.Center(layout, edge);
+                    float direction = Math.Sign(to.x - from.x);
+                    float half = edge.gate.openingWidth * 0.5f * direction;
+                    obstacles.Add(ObstacleFootprint.Segment(a, new MapPoint(center.X - half, center.Y), WallThickness));
+                    obstacles.Add(ObstacleFootprint.Segment(new MapPoint(center.X + half, center.Y), b, WallThickness));
+                }
+                else
+                    obstacles.Add(ObstacleFootprint.Segment(a, b, WallThickness));
             }
             foreach (var item in layout.facilities)
             {

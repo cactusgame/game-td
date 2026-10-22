@@ -13,6 +13,7 @@
       <ui:Button name="play" text="独立试玩" class="primary" />
       <ui:Button name="fit" text="适配画布" />
       <ui:Button name="artShowcase" text="美术示例地图" />
+      <ui:Button name="gateExample" text="城门示例地图" />
     </ui:VisualElement>
     <ui:Label name="documentPath" class="path" />
     <ui:VisualElement class="body">
@@ -44,6 +45,12 @@
         <ui:TextField name="markerName" label="标记名称" />
         <ui:Button name="rename" text="修改标记名称" />
         <ui:Button name="delete" text="删除选择（Delete）" />
+        <ui:Label text="城门设置（横向墙段）" class="heading" />
+        <ui:Label text="先画墙，再用城门工具点击墙段。每段墙可放一座门；净宽随门框等比调整。" class="hint" />
+        <ui:FloatField name="gateWidth" label="城门总宽" value="4.5" />
+        <ui:Toggle name="gateOpen" label="初始开门" />
+        <ui:Button name="applyGate" text="应用到所选城门" />
+        <ui:Button name="removeGate" text="移除城门（恢复墙体）" />
         <ui:Label text="内容校验 · 点击定位" class="heading" />
         <ui:VisualElement name="issues" />
       </ui:ScrollView>

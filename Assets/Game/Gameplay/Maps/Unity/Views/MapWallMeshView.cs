@@ -2,14 +2,15 @@ using UnityEngine;
 
 namespace Game.Maps.Unity.Views
 {
-    /// <summary>绘制一个遮挡片段内的墙身、墙顶与垛口；拥有并释放运行时 Mesh 与材质。</summary>
+    /// <summary>绘制一个墙体遮挡片段，拥有 Mesh；地图批量生成时由地图视图提供共享材质。</summary>
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, "Game.Maps.Unity", "Game.MapContent.Unity", "MapWallMeshView")]
     public sealed class MapWallMeshView : MonoBehaviour
     {
         private Mesh _mesh;
         private Material _material;
+        private bool _ownsMaterial;
 
-        public void Build(MapSceneSprites.Entry entry, int order)
+        public void Build(MapSceneSprites.Entry entry, int order, Material sharedMaterial = null)
         {
             var patch = entry.Wall.Mesh;
             var sprite = patch.Sprite;
@@ -23,7 +24,8 @@ namespace Game.Maps.Unity.Views
             _mesh.uv = patch.Uvs;
             _mesh.triangles = patch.Indices;
             _mesh.RecalculateBounds();
-            _material = new Material(Shader.Find("Sprites/Default")) { mainTexture = texture };
+            _ownsMaterial = sharedMaterial == null;
+            _material = sharedMaterial != null ? sharedMaterial : new Material(Shader.Find("Sprites/Default")) { mainTexture = texture };
             gameObject.AddComponent<MeshFilter>().sharedMesh = _mesh;
             var renderer = gameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = _material;
@@ -35,12 +37,14 @@ namespace Game.Maps.Unity.Views
             if (Application.isPlaying)
             {
                 Destroy(_mesh);
-                Destroy(_material);
+                if (_ownsMaterial)
+                    Destroy(_material);
             }
             else
             {
                 DestroyImmediate(_mesh);
-                DestroyImmediate(_material);
+                if (_ownsMaterial)
+                    DestroyImmediate(_material);
             }
         }
     }

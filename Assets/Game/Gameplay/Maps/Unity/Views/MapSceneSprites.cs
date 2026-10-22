@@ -54,27 +54,25 @@ namespace Game.Maps.Unity.Views
                 AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * 1.2f);
             }
             foreach (var edge in layout.wallEdges)
-                entries.AddRange(MapRaisedWallPresentation.Build(layout, edge, visuals));
-            if (visuals.wallCorner != null)
             {
-                foreach (var node in layout.wallNodes)
+                entries.AddRange(MapRaisedWallPresentation.Build(layout, edge, visuals));
+                if (edge.hasGate && WallGateRules.Validate(layout, edge, out _))
                 {
-                    int degree = 0;
-                    foreach (var edge in layout.wallEdges)
-                        if (edge.from == node.id || edge.to == node.id) degree++;
-                    if (degree == 0)
-                        continue;
-                    var sprite = degree == 1 && visuals.wallEnd != null ? visuals.wallEnd : visuals.wallCorner;
-                    var position = new Vector2(node.x, node.y);
-                    if (degree == 1)
+                    var center = WallGateRules.Center(layout, edge);
+                    int count = entries.Count;
+                    AddFoot(entries, edge.id, edge.gate.isOpen ? visuals.gateOpen : visuals.gateClosed,
+                        new Vector2(center.X, center.Y), edge.gate.width, "gate/" + edge.id);
+                    if (entries.Count > count)
                     {
-                        var edge = layout.wallEdges.Find(item => item.from == node.id || item.to == node.id);
-                        if (MapWallPresentation.TryGetSpan(layout, edge, out var start, out var end))
-                            position = edge.from == node.id ? start : end;
+                        var gate = entries[entries.Count - 1];
+                        var wall = new MapWallGeometry(layout, visuals);
+                        gate.Center.y = center.Y - wall.Width * 0.5f + gate.Height * (0.5f - visuals.gateFootInset);
+                        gate.GroundY = center.Y - wall.Width * 0.5f - wall.DepthStep;
                     }
-                    AddFoot(entries, node.id, sprite, position, Mathf.Min(layout.cellWidth, layout.cellHeight) * 0.72f);
                 }
             }
+            foreach (var node in layout.wallNodes)
+                entries.AddRange(MapWallNodePresentation.Build(layout, node, visuals));
             entries.Sort(CompareDepth);
             return entries;
         }
@@ -91,6 +89,32 @@ namespace Game.Maps.Unity.Views
             if (result != 0)
                 return result;
             return System.StringComparer.Ordinal.Compare(left.SortKey, right.SortKey);
+        }
+
+        /// <summary>图片点击属于表现查询；命中后只把稳定墙段 ID 交给编辑或开关门用例。</summary>
+        public static string PickGate(MapLayout layout, MapVisualCatalog visuals, Vector2 point)
+        {
+            string selected = null;
+            float front = float.PositiveInfinity;
+            var wall = new MapWallGeometry(layout, visuals);
+            foreach (var edge in layout.wallEdges)
+            {
+                if (!edge.hasGate || !WallGateRules.Validate(layout, edge, out _))
+                    continue;
+                var sprite = edge.gate.isOpen ? visuals.gateOpen : visuals.gateClosed;
+                if (sprite == null)
+                    continue;
+                var center = WallGateRules.Center(layout, edge);
+                float height = edge.gate.width * sprite.rect.height / sprite.rect.width;
+                float bottom = center.Y - wall.Width * 0.5f - height * visuals.gateFootInset;
+                var bounds = new Rect(center.X - edge.gate.width * 0.5f, bottom, edge.gate.width, height);
+                if (bounds.Contains(point) && center.Y < front)
+                {
+                    selected = edge.id;
+                    front = center.Y;
+                }
+            }
+            return selected;
         }
 
         private static void AddFoot(List<Entry> entries, string id, Sprite sprite, Vector2 ground, float width, string sortKey = null)

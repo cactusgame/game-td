@@ -1,0 +1,408 @@
+fileFormatVersion: 2
+guid: f9b3d665c305d3041865fc08cc6b6cd9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -385776897354456123
+    second: woodland-obstacles_0
+  - first:
+      213: 4147179948969309051
+    second: woodland-obstacles_1
+  - first:
+      213: 8383424446014198811
+    second: woodland-obstacles_2
+  - first:
+      213: 6412191062120483740
+    second: woodland-obstacles_3
+  - first:
+      213: 5219133111444991763
+    second: woodland-obstacles_4
+  - first:
+      213: -3532130662143502892
+    second: woodland-obstacles_5
+  - first:
+      213: 7553242683340868028
+    second: woodland-obstacles_6
+  - first:
+      213: -299276582669177843
+    second: woodland-obstacles_7
+  - first:
+      213: -4146904870229337418
+    second: woodland-obstacles_8
+  - first:
+      213: 6005906525033353565
+    second: woodland-obstacles_9
+  - first:
+      213: -3203659037877639925
+    second: woodland-obstacles_10
+  - first:
+      213: -728025357056898619
+    second: woodland-obstacles_11
+  - first:
+      213: 2750954279491015527
+    second: woodland-obstacles_12
+  - first:
+      213: 5952624541366891350
+    second: woodland-obstacles_13
+  - first:
+      213: -7042641625382834034
+    second: woodland-obstacles_14
+  - first:
+      213: 8745413521393888161
+    second: woodland-obstacles_15
+  - first:
+      213: 4474442584461029213
+    second: woodland-obstacles_16
+  - first:
+      213: -518371178433459528
+    second: woodland-obstacles_17
+  - first:
+      213: -2354487303082428899
+    second: woodland-obstacles_18
+  - first:
+      213: 2829046529133364385
+    second: woodland-obstacles_19
+  - first:
+      213: 2855227391838719740
+    second: woodland-obstacles_20
+  - first:
+      213: 7377276593659685709
+    second: woodland-obstacles_21
+  - first:
+      213: -1534347769087696867
+    second: woodland-obstacles_22
+  - first:
+      213: 7954143335866693035
+    second: woodland-obstacles_23
+  - first:
+      213: -5553561603621044697
+    second: woodland-obstacles_24
+  - first:
+      213: -8614057023080351737
+    second: woodland-obstacles_25
+  - first:
+      213: -3165919026819452910
+    second: woodland-obstacles_26
+  - first:
+      213: 4742736556915342097
+    second: woodland-obstacles_27
+  - first:
+      213: 6312912720789336753
+    second: woodland-obstacles_28
+  - first:
+      213: -8309599014024381163
+    second: woodland-obstacles_29
+  - first:
+      213: 7308135170139341405
+    second: woodland-obstacles_30
+  - first:
+      213: -4443756946636465179
+    second: woodland-obstacles_31
+  - first:
+      213: -5285878701502762645
+    second: woodland-obstacles_32
+  - first:
+      213: 2718376121660737288
+    second: woodland-obstacles_33
+  - first:
+      213: -6909203079034973594
+    second: woodland-obstacles_34
+  - first:
+      213: 357000960680893002
+    second: woodland-obstacles_35
+  - first:
+      213: 4671775218811564101
+    second: woodland-obstacles_36
+  - first:
+      213: 3416862317354850849
+    second: woodland-obstacles_37
+  - first:
+      213: -5197540359047713581
+    second: woodland-obstacles_38
+  - first:
+      213: 1698945856712912429
+    second: woodland-obstacles_39
+  - first:
+      213: 3156163332638605773
+    second: woodland-obstacles_40
+  - first:
+      213: 7357312862277616151
+    second: woodland-obstacles_41
+  - first:
+      213: 2544574059070240113
+    second: woodland-obstacles_42
+  - first:
+      213: -4249612254363302920
+    second: woodland-obstacles_43
+  - first:
+      213: 5245877377370022490
+    second: woodland-obstacles_44
+  - first:
+      213: -1030233183024326307
+    second: woodland-obstacles_45
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: oak-mature
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 444
+        width: 565
+        height: 560
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99932289f18e5bb499dbbee9b611f473
+      internalID: -2075443100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fir
+      rect:
+        serializedVersion: 2
+        x: 590
+        y: 444
+        width: 420
+        height: 570
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b4ad80bb4a591443868fdf925f3ae0e
+      internalID: 1028814104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: boulders-moss
+      rect:
+        serializedVersion: 2
+        x: 1020
+        y: 434
+        width: 506
+        height: 430
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8896f57e2050a554b8f69d7571e6f9a9
+      internalID: 439820226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: oak-young
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 14
+        width: 520
+        height: 435
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3b3cd1118a11414c94f653cea11438e
+      internalID: -1545424993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rubble-moss
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 14
+        width: 480
+        height: 285
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d6ef81c7abbea9b418d79ef6b2018c0a
+      internalID: 890467893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fallen-log
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 14
+        width: 490
+        height: 320
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e179b8354c11f7d40ab42e793ff98000
+      internalID: 1930435393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      boulders-moss: 439820226
+      fallen-log: 1930435393
+      fir: 1028814104
+      oak-mature: -2075443100
+      oak-young: -1545424993
+      rubble-moss: 890467893
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -34,10 +34,10 @@ namespace Game.Tools.MapPlaytest.Tests
 
         private static BattleDefinition Rules() => JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
 
-        private static MapPlaySession Session(Func<ISpatialBattleSimulation> create, MapLayout source = null)
+        private static MapPlaySession Session(Func<ISpatialBattleSimulation> create, MapLayout source = null, IHeroInput input = null)
         {
             var catalog = Catalog();
-            return new MapPlaySession(new MapDefinition(source ?? Source(), catalog), catalog, Rules(), new Input(), create);
+            return new MapPlaySession(new MapDefinition(source ?? Source(), catalog), catalog, Rules(), input ?? new Input(), create);
         }
 
         [Test]
@@ -55,6 +55,91 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.MapVersion, Is.EqualTo(2));
             Assert.That(simulation.Navigation.IsWalkable(new GridCell(4, 4)), Is.True);
             Assert.That(session.Snapshot.facilities, Is.Empty);
+        }
+
+        private static MapLayout GateMap(bool open = false)
+        {
+            var map = Source();
+            map.wallNodes.Add(new WallNode { id = "a", x = -8.5f, y = 2.5f });
+            map.wallNodes.Add(new WallNode { id = "b", x = 9.5f, y = 2.5f });
+            map.wallEdges.Add(new WallEdge { id = "gate-wall", from = "a", to = "b", hasGate = true, gate = new WallGate { isOpen = open } });
+            return map;
+        }
+
+        [Test]
+        public void GateChangesPublishNavigationAndRestartRestoresTheSourceState()
+        {
+            var source = GateMap();
+            var simulation = new Simulation();
+            using var session = Session(() => simulation, source);
+            session.Restart();
+            session.Navigation.TryWorldToCell(0.5f, 2.5f, out var opening);
+            session.Navigation.TryWorldToCell(2.5f, 2.5f, out var frame);
+            Assert.That(session.Navigation.IsWalkable(opening), Is.False);
+            Assert.That(session.TrySetGateOpen("gate-wall", true, out _), Is.True);
+            Assert.That(session.Navigation.IsWalkable(opening), Is.True);
+            Assert.That(session.Navigation.IsWalkable(frame), Is.False);
+            Assert.That(simulation.Navigation, Is.SameAs(session.Navigation));
+            Assert.That(source.wallEdges[0].gate.isOpen, Is.False);
+            var snapshot = session.Snapshot;
+            snapshot.wallEdges[0].gate.isOpen = false;
+            Assert.That(session.Snapshot.wallEdges[0].gate.isOpen, Is.True);
+            int version = session.MapVersion;
+            Assert.That(session.TrySetGateOpen("gate-wall", true, out _), Is.True);
+            Assert.That(session.MapVersion, Is.EqualTo(version));
+            session.Restart();
+            Assert.That(session.Snapshot.wallEdges[0].gate.isOpen, Is.False);
+            Assert.That(session.Navigation.IsWalkable(opening), Is.False);
+        }
+
+        [Test]
+        public void GateCannotCloseOverAUnitAndFailedUpdatesDoNotChangeItsState()
+        {
+            var simulation = new Simulation();
+            using var session = Session(() => simulation, GateMap(true));
+            session.Restart();
+            simulation.HeroPosition = new MapPoint(0.5f, 2.5f);
+            session.Advance(0);
+            Assert.That(session.TrySetGateOpen("gate-wall", false, out var reason), Is.False);
+            Assert.That(reason, Does.Contain("单位"));
+            Assert.That(session.MapVersion, Is.Zero);
+            Assert.That(simulation.UpdateCount, Is.Zero);
+            Assert.That(session.Snapshot.wallEdges[0].gate.isOpen, Is.True);
+            simulation.HeroPosition = new MapPoint(-5.5f, 0.5f);
+            session.Advance(0);
+            simulation.FailNextUpdate = true;
+            Assert.That(session.TrySetGateOpen("gate-wall", false, out reason), Is.False);
+            Assert.That(reason, Does.Contain("空间同步失败"));
+            Assert.That(session.MapVersion, Is.Zero);
+            Assert.That(session.Snapshot.wallEdges[0].gate.isOpen, Is.True);
+            Assert.That(simulation.Navigation, Is.SameAs(session.Navigation));
+            Assert.That(session.TrySetGateOpen("gate-wall", false, out _), Is.True);
+            Assert.That(session.Snapshot.wallEdges[0].gate.isOpen, Is.False);
+        }
+
+        [Test]
+        public void RealEcsHeroStopsAtClosedGateAndCrossesAfterItOpens()
+        {
+            var source = GateMap();
+            source.markers.Find(marker => marker.kind == MarkerKind.HeroSpawn).x = 0.5f;
+            var input = new Input { Y = 1 };
+            int worlds = World.All.Count;
+            using (var session = Session(() => new EcsBattleSimulation(), source, input))
+            {
+                session.Restart();
+                for (int i = 0; i < 60; i++)
+                    session.Advance(0.02f);
+                Assert.That(session.Units.First(unit => unit.Kind == UnitKind.Hero).Y, Is.LessThan(2));
+                Assert.That(session.TrySetGateOpen("gate-wall", true, out _), Is.True);
+                for (int i = 0; i < 15; i++)
+                    session.Advance(0.02f);
+                Assert.That(session.TrySetGateOpen("gate-wall", false, out _), Is.False);
+                for (int i = 0; i < 50; i++)
+                    session.Advance(0.02f);
+                Assert.That(session.Units.First(unit => unit.Kind == UnitKind.Hero).Y, Is.GreaterThan(3.5f));
+                Assert.That(session.TrySetGateOpen("gate-wall", false, out _), Is.True);
+            }
+            Assert.That(World.All.Count, Is.EqualTo(worlds));
         }
 
         [Test]
@@ -181,7 +266,8 @@ namespace Game.Tools.MapPlaytest.Tests
 
         private sealed class Input : IHeroInput
         {
-            public MoveIntent Read() => new MoveIntent(0, 0);
+            public float Y;
+            public MoveIntent Read() => new MoveIntent(0, Y);
         }
 
         private sealed class Simulation : ISpatialBattleSimulation

@@ -233,6 +233,13 @@ namespace Game.Tools.MapAuthoring.Editor
             }
             foreach (var node in Layout.wallNodes)
                 if (node.id == SelectedId || ShowGrid) Circle(ctx.painter2D, ToScreen(node.x, node.y), node.id == SelectedId ? Color.yellow : Color.white, 4);
+            foreach (var edge in Layout.wallEdges)
+            {
+                if (edge.id != SelectedId || !edge.hasGate || !WallGateRules.Validate(Layout, edge, out _))
+                    continue;
+                var gate = WallGateRules.Center(Layout, edge);
+                Circle(ctx.painter2D, ToScreen(gate.X, gate.Y), Color.yellow, 6);
+            }
             foreach (var marker in Layout.markers)
                 Circle(ctx.painter2D, ToScreen(marker.x, marker.y), marker.id == SelectedId ? Color.yellow : marker.kind == MarkerKind.HeroSpawn ? Color.cyan : new Color(1, 0.35f, 0.2f), 8);
             if (HighlightCell.HasValue)

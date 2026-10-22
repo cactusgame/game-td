@@ -52,6 +52,32 @@ namespace Game.Maps.Domain
             return true;
         }
 
+        public bool TrySetGateOpen(string edgeId, bool isOpen, Func<GridMap, bool> unitsRemainClear, out string reason)
+        {
+            var edge = _state.wallEdges.Find(item => item.id == edgeId);
+            if (edge == null || !edge.hasGate)
+            {
+                reason = "该墙段没有城门";
+                return false;
+            }
+            if (edge.gate.isOpen == isOpen)
+            {
+                reason = null;
+                return true;
+            }
+            var next = _state.Copy();
+            next.wallEdges.Find(item => item.id == edgeId).gate.isOpen = isOpen;
+            var navigation = MapSpatialRules.CreateNavigationMap(next, _catalog);
+            if (!isOpen && !unitsRemainClear(navigation))
+            {
+                reason = "门洞内或附近有单位，不能关门";
+                return false;
+            }
+            Commit(next, navigation);
+            reason = null;
+            return true;
+        }
+
         public bool TryRemove(float x, float y)
         {
             var next = _state.Copy();

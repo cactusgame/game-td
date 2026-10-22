@@ -59,15 +59,11 @@ namespace Game.Tools.MapAuthoring.Tests
             {
                 var ground = wall.Wall.GroundOutline;
                 Assert.That(Vector2.Distance(ground[0], ground[3]), Is.EqualTo(0.52f).Within(0.00001f));
-                Assert.That(wall.Wall.Facades, Is.Not.Empty);
-                foreach (var facade in wall.Wall.Facades)
-                {
-                    Assert.That(facade[3].x, Is.EqualTo(facade[0].x).Within(0.00001f), "Left vertical edge leaned at " + degrees);
-                    Assert.That(facade[2].x, Is.EqualTo(facade[1].x).Within(0.00001f), "Right vertical edge leaned at " + degrees);
-                    Assert.That(facade[3].y, Is.GreaterThan(facade[0].y));
-                    Assert.That(facade[2].y - facade[1].y, Is.EqualTo(facade[3].y - facade[0].y).Within(0.00001f));
-                }
+                // 表面现在独立裁切，单个片段可能只有顶面；不能要求每个片段同时含完整立面。
+                Assert.That(wall.Wall.Mesh.Positions.Length, Is.GreaterThanOrEqualTo(3));
+                Assert.That(wall.Wall.Mesh.Uvs.Length, Is.EqualTo(wall.Wall.Mesh.Positions.Length));
             }
+            Assert.That(MapRaisedWallPresentation.Project(Vector2.one, 0.5f), Is.EqualTo(new Vector2(1, 1.5f)));
             edge.from = "b";
             edge.to = "a";
             var reversed = MapRaisedWallPresentation.Build(map, edge, visuals).ToArray();

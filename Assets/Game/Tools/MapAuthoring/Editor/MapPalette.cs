@@ -16,7 +16,8 @@ namespace Game.Tools.MapAuthoring.Editor
         EnemyEntry,
         Facility,
         Wall,
-        Pan
+        Pan,
+        Gate
     }
 
     /// <summary>所有可选工具与素材集中显示；点选素材同时切换编辑模式，不再需要先选工具再找素材。</summary>
@@ -47,6 +48,9 @@ namespace Game.Tools.MapAuthoring.Editor
             var wall = Card("tool-Wall", "城墙", "连续点击绘制墙网，Esc 结束折线", () => SelectTool(MapEditorTool.Wall));
             wall.Insert(0, Preview(visuals.WallBodySprite));
             tools.Add(wall);
+            var gate = Card("tool-Gate", "城门", "点击横向墙段插入或移动城门；右侧设置宽度和初始状态", () => SelectTool(MapEditorTool.Gate));
+            gate.Insert(0, Preview(visuals.gateClosed));
+            tools.Add(gate);
 
             var terrains = Group("地形与障碍", "palette-terrain");
             foreach (TerrainKind kind in Enum.GetValues(typeof(TerrainKind)))
@@ -146,6 +150,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 Tool == MapEditorTool.Select ? "当前：选择 / 移动" :
                 Tool == MapEditorTool.Pan ? "当前：平移视图 · 拖动地图" :
                 Tool == MapEditorTool.Wall ? "当前：绘制城墙 · Esc 结束折线" :
+                Tool == MapEditorTool.Gate ? "当前：城门 · 点击横向墙段放置 / 移动" :
                 Tool == MapEditorTool.HeroSpawn ? "当前：设置英雄出生位置" : "当前：设置敌人入口";
         }
 

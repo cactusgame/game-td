@@ -39,6 +39,31 @@ namespace Game.Maps.Unity.Assets
         public Sprite wallEnd;
         [Tooltip("石砌侧面材质，用于纵墙与陡斜墙的立体墙身。")]
         public Sprite wallMasonry;
+        [Tooltip("独立的墙顶铺地素材；与墙面分别取样，不把墙面立面压扁作为走道。")]
+        public Sprite wallWalkway;
+        public Sprite gateClosed;
+        public Sprite gateOpen;
+        [Tooltip("城门素材底部透明留白占高度比例；两态共用地面脚底锚点。")]
+        public float gateFootInset = 0.025f;
+        [Tooltip("城门两侧透明留白占宽度比例；墙身略伸入门框以避免露出地面缝隙。")]
+        public float gateSideInset = 0.025f;
+        [Tooltip("墙体制作尺寸，统一作用于墙身、敌台和连接口。本轮不改变导航占地。")]
+        public WallDimensions wallDimensions = new WallDimensions();
+
+        [Serializable]
+        public sealed class WallDimensions
+        {
+            public float width = 0.52f;
+            public float deckHeight = 0.5f;
+            public float nodeRadius = 0.4f;
+            public float railWidth = 0.075f;
+            public float railHeight = 0.08f;
+            public float merlonHeight = 0.16f;
+            public float merlonSpacing = 0.42f;
+            public float merlonLength = 0.22f;
+            public float textureLength = 1.2f;
+            public float textureHeight = 0.9f;
+        }
 
         public Sprite Obstacle(Game.Maps.Domain.MapLayout layout, int x, int y)
         {

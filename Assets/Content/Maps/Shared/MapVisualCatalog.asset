@@ -14,23 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.MapContent.Unity::Game.Maps.Unity.MapVisualCatalog
   terrain:
   - kind: 0
-    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    ground: {fileID: 21300000, guid: 958262198052aeb4182d065a943b1ea1, type: 3}
     obstacle: {fileID: 0}
   - kind: 1
-    ground: {fileID: 1174476821, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    ground: {fileID: 21300000, guid: 19271161bba2f864e9d2089ed040817e, type: 3}
     obstacle: {fileID: 0}
   - kind: 2
-    ground: {fileID: 1174476821, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    ground: {fileID: 21300000, guid: 19271161bba2f864e9d2089ed040817e, type: 3}
     obstacle: {fileID: 0}
   - kind: 3
-    ground: {fileID: -738241883, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+    ground: {fileID: 21300000, guid: b361948d496b2de429c22fc19c7f1001, type: 3}
     obstacle: {fileID: 0}
   - kind: 4
-    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
-    obstacle: {fileID: 993705528, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    ground: {fileID: 21300000, guid: 958262198052aeb4182d065a943b1ea1, type: 3}
+    obstacle: {fileID: 439820226, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
   - kind: 5
-    ground: {fileID: 912460494, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
-    obstacle: {fileID: 441193185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    ground: {fileID: 21300000, guid: 958262198052aeb4182d065a943b1ea1, type: 3}
+    obstacle: {fileID: -2075443100, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
   facilities:
   - definitionId: tower
     sprite: {fileID: 1061127068, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
@@ -42,23 +42,41 @@ MonoBehaviour:
     sprite: {fileID: -1342872335, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
   - definitionId: farm
     sprite: {fileID: -769758246, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
-  wall: {fileID: 1742936543, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
+  wall: {fileID: 2053370403, guid: c6f8972c658ba074f86db05e5227ad1f, type: 3}
   wallBodyRegion:
     serializedVersion: 2
-    x: 0.11
+    x: 0
     y: 0
-    width: 0.78
+    width: 1
     height: 1
   facilityRules: {fileID: 4900000, guid: 1578c53a365e65841885b117ad2e413c, type: 3}
   blendTerrain: 1
   treeVariants:
-  - {fileID: 441193185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
-  - {fileID: 347042586, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - {fileID: -2075443100, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
+  - {fileID: 1028814104, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
+  - {fileID: -1545424993, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
   rockVariants:
-  - {fileID: 993705528, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+  - {fileID: 439820226, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
+  - {fileID: 890467893, guid: f9b3d665c305d3041865fc08cc6b6cd9, type: 3}
   wallVertical: {fileID: 352153532, guid: e21488fa35a4558459c07c6c9ad91f13, type: 3}
   wallDiagonalUp: {fileID: 1968300453, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
   wallDiagonalDown: {fileID: 523776443, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
-  wallCorner: {fileID: 1780187553, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
-  wallEnd: {fileID: -342200862, guid: 9482631ea2e338e41873f861c976a28e, type: 3}
-  wallMasonry: {fileID: -1083218287, guid: d3fae1a12f94b094c8c3cc191c7639e8, type: 3}
+  wallCorner: {fileID: 1417175545, guid: c6f8972c658ba074f86db05e5227ad1f, type: 3}
+  wallEnd: {fileID: -53855939, guid: c6f8972c658ba074f86db05e5227ad1f, type: 3}
+  wallMasonry: {fileID: 21300000, guid: c386b0c7d5f980b4381073ed6658f026, type: 3}
+  wallWalkway: {fileID: 21300000, guid: 05e561d143302de4e80bfb76630c5da6, type: 3}
+  gateClosed: {fileID: -519434803, guid: 97f4c1c482e32104d9ea67ba4ae04475, type: 3}
+  gateOpen: {fileID: 58724168, guid: c73f51ca196c5c745af384f930b2ce10, type: 3}
+  gateFootInset: 0.025
+  gateSideInset: 0.025
+  wallDimensions:
+    width: 0.52
+    deckHeight: 0.5
+    nodeRadius: 0.4
+    railWidth: 0.075
+    railHeight: 0.08
+    merlonHeight: 0.16
+    merlonSpacing: 0.42
+    merlonLength: 0.22
+    textureLength: 1.2
+    textureHeight: 0.9

@@ -101,6 +101,17 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             return TryPublish(candidate, out reason);
         }
 
+        public bool TrySetGateOpen(string edgeId, bool isOpen, out string reason)
+        {
+            RequireActive();
+            var candidate = _placements.CreateCandidate();
+            if (!candidate.TrySetGateOpen(edgeId, isOpen, UnitsRemainClear, out reason))
+                return false;
+            if (candidate.Version == _placements.Version)
+                return true;
+            return TryPublish(candidate, out reason);
+        }
+
         private bool UnitsRemainClear(GridMap navigation)
         {
             foreach (var unit in _battle.Units)

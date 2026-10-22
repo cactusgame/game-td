@@ -1,13 +1,13 @@
-using Game.Maps.Unity.Assets;
 using System.Collections.Generic;
 using Game.Maps.Domain;
+using Game.Maps.Unity.Assets;
 using UnityEngine;
 
 namespace Game.Maps.Unity.Views
 {
     /// <summary>
-    /// 所有方向共用有厚度的墙体。地面轮廓可以旋转，高度投影始终竖直向上。
-    /// 墙顶、立面与垛口由同一几何生成，不按方向更换整幅墙图片。
+    /// 共用地面接口生成墙身、走道和女墙。墙与节点使用同一条连接弦，
+    /// 表面按地面深度裁切；渲染片段不产生新的墙段身份。
     /// </summary>
     public static class MapRaisedWallPresentation
     {
@@ -20,143 +20,117 @@ namespace Game.Maps.Unity.Views
 
         public static IEnumerable<MapSceneSprites.Entry> Build(MapLayout layout, WallEdge edge, MapVisualCatalog visuals)
         {
-            var material = visuals.wallMasonry != null ? visuals.wallMasonry : visuals.WallBodySprite;
-            if (material == null)
+            Sprite masonry = visuals.wallMasonry != null ? visuals.wallMasonry : visuals.WallBodySprite;
+            Sprite paving = visuals.wallWalkway != null ? visuals.wallWalkway : masonry;
+            if (masonry == null || !MapWallPresentation.TryGetSpan(layout, edge, out var start, out var end))
                 yield break;
-            if (!MapWallPresentation.TryGetSpan(layout, edge, out var start, out var end))
-                yield break;
-            // 固定方向，反向画同一条墙不会改变垛口节奏与遮挡顺序。
+            string startId = edge.from;
+            string endId = edge.to;
             if (start.x > end.x || start.x == end.x && start.y > end.y)
             {
                 Vector2 swap = start;
                 start = end;
                 end = swap;
+                string swapId = startId;
+                startId = endId;
+                endId = swapId;
             }
-            float unit = Mathf.Min(layout.cellWidth, layout.cellHeight);
-            float length = Vector2.Distance(start, end);
-            Vector2 direction = (end - start) / length;
-            // 墙身接到柱子的外缘，而不是穿到柱子中心并盖住柱顶。
-            if (visuals.wallCorner != null)
-            {
-                float inset = Mathf.Min(unit * 0.23f, length * 0.2f);
-                start += direction * inset;
-                end -= direction * inset;
-                length = Vector2.Distance(start, end);
-            }
+            var geometry = new MapWallGeometry(layout, visuals);
+            Vector2 direction = (end - start).normalized;
             Vector2 normal = new Vector2(-direction.y, direction.x);
-            float width = unit * 0.52f;
-            float height = unit * 0.5f;
-            int count = Mathf.Max(1, Mathf.CeilToInt(length / (unit * 0.42f)));
-            for (int i = 0; i < count; i++)
+            float length = Vector2.Distance(start, end);
+            float first = geometry.PortDistance(geometry.RadiusAt(layout, layout.wallNodes.Find(node => node.id == startId)));
+            float last = length - geometry.PortDistance(geometry.RadiusAt(layout, layout.wallNodes.Find(node => node.id == endId)));
+            if (last <= first + 0.0001f)
+                yield break;
+            if (edge.hasGate && WallGateRules.Validate(layout, edge, out _))
             {
-                Vector2 a = Vector2.Lerp(start, end, (float)i / count);
-                Vector2 b = Vector2.Lerp(start, end, (float)(i + 1) / count);
-                var builder = new Builder(material);
-                var footprint = Rectangle(a, b, normal * width * 0.5f);
-                builder.Box(footprint, 0, height, new Color(0.93f, 0.89f, 0.8f), i == 0, i == count - 1);
+                var center = WallGateRules.Center(layout, edge);
+                float distance = Vector2.Dot(new Vector2(center.X, center.Y) - start, direction);
+                float halfFrame = edge.gate.width * (0.5f - visuals.gateSideInset) - geometry.Width * 0.125f;
+                foreach (var entry in BuildSection(edge.id, start, direction, normal, first, distance - halfFrame, geometry, masonry, paving))
+                    yield return entry;
+                foreach (var entry in BuildSection(edge.id, start, direction, normal, distance + halfFrame, last, geometry, masonry, paving))
+                    yield return entry;
+                yield break;
+            }
+            foreach (var entry in BuildSection(edge.id, start, direction, normal, first, last, geometry, masonry, paving))
+                yield return entry;
+        }
 
-                // 后侧女墙先绘制；垛口也独立竖直抬升，不沿墙线倾斜。
-                float farSign = normal.y >= 0 ? 1 : -1;
-                AddParapet(builder, a, b, normal, direction, width, height, unit, farSign);
-                AddParapet(builder, a, b, normal, direction, width, height, unit, -farSign);
-                Vector2 ground = (a + b) * 0.5f;
-                yield return new MapSceneSprites.Entry
-                {
-                    Id = edge.id,
-                    SortKey = "wall/" + edge.id,
-                    GroundX = ground.x,
-                    GroundY = ground.y,
-                    Wall = builder.Finish(footprint)
-                };
+        private static IEnumerable<MapSceneSprites.Entry> BuildSection(string id, Vector2 start, Vector2 direction,
+            Vector2 normal, float first, float last, MapWallGeometry geometry, Sprite masonry, Sprite paving)
+        {
+            if (last <= first)
+                yield break;
+            Vector2 a = start + direction * first;
+            Vector2 b = start + direction * last;
+            var footprint = Rectangle(a, b, normal * geometry.Width * 0.5f);
+            var builder = new MapWallSurfaceBuilder(id, "wall/" + id + "/" + first.ToString("R", System.Globalization.CultureInfo.InvariantCulture), geometry, footprint);
+
+            // 端面属于敌台连接口，只绘制墙的长边；不能在走道相接处留下竖直封口。
+            Side(builder, footprint[0], footprint[1], 0, geometry.DeckHeight, start, direction, geometry, masonry, 0);
+            Side(builder, footprint[2], footprint[3], 0, geometry.DeckHeight, start, direction, geometry, masonry, 0);
+            builder.Deck(footprint, geometry.DeckHeight, paving, new Color(0.94f, 0.92f, 0.86f), 1);
+            AddRail(builder, start, direction, normal, first, last, 1, geometry, masonry, paving);
+            AddRail(builder, start, direction, normal, first, last, -1, geometry, masonry, paving);
+            foreach (var entry in builder.Finish())
+                yield return entry;
+        }
+
+        private static void AddRail(MapWallSurfaceBuilder builder, Vector2 start, Vector2 direction, Vector2 normal,
+            float first, float last, float sign, MapWallGeometry geometry, Sprite masonry, Sprite paving)
+        {
+            Vector2 offset = normal * sign * (geometry.Width - geometry.RailWidth) * 0.5f;
+            var basePolygon = Rectangle(start + direction * first + offset, start + direction * last + offset, normal * geometry.RailWidth * 0.5f);
+            Prism(builder, basePolygon, geometry.DeckHeight, geometry.DeckHeight + geometry.RailHeight,
+                start, direction, geometry, masonry, paving, 2, false);
+            // 垛口按固定世界间距截取，不随整条墙的分片数量缩放。
+            int firstTooth = Mathf.FloorToInt(first / geometry.MerlonSpacing);
+            int lastTooth = Mathf.FloorToInt(last / geometry.MerlonSpacing);
+            for (int i = firstTooth; i <= lastTooth; i++)
+            {
+                float a = Mathf.Max(first, i * geometry.MerlonSpacing);
+                float b = Mathf.Min(last, i * geometry.MerlonSpacing + geometry.MerlonLength);
+                if (b <= a + 0.0001f)
+                    continue;
+                var polygon = Rectangle(start + direction * a + offset, start + direction * b + offset, normal * geometry.RailWidth * 0.5f);
+                Prism(builder, polygon, geometry.DeckHeight + geometry.RailHeight,
+                    geometry.DeckHeight + geometry.RailHeight + geometry.MerlonHeight,
+                    start, direction, geometry, masonry, paving, 3, true);
             }
         }
 
-        public static Vector2 Project(Vector2 ground, float height)
+        internal static void Prism(MapWallSurfaceBuilder builder, Vector2[] polygon, float bottom, float top,
+            Vector2 textureOrigin, Vector2 direction, MapWallGeometry geometry, Sprite masonry, Sprite paving, int layer, bool ends)
         {
-            return ground + Vector2.up * height;
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                if (!ends && (i == 1 || i == 3))
+                    continue;
+                Side(builder, polygon[i], polygon[(i + 1) % polygon.Length], bottom, top,
+                    textureOrigin, direction, geometry, masonry, layer);
+            }
+            builder.Deck(polygon, top, paving, new Color(1, 0.98f, 0.92f), layer);
         }
 
-        private static void AddParapet(Builder builder, Vector2 a, Vector2 b, Vector2 normal,
-            Vector2 direction, float width, float height, float unit, float sign)
+        private static void Side(MapWallSurfaceBuilder builder, Vector2 a, Vector2 b, float bottom, float top,
+            Vector2 origin, Vector2 direction, MapWallGeometry geometry, Sprite masonry, int layer)
         {
-            float railWidth = unit * 0.09f;
-            Vector2 offset = normal * sign * (width - railWidth) * 0.5f;
-            builder.Box(Rectangle(a + offset, b + offset, normal * railWidth * 0.5f),
-                height, height + unit * 0.075f, new Color(1, 0.97f, 0.88f), false, false, false);
-            Vector2 center = (a + b) * 0.5f + offset;
-            Vector2 halfLength = direction * Vector2.Distance(a, b) * 0.25f;
-            builder.Box(Rectangle(center - halfLength, center + halfLength, normal * railWidth * 0.5f),
-                height + unit * 0.075f, height + unit * 0.22f, new Color(1, 0.99f, 0.92f), true, true, false);
+            float u0 = Vector2.Dot(a - origin, direction) / geometry.TextureLength;
+            float u1 = Vector2.Dot(b - origin, direction) / geometry.TextureLength;
+            if (Mathf.Abs(u1 - u0) < 0.00001f)
+                u1 = u0 + Vector2.Distance(a, b) / geometry.TextureLength;
+            Vector2 outward = new Vector2(b.y - a.y, a.x - b.x).normalized;
+            float light = 0.78f + Vector2.Dot(outward, new Vector2(-0.4f, -0.6f).normalized) * 0.12f;
+            builder.Facade(a, b, bottom, top, u0, u1, masonry, new Color(light, light * 0.97f, light * 0.92f), layer);
         }
 
-        private static Vector2[] Rectangle(Vector2 start, Vector2 end, Vector2 halfWidth)
+        internal static Vector2[] Rectangle(Vector2 start, Vector2 end, Vector2 halfWidth)
         {
             return new[] { start - halfWidth, end - halfWidth, end + halfWidth, start + halfWidth };
         }
 
-        private sealed class Builder
-        {
-            private readonly Sprite _sprite;
-            private readonly List<Vector2> _vertices = new List<Vector2>();
-            private readonly List<Vector2> _uvs = new List<Vector2>();
-            private readonly List<Color32> _colors = new List<Color32>();
-            private readonly List<int> _indices = new List<int>();
-            private readonly Shape _shape = new Shape();
-
-            public Builder(Sprite sprite) => _sprite = sprite;
-
-            public void Box(Vector2[] ground, float bottom, float top, Color tint, bool startCap, bool endCap, bool masonry = true)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    if (i == 1 && !endCap || i == 3 && !startCap)
-                        continue;
-                    Vector2 a = ground[i];
-                    Vector2 b = ground[(i + 1) % 4];
-                    // 只绘制朝向观察者的立面。正纵向长边退化时，墙顶仍保留完整厚度。
-                    if (b.x - a.x <= 0.00001f)
-                        continue;
-                    var face = new[] { Project(a, bottom), Project(b, bottom), Project(b, top), Project(a, top) };
-                    _shape.Facades.Add(face);
-                    Quad(face, tint * new Color(0.85f, 0.82f, 0.78f, 1), false, masonry);
-                }
-                var cap = new Vector2[4];
-                for (int i = 0; i < 4; i++)
-                    cap[i] = Project(ground[i], top);
-                Quad(cap, tint, true, masonry);
-            }
-
-            private void Quad(Vector2[] points, Color tint, bool top, bool masonry)
-            {
-                int offset = _vertices.Count;
-                for (int i = 0; i < 4; i++)
-                {
-                    _vertices.Add(points[i]);
-                    // 墙身按石砌层次采样；小垛口只取单块石材内部，不把整张砖墙缩在一块砖上。
-                    float u0 = masonry ? 0.08f : 0.28f;
-                    float u1 = masonry ? 0.48f : 0.43f;
-                    float v0 = masonry ? 0.16f : 0.65f;
-                    float v1 = masonry ? (top ? 0.36f : 0.86f) : 0.78f;
-                    Vector2 uv = new Vector2(i == 0 || i == 3 ? u0 : u1, i < 2 ? v0 : v1);
-                    _uvs.Add(MapSurfaceGeometry.TextureUv(_sprite, uv.x, uv.y));
-                    _colors.Add(tint);
-                }
-                _indices.AddRange(new[] { offset, offset + 1, offset + 2, offset, offset + 2, offset + 3 });
-            }
-
-            public Shape Finish(Vector2[] footprint)
-            {
-                _shape.GroundOutline = footprint;
-                _shape.Mesh = new MapSurfaceGeometry.Patch
-                {
-                    Sprite = _sprite,
-                    Positions = _vertices.ToArray(),
-                    Uvs = _uvs.ToArray(),
-                    Colors = _colors.ToArray(),
-                    Indices = _indices.ToArray()
-                };
-                return _shape;
-            }
-        }
+        public static Vector2 Project(Vector2 ground, float height) => ground + Vector2.up * height;
     }
 }
