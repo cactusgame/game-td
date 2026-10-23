@@ -140,7 +140,7 @@ namespace Game.Tools.MapPlaytest.Unity
         public bool TryToggleGate(float x, float y)
         {
             var map = _session.Snapshot;
-            string id = MapSceneSprites.PickGate(map, visuals, new Vector2(x, y));
+            string id = MapSceneSprites.PickGate(map, visuals, new Vector2(x, y), _catalog);
             var edge = map.wallEdges.Find(item => item.id == id);
             string reason = "该位置没有城门";
             if (edge == null || !_session.TrySetGateOpen(edge.id, !edge.gate.isOpen, out reason))

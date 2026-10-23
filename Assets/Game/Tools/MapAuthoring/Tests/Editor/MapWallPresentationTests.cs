@@ -1,3 +1,6 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.Fortifications.Unity.Views;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Unity.Views;
 using Game.Maps.Unity.Assets;
@@ -20,7 +23,7 @@ namespace Game.Tools.MapAuthoring.Tests
             var edge = new WallEdge { id = "ab", from = "a", to = "b" };
             map.wallEdges.Add(edge);
             string before = MapJson.WriteDocument(map);
-            Assert.That(MapWallPresentation.TryGetSpan(map, edge, out var start, out var end), Is.True);
+            Assert.That(WallPresentation.TryGetSpan(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), out var start, out var end), Is.True);
             Assert.That(start.x, Is.EqualTo(-11.5f));
             Assert.That(end.x, Is.EqualTo(11.5f));
             Assert.That(MapJson.WriteDocument(map), Is.EqualTo(before));
@@ -37,8 +40,8 @@ namespace Game.Tools.MapAuthoring.Tests
             var second = new WallEdge { id = "bc", from = "b", to = "c" };
             map.wallEdges.Add(first);
             map.wallEdges.Add(second);
-            MapWallPresentation.TryGetSpan(map, first, out var a, out var sharedA);
-            MapWallPresentation.TryGetSpan(map, second, out var sharedB, out var c);
+            WallPresentation.TryGetSpan(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(first.id), out var a, out var sharedA);
+            WallPresentation.TryGetSpan(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(second.id), out var sharedB, out var c);
             Assert.That(a.y, Is.EqualTo(20.5f));
             Assert.That(sharedA, Is.EqualTo(new Vector2(11, 23.5f)));
             Assert.That(sharedB, Is.EqualTo(sharedA));
@@ -53,12 +56,12 @@ namespace Game.Tools.MapAuthoring.Tests
             map.wallNodes.Add(new WallNode { id = "b", x = 0.5f, y = 3.5f });
             var edge = new WallEdge { id = "ab", from = "a", to = "b" };
             map.wallEdges.Add(edge);
-            MapWallPresentation.TryGetSpan(map, edge, out var start, out var end);
+            WallPresentation.TryGetSpan(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), out var start, out var end);
             Assert.That(Vector2.Distance(start, new Vector2(-2.5f, 0.5f)), Is.LessThan(0.0001f));
             Assert.That(Vector2.Distance(end, new Vector2(0.5f, 3.5f)), Is.LessThan(0.0001f));
             edge.from = "b";
             edge.to = "a";
-            MapWallPresentation.TryGetSpan(map, edge, out var reversedStart, out var reversedEnd);
+            WallPresentation.TryGetSpan(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), out var reversedStart, out var reversedEnd);
             Assert.That(reversedStart, Is.EqualTo(end));
             Assert.That(reversedEnd, Is.EqualTo(start));
         }
@@ -80,7 +83,7 @@ namespace Game.Tools.MapAuthoring.Tests
                 var wallAndPillars = root.GetComponentsInChildren<Renderer>().Where(renderer => renderer.name == "ab" || renderer.name == "a" || renderer.name == "b").ToArray();
                 Assert.That(wallAndPillars.Min(piece => piece.bounds.min.x), Is.GreaterThanOrEqualTo(-12));
                 Assert.That(wallAndPillars.Max(piece => piece.bounds.max.x), Is.LessThanOrEqualTo(12));
-                Assert.That(root.GetComponentsInChildren<MapWallMeshView>().Any(piece => piece.name == "a"), Is.True);
+                Assert.That(root.GetComponentsInChildren<WallMeshView>().Any(piece => piece.name == "a"), Is.True);
                 Assert.That(pieces.Any(piece => piece.sharedMaterial.mainTexture == visuals.wallMasonry.texture), Is.True);
                 Assert.That(pieces.Any(piece => piece.sharedMaterial.mainTexture == visuals.wallWalkway.texture), Is.True);
                 Assert.That(pieces.All(piece => piece.sharedMaterial.mainTexture == visuals.wallMasonry.texture ||

@@ -12,7 +12,11 @@
     "Game.Configuration",
     "Game.Maps.Serialization",
     "Game.MapPlaytest.Unity",
-    "Game.MapPlaytest.Application"
+    "Game.MapPlaytest.Application",
+    "Game.Fortifications.Domain",
+    "Game.Fortifications.Unity",
+    "Game.MapEngine.Unity",
+    "Game.Construction.Application"
   ],
   "includePlatforms": [
     "Editor"

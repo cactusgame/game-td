@@ -5,7 +5,8 @@
     "Game.MapEngine.Domain",
     "Game.Battle.Domain",
     "Game.Battle.Contracts",
-    "Game.Battle.Application"
+    "Game.Battle.Application",
+    "Game.Construction.Application"
   ],
   "noEngineReferences": true
 }

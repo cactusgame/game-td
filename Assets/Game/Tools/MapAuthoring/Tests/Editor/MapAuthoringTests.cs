@@ -1,3 +1,4 @@
+using Game.Construction.Application.Sessions;
 using Game.Infrastructure.Maps.Serialization;
 using System;
 using System.Collections.Generic;
@@ -64,7 +65,7 @@ namespace Game.Tools.MapAuthoring.Tests
             var reopened = MapJson.ReadDocument(json);
             var definition = new MapDefinition(reopened, Catalog());
             reopened.terrain[0] = TerrainKind.Water;
-            var runtime = new MapPlacementState(definition, Catalog());
+            var runtime = new MapConstructionState(definition, Catalog());
             Assert.That(runtime.TryBuild("tower", 3, 3, _ => true, out _), Is.True);
             Assert.That(runtime.TryRemove(-9.5f, -5.5f), Is.True);
             Assert.That(runtime.Snapshot.facilities.Single().id, Is.Not.EqualTo("initial"));
@@ -80,7 +81,7 @@ namespace Game.Tools.MapAuthoring.Tests
             map.terrain[0] = TerrainKind.Water;
             map.terrain[1] = TerrainKind.Rock;
             map.terrain[2] = TerrainKind.Tree;
-            var runtime = new MapPlacementState(new MapDefinition(map, Catalog()), Catalog());
+            var runtime = new MapConstructionState(new MapDefinition(map, Catalog()), Catalog());
             Assert.That(runtime.TryBuild("tower", 0, 0, _ => true, out _), Is.False);
             Assert.That(runtime.TryBuild("tower", 1, 0, _ => true, out _), Is.False);
             Assert.That(runtime.TryBuild("tower", 2, 0, _ => true, out _), Is.False);
@@ -117,7 +118,7 @@ namespace Game.Tools.MapAuthoring.Tests
             map.wallNodes.Add(new WallNode { id = "b", x = 3.5f, y = 3.5f });
             map.wallEdges.Add(new WallEdge { id = "ab", from = "a", to = "b" });
             var definition = MapJson.LoadDefinition(MapJson.WriteDocument(map), Catalog());
-            var runtime = new MapPlacementState(definition, Catalog());
+            var runtime = new MapConstructionState(definition, Catalog());
             Assert.That(runtime.Navigation.IsWalkable(new GridCell(11, 10)), Is.False);
             Assert.That(runtime.TryRemove(1.5f, 3), Is.True);
             Assert.That(runtime.Snapshot.wallEdges, Is.Empty);

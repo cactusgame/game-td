@@ -9,7 +9,9 @@
     "Game.Battle.Simulation",
     "Game.Configuration",
     "Unity.Entities",
-    "Unity.Collections"
+    "Unity.Collections",
+    "Game.Construction.Application",
+    "Game.Fortifications.Domain"
   ],
   "includePlatforms": [
     "Editor"

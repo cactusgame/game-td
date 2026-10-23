@@ -1,0 +1,8 @@
+{
+  "name": "Game.Fortifications.Unity",
+  "references": [
+    "Game.Fortifications.Domain",
+    "Game.MapEngine.Domain",
+    "Game.MapEngine.Unity"
+  ]
+}

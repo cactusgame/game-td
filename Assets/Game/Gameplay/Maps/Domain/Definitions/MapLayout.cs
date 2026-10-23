@@ -75,6 +75,7 @@ namespace Game.Maps.Domain
         public InitialFacility Copy() => (InitialFacility)MemberwiseClone();
     }
 
+    /// <summary>地图初始节点描述；运行时墙网身份与连接状态由 Fortifications 拥有。</summary>
     [Serializable]
     public sealed class WallNode
     {
@@ -84,6 +85,7 @@ namespace Game.Maps.Domain
         public WallNode Copy() => (WallNode)MemberwiseClone();
     }
 
+    /// <summary>地图初始墙段描述，不是可任意修改的运行墙段实体。</summary>
     [Serializable]
     public sealed class WallEdge
     {

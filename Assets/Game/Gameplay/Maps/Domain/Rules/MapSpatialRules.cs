@@ -8,7 +8,8 @@ namespace Game.Maps.Domain
     /// <summary>编辑放置与运行建设共享的空间规则。动态占地只从设施与墙网派生。</summary>
     public static class MapSpatialRules
     {
-        public const float WallThickness = 0.22f;
+        // 旧导航适配的保守线段包络；不是墙的物理宽度。精确轮廓接入按用户要求另行处理。
+        private const float LegacyNavigationEnvelopeWidth = 0.22f;
 
         public static GridMap CreateNavigationMap(MapLayout layout, MapContentCatalog catalog)
         {
@@ -30,11 +31,11 @@ namespace Game.Maps.Domain
                     var center = WallGateRules.Center(layout, edge);
                     float direction = Math.Sign(to.x - from.x);
                     float half = edge.gate.openingWidth * 0.5f * direction;
-                    obstacles.Add(ObstacleFootprint.Segment(a, new MapPoint(center.X - half, center.Y), WallThickness));
-                    obstacles.Add(ObstacleFootprint.Segment(new MapPoint(center.X + half, center.Y), b, WallThickness));
+                    obstacles.Add(ObstacleFootprint.Segment(a, new MapPoint(center.X - half, center.Y), LegacyNavigationEnvelopeWidth));
+                    obstacles.Add(ObstacleFootprint.Segment(new MapPoint(center.X + half, center.Y), b, LegacyNavigationEnvelopeWidth));
                 }
                 else
-                    obstacles.Add(ObstacleFootprint.Segment(a, b, WallThickness));
+                    obstacles.Add(ObstacleFootprint.Segment(a, b, LegacyNavigationEnvelopeWidth));
             }
             foreach (var item in layout.facilities)
             {
@@ -120,7 +121,7 @@ namespace Game.Maps.Domain
             {
                 var from = layout.wallNodes.Find(node => node.id == edge.from);
                 var to = layout.wallNodes.Find(node => node.id == edge.to);
-                if (from != null && to != null && SegmentGeometry.DistanceToSegment(x, y, from.x, from.y, to.x, to.y) < radius + WallThickness * 0.5f)
+                if (from != null && to != null && SegmentGeometry.DistanceToSegment(x, y, from.x, from.y, to.x, to.y) < radius + LegacyNavigationEnvelopeWidth * 0.5f)
                     return true;
             }
             return false;

@@ -2,6 +2,7 @@
   "name": "Game.Maps.Serialization",
   "references": [
     "Game.MapContent",
-    "Game.MapEngine.Domain"
+    "Game.MapEngine.Domain",
+    "Game.Fortifications.Domain"
   ]
 }

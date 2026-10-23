@@ -1,0 +1,6 @@
+{
+  "name": "Game.Fortifications.Tests",
+  "references": ["Game.Fortifications.Domain", "Game.MapEngine.Domain"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

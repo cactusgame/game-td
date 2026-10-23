@@ -1,3 +1,4 @@
+using Game.Construction.Application.Sessions;
 using System;
 using System.Collections.Generic;
 using Game.Battle.Application.Sessions;
@@ -23,7 +24,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         private readonly Func<ISpatialBattleSimulation> _createSimulation;
         private ISpatialBattleSimulation _simulation;
         private BattleSession _battle;
-        private MapPlacementState _placements;
+        private MapConstructionState _placements;
         private bool _disposed;
         private bool _faulted;
 
@@ -52,7 +53,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 throw new ObjectDisposedException(nameof(MapPlaySession));
             // 验证、创建并初始化候选会话后再替换旧局。任何候选初始化失败均释放候选 World。
             var definition = new MapBattleDefinitionSource(_initialMap, _catalog, _rules).Load();
-            var placements = new MapPlacementState(_initialMap, _catalog);
+            var placements = new MapConstructionState(_initialMap, _catalog);
             var simulation = _createSimulation();
             BattleSession battle;
             try
@@ -123,7 +124,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             return true;
         }
 
-        private bool TryPublish(MapPlacementState candidate, out string reason)
+        private bool TryPublish(MapConstructionState candidate, out string reason)
         {
             try
             {

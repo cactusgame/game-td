@@ -1,3 +1,6 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Aggregates.WallNetwork;
+using Game.Fortifications.Domain.ValueObjects;
 using Game.MapEngine.Domain.Geometry;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Unity.Assets;
@@ -426,8 +429,14 @@ namespace Game.Tools.MapAuthoring.Editor
                 var tail = _gesture.wallNodes.Find(item => item.id == _wallTail);
                 if (tail != null && tail.id != node.id && !_gesture.wallEdges.Exists(edge => edge.from == tail.id && edge.to == node.id || edge.to == tail.id && edge.from == node.id))
                 {
-                    var edge = new WallEdge { id = MapLayout.NewId(), from = tail.id, to = node.id };
-                    _gesture.wallEdges.Add(edge);
+                    var walls = new WallNetwork(MapWallSnapshotMapper.Read(_gesture));
+                    var edge = new WallEdgeSnapshot(MapLayout.NewId(), tail.id, node.id);
+                    if (!walls.TryConnect(edge, out var reason))
+                    {
+                        SetStatus(reason);
+                        return;
+                    }
+                    MapWallSnapshotMapper.Write(walls.Snapshot, _gesture);
                     _gestureChanged = true;
                 }
                 _wallTail = node.id;
@@ -506,7 +515,7 @@ namespace Game.Tools.MapAuthoring.Editor
 
         private string Pick(MapLayout document, Vector2 point)
         {
-            string gateId = Game.Maps.Unity.Views.MapSceneSprites.PickGate(document, _visuals, point);
+            string gateId = Game.Maps.Unity.Views.MapSceneSprites.PickGate(document, _visuals, point, _catalog);
             if (gateId != null)
                 return gateId;
             float tolerance = Mathf.Min(document.cellWidth, document.cellHeight) * 0.4f;

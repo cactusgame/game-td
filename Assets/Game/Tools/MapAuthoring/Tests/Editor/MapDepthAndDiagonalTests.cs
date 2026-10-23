@@ -1,3 +1,7 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.Fortifications.Unity.Views;
+using Game.MapEngine.Unity.Views;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Unity.Views;
 using Game.Maps.Unity.Assets;
@@ -53,7 +57,7 @@ namespace Game.Tools.MapAuthoring.Tests
             var edge = new WallEdge { id = "ab", from = "a", to = "b" };
             map.wallEdges.Add(edge);
             string original = MapJson.WriteDocument(map);
-            var walls = MapRaisedWallPresentation.Build(map, edge, visuals).ToArray();
+            var walls = RaisedWallPresentation.Build(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), WallDefinition.Default, visuals.WallStyle).ToArray();
             Assert.That(walls, Is.Not.Empty);
             foreach (var wall in walls)
             {
@@ -63,10 +67,10 @@ namespace Game.Tools.MapAuthoring.Tests
                 Assert.That(wall.Wall.Mesh.Positions.Length, Is.GreaterThanOrEqualTo(3));
                 Assert.That(wall.Wall.Mesh.Uvs.Length, Is.EqualTo(wall.Wall.Mesh.Positions.Length));
             }
-            Assert.That(MapRaisedWallPresentation.Project(Vector2.one, 0.5f), Is.EqualTo(new Vector2(1, 1.5f)));
+            Assert.That(RaisedWallPresentation.Project(Vector2.one, 0.5f), Is.EqualTo(new Vector2(1, 1.5f)));
             edge.from = "b";
             edge.to = "a";
-            var reversed = MapRaisedWallPresentation.Build(map, edge, visuals).ToArray();
+            var reversed = RaisedWallPresentation.Build(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), WallDefinition.Default, visuals.WallStyle).ToArray();
             Assert.That(reversed.Select(Key), Is.EqualTo(walls.Select(Key)));
             for (int i = 0; i < walls.Length; i++)
                 Assert.That(reversed[i].Wall.Mesh.Positions, Is.EqualTo(walls[i].Wall.Mesh.Positions));
@@ -75,7 +79,7 @@ namespace Game.Tools.MapAuthoring.Tests
             Assert.That(MapJson.WriteDocument(map), Is.EqualTo(original));
         }
 
-        private static string Key(MapSceneSprites.Entry entry)
+        private static string Key(SceneRenderEntry entry)
         {
             return entry.SortKey + ":" + entry.GroundX.ToString("R") + ":" + entry.GroundY.ToString("R");
         }

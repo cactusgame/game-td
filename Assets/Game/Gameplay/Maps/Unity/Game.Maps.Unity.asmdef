@@ -2,6 +2,9 @@
   "name": "Game.Maps.Unity",
   "references": [
     "Game.MapContent",
-    "Game.MapEngine.Domain"
+    "Game.MapEngine.Domain",
+    "Game.Fortifications.Domain",
+    "Game.Fortifications.Unity",
+    "Game.MapEngine.Unity"
   ]
 }

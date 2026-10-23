@@ -70,9 +70,6 @@ MonoBehaviour:
   gateFootInset: 0.025
   gateSideInset: 0.025
   wallDimensions:
-    width: 0.52
-    deckHeight: 0.5
-    nodeRadius: 0.4
     railWidth: 0.075
     railHeight: 0.08
     merlonHeight: 0.16

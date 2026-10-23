@@ -4,7 +4,9 @@
     "Game.MapContent",
     "Game.MapEngine.Domain",
     "Game.Maps.Serialization",
-    "Game.Maps.Unity"
+    "Game.Maps.Unity",
+    "Game.Construction.Application",
+    "Game.Fortifications.Domain"
   ],
   "includePlatforms": [
     "Editor"

@@ -1,3 +1,7 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.MapEngine.Unity.Views;
+using Game.Fortifications.Unity.Views;
 using Game.Maps.Unity.Assets;
 using System.Collections.Generic;
 using Game.MapEngine.Domain;
@@ -9,24 +13,9 @@ namespace Game.Maps.Unity.Views
     /// <summary>共享装饰与建筑的脚底锚点、尺寸、稳定排序，以及所有方向一致的实体墙几何。</summary>
     public static class MapSceneSprites
     {
-        public sealed class Entry
+        public static List<SceneRenderEntry> Build(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
         {
-            public string Id;
-            public Sprite Sprite;
-            public Vector2 Center;
-            public float Width;
-            public float Height;
-            public float Angle;
-            public float GroundY;
-            public float GroundX;
-            public string SortKey;
-            public int DepthLayer;
-            public MapRaisedWallPresentation.Shape Wall;
-        }
-
-        public static List<Entry> Build(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
-        {
-            var entries = new List<Entry>();
+            var entries = new List<SceneRenderEntry>();
             var geometry = layout.Geometry;
             for (int y = 0; y < layout.rows; y++)
             {
@@ -53,9 +42,15 @@ namespace Game.Maps.Unity.Views
                 float y = layout.originY + (item.y + 0.5f) * layout.cellHeight;
                 AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * 1.2f);
             }
+            if (!MapWallSnapshotMapper.TryRead(layout, out var network))
+            {
+                entries.Sort(CompareDepth);
+                return entries;
+            }
+            var style = visuals.WallStyle;
             foreach (var edge in layout.wallEdges)
             {
-                entries.AddRange(MapRaisedWallPresentation.Build(layout, edge, visuals));
+                entries.AddRange(RaisedWallPresentation.Build(network, network.FindEdge(edge.id), catalog.Wall, style));
                 if (edge.hasGate && WallGateRules.Validate(layout, edge, out _))
                 {
                     var center = WallGateRules.Center(layout, edge);
@@ -65,19 +60,19 @@ namespace Game.Maps.Unity.Views
                     if (entries.Count > count)
                     {
                         var gate = entries[entries.Count - 1];
-                        var wall = new MapWallGeometry(layout, visuals);
+                        var wall = new WallRenderGeometry(catalog.Wall, style);
                         gate.Center.y = center.Y - wall.Width * 0.5f + gate.Height * (0.5f - visuals.gateFootInset);
                         gate.GroundY = center.Y - wall.Width * 0.5f - wall.DepthStep;
                     }
                 }
             }
             foreach (var node in layout.wallNodes)
-                entries.AddRange(MapWallNodePresentation.Build(layout, node, visuals));
+                entries.AddRange(WallJunctionPresentation.Build(network, network.FindNode(node.id), catalog.Wall, style));
             entries.Sort(CompareDepth);
             return entries;
         }
 
-        private static int CompareDepth(Entry left, Entry right)
+        private static int CompareDepth(SceneRenderEntry left, SceneRenderEntry right)
         {
             int result = right.GroundY.CompareTo(left.GroundY);
             if (result != 0)
@@ -92,11 +87,11 @@ namespace Game.Maps.Unity.Views
         }
 
         /// <summary>图片点击属于表现查询；命中后只把稳定墙段 ID 交给编辑或开关门用例。</summary>
-        public static string PickGate(MapLayout layout, MapVisualCatalog visuals, Vector2 point)
+        public static string PickGate(MapLayout layout, MapVisualCatalog visuals, Vector2 point, MapContentCatalog catalog)
         {
             string selected = null;
             float front = float.PositiveInfinity;
-            var wall = new MapWallGeometry(layout, visuals);
+            var wall = new WallRenderGeometry(catalog.Wall, visuals.WallStyle);
             foreach (var edge in layout.wallEdges)
             {
                 if (!edge.hasGate || !WallGateRules.Validate(layout, edge, out _))
@@ -117,12 +112,12 @@ namespace Game.Maps.Unity.Views
             return selected;
         }
 
-        private static void AddFoot(List<Entry> entries, string id, Sprite sprite, Vector2 ground, float width, string sortKey = null)
+        private static void AddFoot(List<SceneRenderEntry> entries, string id, Sprite sprite, Vector2 ground, float width, string sortKey = null)
         {
             if (sprite == null)
                 return;
             float height = width * sprite.rect.height / sprite.rect.width;
-            entries.Add(new Entry { Id = id, SortKey = sortKey ?? "object/" + id, DepthLayer = 1, Sprite = sprite, Center = ground + Vector2.up * height * 0.45f, Width = width, Height = height, GroundY = ground.y, GroundX = ground.x });
+            entries.Add(new SceneRenderEntry { Id = id, SortKey = sortKey ?? "object/" + id, DepthLayer = 1, Sprite = sprite, Center = ground + Vector2.up * height * 0.45f, Width = width, Height = height, GroundY = ground.y, GroundX = ground.x });
         }
     }
 }

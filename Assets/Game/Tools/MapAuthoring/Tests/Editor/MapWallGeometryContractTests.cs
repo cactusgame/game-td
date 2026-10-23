@@ -1,3 +1,6 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.Fortifications.Unity.Views;
 using System.Linq;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Domain;
@@ -23,10 +26,10 @@ namespace Game.Tools.MapAuthoring.Tests
             map.wallNodes.AddRange(new[] { a, b, c });
             map.wallEdges.Add(new WallEdge { id = "ab", from = "a", to = "b" });
             map.wallEdges.Add(new WallEdge { id = "bc", from = "b", to = "c" });
-            var geometry = new MapWallGeometry(map, visuals);
-            float radius = geometry.RadiusAt(map, b);
+            var geometry = new WallRenderGeometry(WallDefinition.Default, visuals.WallStyle);
+            float radius = geometry.RadiusAt(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindNode(b.id));
             var center = new Vector2(b.x, b.y);
-            var directions = geometry.DirectionsAt(map, b);
+            var directions = geometry.DirectionsAt(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindNode(b.id));
             var outline = geometry.NodeOutline(center, radius, directions);
             foreach (var direction in directions)
             {
@@ -52,8 +55,8 @@ namespace Game.Tools.MapAuthoring.Tests
                 var edge = new WallEdge { id = "ab", from = "a", to = "b" };
                 map.wallEdges.Add(edge);
                 string before = MapJson.WriteDocument(map);
-                var fragments = MapRaisedWallPresentation.Build(map, edge, visuals)
-                    .Concat(MapWallNodePresentation.Build(map, map.wallNodes[0], visuals)).ToArray();
+                var fragments = RaisedWallPresentation.Build(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), WallDefinition.Default, visuals.WallStyle)
+                    .Concat(WallJunctionPresentation.Build(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).Nodes[0], WallDefinition.Default, visuals.WallStyle)).ToArray();
                 Assert.That(fragments.Any(item => item.Wall.Mesh.Sprite == visuals.wallWalkway), Is.True);
                 Assert.That(fragments.Any(item => item.Wall.Mesh.Sprite == visuals.wallMasonry), Is.True);
                 foreach (var fragment in fragments)

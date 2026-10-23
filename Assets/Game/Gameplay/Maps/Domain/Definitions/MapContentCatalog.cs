@@ -1,3 +1,4 @@
+using Game.Fortifications.Domain.Definitions;
 using System;
 using System.Collections.Generic;
 
@@ -19,8 +20,11 @@ namespace Game.Maps.Domain
     {
         private readonly Dictionary<string, FacilityDefinition> _facilities = new Dictionary<string, FacilityDefinition>();
         public IReadOnlyList<string> FacilityIds => new List<string>(_facilities.Keys).AsReadOnly();
-        public MapContentCatalog(IEnumerable<FacilityDefinition> definitions)
+        public WallDefinition Wall { get; }
+
+        public MapContentCatalog(IEnumerable<FacilityDefinition> definitions, WallDefinition wall = null)
         {
+            Wall = wall ?? WallDefinition.Default;
             foreach (var item in definitions)
             {
                 if (item == null || string.IsNullOrWhiteSpace(item.id) || item.width <= 0 || item.height <= 0 || _facilities.ContainsKey(item.id))

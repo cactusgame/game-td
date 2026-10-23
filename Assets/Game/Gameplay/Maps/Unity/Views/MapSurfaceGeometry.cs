@@ -1,3 +1,4 @@
+using Game.MapEngine.Unity.Views;
 using Game.Maps.Unity.Assets;
 using System;
 using Game.MapEngine.Domain;
@@ -12,16 +13,7 @@ namespace Game.Maps.Unity.Views
     /// </summary>
     public static class MapSurfaceGeometry
     {
-        public sealed class Patch
-        {
-            public Sprite Sprite;
-            public Vector2[] Positions;
-            public Vector2[] Uvs;
-            public Color32[] Colors;
-            public int[] Indices;
-        }
-
-        public static Patch Build(MapLayout layout, MapVisualCatalog visuals, int x, int y, int layer, int resolution = 8)
+        public static SurfaceMeshData Build(MapLayout layout, MapVisualCatalog visuals, int x, int y, int layer, int resolution = 8)
         {
             var kind = layer == 3 ? TerrainKind.Water : layer == 0 ? TerrainKind.Grass : TerrainKind.Dirt;
             var sprite = visuals.Terrain(kind)?.ground;
@@ -29,7 +21,7 @@ namespace Game.Maps.Unity.Views
                 return null;
             int steps = layer == 0 ? 1 : resolution;
             int stride = steps + 1;
-            var patch = new Patch
+            var patch = new SurfaceMeshData
             {
                 Sprite = sprite,
                 Positions = new Vector2[stride * stride],
@@ -114,12 +106,7 @@ namespace Game.Maps.Unity.Views
 
         public static Vector2 TextureUv(Sprite sprite, float x, float y)
         {
-            // 镜像连续采样保证材质重复边缘像素一致，并隔离图集相邻素材的颜色。
-            x = Mathf.PingPong(x, 1);
-            y = Mathf.PingPong(y, 1);
-            var rect = sprite.rect;
-            return new Vector2((rect.x + 0.5f + x * (rect.width - 1)) / sprite.texture.width,
-                (rect.y + 0.5f + y * (rect.height - 1)) / sprite.texture.height);
+            return SpriteTextureCoordinates.Sample(sprite, x, y);
         }
     }
 }

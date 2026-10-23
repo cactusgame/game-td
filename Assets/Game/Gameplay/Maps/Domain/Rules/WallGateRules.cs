@@ -7,34 +7,32 @@ namespace Game.Maps.Domain
     public static class WallGateRules
     {
         // 当前门型的门框 / 门洞比例。创作时整体缩放，避免碰撞开口和美术开口各自变化。
-        public const float OpeningRatio = 4f / 9f;
+        public const float OpeningRatio = Game.Fortifications.Domain.Rules.WallGateRules.OpeningRatio;
 
         public static bool Validate(MapLayout layout, WallEdge edge, out string reason)
         {
-            reason = null;
             if (!edge.hasGate)
-                return true;
-            var gate = edge.gate;
-            var a = layout.wallNodes.Find(node => node.id == edge.from);
-            var b = layout.wallNodes.Find(node => node.id == edge.to);
-            if (gate == null || a == null || b == null)
-                reason = "城门数据或墙节点缺失";
-            else if (!Finite(gate.position) || !Finite(gate.width) || !Finite(gate.openingWidth) ||
-                     gate.position < 0 || gate.position > 1 || gate.width <= 0 || gate.openingWidth <= 0 || gate.openingWidth >= gate.width)
-                reason = "城门位置、总宽或门洞净宽无效";
-            else if (Math.Abs(a.y - b.y) > 0.0001f)
-                reason = "当前城门素材仅支持横向墙段";
-            else if (Math.Abs(gate.openingWidth - gate.width * OpeningRatio) > 0.001f)
-                reason = "当前门型须等比缩放门框和门洞";
-            else
             {
-                float length = Math.Abs(b.x - a.x);
-                float margin = Math.Min(layout.cellWidth, layout.cellHeight) * 0.5f;
-                if (gate.position * length - gate.width * 0.5f < margin ||
-                    gate.position * length + gate.width * 0.5f > length - margin)
-                    reason = "城门太靠近墙端或墙段太短；门框须完整位于两个敌台之间";
+                reason = null;
+                return true;
             }
-            return reason == null;
+            if (edge.gate == null || layout.wallNodes.Find(node => node.id == edge.from) == null ||
+                layout.wallNodes.Find(node => node.id == edge.to) == null || edge.from == edge.to)
+            {
+                reason = "城门数据或墙节点缺失";
+                return false;
+            }
+            // 仅转换当前墙段，其他尚未完成的草稿内容不会干扰这项局部校验。
+            var local = layout.Copy();
+            local.wallNodes.RemoveAll(node => node.id != edge.from && node.id != edge.to);
+            local.wallEdges = new System.Collections.Generic.List<WallEdge> { edge };
+            if (!Mappings.MapWallSnapshotMapper.TryRead(local, out var network))
+            {
+                reason = "城门墙段或节点无效";
+                return false;
+            }
+            return Game.Fortifications.Domain.Rules.WallGateRules.Validate(network, network.FindEdge(edge.id),
+                Math.Min(layout.cellWidth, layout.cellHeight) * 0.5f, out reason);
         }
 
         public static MapPoint Center(MapLayout layout, WallEdge edge)
@@ -64,6 +62,5 @@ namespace Game.Maps.Domain
             return nearest;
         }
 
-        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

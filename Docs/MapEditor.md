@@ -50,7 +50,7 @@ Unity 菜单 **Game → 地图编辑器**。仓库已包含示例地图、素材
 示例建筑具有预放、占地、运行建设与拆除能力，尚未接入攻击、升级、费用、经济产出或建筑承伤。墙体支持直线与折线、显式节点连接、稳定墙边身份、城门和拆除，尚无承伤、升级和自动交叉切分。墙图像分片仅用于绘制，不改变墙网身份。
 首版墙体导航采用保守网格投影，窄缝可能被视为不可通行；这不是任意角度精确导航的最终实现。
 允许无步行路径的地图，不在编辑器提前否决未来破墙玩法。地图净空按当前英雄和怪物半径额外校验。
-V2 地面按 16×16 格合并 Mesh；障碍、建筑使用 Sprite，墙身和敌台使用共享投影的程序化 Mesh。未做百万格性能或移动端验收。新美术、自然道路与 72×48 示例的说明见 [地图美术 V2](MapArtV2.md)，工具栏“美术示例地图”可直接打开。
+V2 地面按 16×16 格合并 Mesh；障碍、建筑使用 Sprite，墙身和连接底座使用共享投影的程序化 Mesh。未做百万格性能或移动端验收。新美术、自然道路与 72×48 示例的说明见 [地图美术 V2](MapArtV2.md)，工具栏“美术示例地图”可直接打开。
 
 ## 代码阅读路径
 
@@ -58,12 +58,12 @@ V2 地面按 16×16 格合并 Mesh；障碍、建筑使用 Sprite，墙身和敌
 2. `Assets/Game/Tools/MapAuthoring/Core/MapEditSession.cs`：工作文档、整笔操作历史、保存修订和重载恢复。
 3. `Assets/Game/Gameplay/Maps/Domain/Definitions/MapLayout.cs`、`MapDefinition.cs`：可编辑初始描述与经过验证的只读定义。
 4. `Assets/Game/Gameplay/Maps/Domain/Rules/`：共享占地、门洞、墙网投影与带定位信息的校验。
-5. `Assets/Game/Gameplay/Maps/Domain/Aggregates/MapPlacementState/MapPlacementState.cs`：设施、墙与门的运行状态，通过深复制快照与编辑文档隔离。
+5. `Assets/Game/Gameplay/Construction/Application/Sessions/MapConstructionState.cs`：运行布置与空间提交协调；墙与门由 `Fortifications/Domain/Aggregates/WallNetwork/WallNetwork.cs` 独占，地图快照按需从聚合导出。
 6. `Assets/Game/Tools/MapPlaytest/Unity/MapPlayController.cs`：独立对局加载和逐帧入口；`Application/Sessions/MapPlaySession.cs` 完整提交空间变更后才推进模拟。
 7. `Assets/Game/Gameplay/Battle/Simulation/Systems/TerrainCollisionSystem.cs`：移动后、接触结算前完成连续圆形占位检查。
 
-编辑调用链：画布输入 → 工作副本 → `MapEditSession.Commit` → 文档快照 → 画布。
-试玩调用链：文档副本 → JSON → `MapDefinition` → `MapPlaySession` → `MapPlacementState` / `MapBattleDefinitionSource` → `BattleSession` → ECS → 单位快照和地图视图。
+编辑调用链：画布输入 → 墙网连接时调用 `WallNetwork.TryConnect` → 工作副本 → `MapEditSession.Commit` → 文档快照 → 画布。
+试玩调用链：文档副本 → JSON → `MapDefinition` → `MapPlaySession` → `MapConstructionState` / `MapBattleDefinitionSource` → `BattleSession` → ECS → 单位快照和地图视图。
 
 ## 城门（ArtV3）
 
@@ -99,3 +99,7 @@ V2 地面按 16×16 格合并 Mesh；障碍、建筑使用 Sprite，墙身和敌
 - 已查看 Unity 编辑器实际画面，确认素材面板与横墙端点覆盖效果。
 - 本轮编译通过，地图相关测试共 14 项通过（原有操作测试、端点与连接测试，以及游戏视图生成测试）。游戏视图测试确认实际生成的墙身 Sprite 覆盖地图左右边界，并使用排除透明留白的墙身区域。
 - 墙体显示范围扩展不修改源地图中的节点坐标与稳定 ID，既有地图无需迁移。
+
+## 工事边界重构（2026-10-23）
+
+当前城墙结构和阅读入口见 [城墙表现与领域边界](WallPresentation.md)。墙体物理尺寸来自内容 JSON，固定材质与垛口制作元数据仍随素材目录保存。旧地图 schemaVersion 1 与稳定对象 ID 保留。精确通行、敌台设施、建设费用和建筑升级未在这次重构中新增。

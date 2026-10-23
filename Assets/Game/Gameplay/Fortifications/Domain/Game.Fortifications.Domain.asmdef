@@ -1,0 +1,7 @@
+{
+  "name": "Game.Fortifications.Domain",
+  "references": [
+    "Game.MapEngine.Domain"
+  ],
+  "noEngineReferences": true
+}

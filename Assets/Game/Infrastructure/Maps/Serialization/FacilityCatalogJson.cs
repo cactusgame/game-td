@@ -1,3 +1,4 @@
+using Game.Fortifications.Domain.Definitions;
 using System;
 using System.Collections.Generic;
 using Game.Maps.Domain;
@@ -13,7 +14,16 @@ namespace Game.Infrastructure.Maps.Serialization
             var data = JsonUtility.FromJson<CatalogDocument>(json);
             if (data == null || data.schemaVersion != 1 || data.facilities == null)
                 throw new FormatException("Invalid map facility catalog.");
-            return new MapContentCatalog(data.facilities);
+            var wall = data.wall == null ? WallDefinition.Default : new WallDefinition(data.wall.width, data.wall.height, data.wall.junctionRadius);
+            return new MapContentCatalog(data.facilities, wall);
+        }
+
+        [Serializable]
+        private sealed class WallDocument
+        {
+            public float width;
+            public float height;
+            public float junctionRadius;
         }
 
         [Serializable]
@@ -21,6 +31,7 @@ namespace Game.Infrastructure.Maps.Serialization
         {
             public int schemaVersion;
             public List<FacilityDefinition> facilities;
+            public WallDocument wall;
         }
     }
 }

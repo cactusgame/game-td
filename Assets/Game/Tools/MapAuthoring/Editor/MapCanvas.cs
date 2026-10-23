@@ -1,3 +1,4 @@
+using Game.MapEngine.Unity.Views;
 using Game.Maps.Unity.Views;
 using Game.Maps.Unity.Assets;
 using System;
@@ -13,8 +14,8 @@ namespace Game.Tools.MapAuthoring.Editor
     public sealed class MapCanvas : VisualElement
     {
         private MapLayout _layout;
-        private readonly Dictionary<int, MapSurfaceGeometry.Patch[]> _surfaces = new Dictionary<int, MapSurfaceGeometry.Patch[]>();
-        private List<MapSceneSprites.Entry> _sprites;
+        private readonly Dictionary<int, SurfaceMeshData[]> _surfaces = new Dictionary<int, SurfaceMeshData[]>();
+        private List<SceneRenderEntry> _sprites;
         public MapLayout Layout
         {
             get => _layout;
@@ -192,7 +193,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 {
                     if (!_surfaces.TryGetValue(i, out var patches))
                     {
-                        patches = new MapSurfaceGeometry.Patch[4];
+                        patches = new SurfaceMeshData[4];
                         for (int layer = 0; layer < patches.Length; layer++)
                             patches[layer] = MapSurfaceGeometry.Build(Layout, Visuals, cell.X, cell.Y, layer);
                         _surfaces.Add(i, patches);
@@ -246,7 +247,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 Rectangle(ctx.painter2D, CellRect(HighlightCell.Value.X, HighlightCell.Value.Y), new Color(1, 1, 0, 0.2f), Color.yellow);
         }
 
-        private void DrawSurface(MeshGenerationContext context, MapSurfaceGeometry.Patch patch, bool reverseWinding = false)
+        private void DrawSurface(MeshGenerationContext context, SurfaceMeshData patch, bool reverseWinding = false)
         {
             var mesh = context.Allocate(patch.Positions.Length, patch.Indices.Length, patch.Sprite.texture);
             for (int i = 0; i < patch.Positions.Length; i++)

@@ -1,3 +1,4 @@
+using Game.Fortifications.Unity.Views;
 using Game.Maps.Unity.Assets;
 using Game.MapEngine.Domain;
 using Game.Maps.Domain;
@@ -19,7 +20,7 @@ namespace Game.Maps.Unity.Views
             }
             _root = new GameObject("Map state view");
             _root.transform.SetParent(transform, false);
-            var wallMaterials = _root.AddComponent<MapWallMaterialLibrary>();
+            var wallMaterials = _root.AddComponent<WallMaterialLibrary>();
             if (visuals.blendTerrain)
                 _root.AddComponent<MapSurfaceView>().Build(layout, visuals);
             else
@@ -40,7 +41,7 @@ namespace Game.Maps.Unity.Views
                 {
                     go = new GameObject(entry.Id);
                     go.transform.SetParent(_root.transform, false);
-                    go.AddComponent<MapWallMeshView>().Build(entry, Sort(entry.GroundY), wallMaterials.Require(entry.Wall.Mesh.Sprite.texture));
+                    go.AddComponent<WallMeshView>().Build(entry, Sort(entry.GroundY), wallMaterials.Require(entry.Wall.Mesh.Sprite.texture));
                 }
                 else
                 {

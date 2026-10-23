@@ -94,3 +94,5 @@ Use case: stylized-concept. One single game sprite: a NORTH-SOUTH VERTICAL medie
 
 本轮编译 0 错误、0 警告，完整 EditMode 测试 **116/116** 通过。回归验证 16 个角度（包含 85°、89°、90°、91°、95°）的每条立面竖边 X 不变、墙宽不变、反向墙网绘制一致与源文档不变。另实际渲染 16 个方向并检查用户当前编辑中的墙网。当前截图：`Docs/Validation/map-wall-upright-current.png`；方向对照：`Docs/Validation/map-wall-upright-angles.png`。当前画布已刷新为统一几何，未改写工作文档。未执行 Player 构建。
 
+
+> 2026-10-23：本文记录历史美术实现。墙体代码已迁至 `Gameplay/Fortifications`，物理尺寸改为世界单位的 JSON 定义；当前入口与限制见 [城墙表现与领域边界](WallPresentation.md)。

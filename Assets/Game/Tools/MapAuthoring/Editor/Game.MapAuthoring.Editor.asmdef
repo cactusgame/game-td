@@ -10,7 +10,10 @@
     "Game.Configuration",
     "Unity.InputSystem",
     "Game.Maps.Serialization",
-    "Game.MapPlaytest.Unity"
+    "Game.MapPlaytest.Unity",
+    "Game.Fortifications.Domain",
+    "Game.Fortifications.Unity",
+    "Game.MapEngine.Unity"
   ],
   "includePlatforms": [
     "Editor"

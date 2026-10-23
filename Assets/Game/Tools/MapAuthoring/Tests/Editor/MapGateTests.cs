@@ -1,3 +1,6 @@
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.Fortifications.Unity.Views;
 using System.Linq;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Domain;
@@ -68,7 +71,7 @@ namespace Game.Tools.MapAuthoring.Tests
             Assert.That(open.Center, Is.EqualTo(closed.Center));
             Assert.That(open.Width, Is.EqualTo(closed.Width));
             float centerX = WallGateRules.Center(map, edge).X;
-            foreach (var entry in MapRaisedWallPresentation.Build(map, edge, visuals))
+            foreach (var entry in RaisedWallPresentation.Build(MapWallSnapshotMapper.Read(map), MapWallSnapshotMapper.Read(map).FindEdge(edge.id), WallDefinition.Default, visuals.WallStyle))
                 Assert.That(entry.Wall.GroundOutline.All(point => point.x <= centerX - edge.gate.openingWidth * 0.5f + 0.001f) ||
                             entry.Wall.GroundOutline.All(point => point.x >= centerX + edge.gate.openingWidth * 0.5f - 0.001f), Is.True);
         }

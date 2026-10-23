@@ -1,10 +1,50 @@
 {
   "schemaVersion": 1,
   "facilities": [
-    { "id": "tower", "name": "游侠箭楼", "width": 1, "height": 1, "blocksMovement": true, "blocksShots": true },
-    { "id": "hall", "name": "曙光主堡", "width": 2, "height": 2, "blocksMovement": true, "blocksShots": true },
-    { "id": "mage", "name": "星辉法师塔", "width": 1, "height": 1, "blocksMovement": true, "blocksShots": true },
-    { "id": "foundry", "name": "铜火炮坊", "width": 2, "height": 2, "blocksMovement": true, "blocksShots": true },
-    { "id": "farm", "name": "风车农庄", "width": 2, "height": 2, "blocksMovement": true, "blocksShots": true }
-  ]
+    {
+      "id": "tower",
+      "name": "游侠箭楼",
+      "width": 1,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "hall",
+      "name": "曙光主堡",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "mage",
+      "name": "星辉法师塔",
+      "width": 1,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "foundry",
+      "name": "铜火炮坊",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "farm",
+      "name": "风车农庄",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
+    }
+  ],
+  "wall": {
+    "width": 0.52,
+    "height": 0.5,
+    "junctionRadius": 0.4
+  }
 }
