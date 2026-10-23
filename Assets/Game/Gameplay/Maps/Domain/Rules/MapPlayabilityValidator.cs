@@ -28,6 +28,8 @@ namespace Game.Maps.Domain
                 issues.Add(new MapIssue("地图必须有且只有一个英雄出生位置"));
             if (entryCount == 0)
                 issues.Add(new MapIssue("地图至少需要一个敌人入口"));
+            if (!layout.facilities.Exists(facility => facility.definitionId == "hall"))
+                issues.Add(new MapIssue("地图至少需要一座曙光主堡"));
             // 无路不自动判为非法，后续破墙策略可以解释这种地图。
             return issues;
         }

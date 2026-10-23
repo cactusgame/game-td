@@ -24,12 +24,14 @@ namespace Game.Tools.MapPlaytest.Tests
             var map = new MapLayout();
             map.markers.Add(new MapMarker { id = "hero", name = "Hero", kind = MarkerKind.HeroSpawn, x = -5.5f, y = 0.5f });
             map.markers.Add(new MapMarker { id = "entry", name = "Entry", kind = MarkerKind.EnemyEntry, x = 10.5f, y = 0.5f });
+            map.facilities.Add(new InitialFacility { id = "castle", definitionId = "hall", x = 1, y = 1 });
             return map;
         }
 
         private static MapContentCatalog Catalog() => new MapContentCatalog(new[]
         {
-            new FacilityDefinition { id = "tower", width = 1, height = 1 }
+            new FacilityDefinition { id = "tower", width = 1, height = 1 },
+            new FacilityDefinition { id = "hall", width = 2, height = 2, maxHealth = 500 }
         });
 
         private static BattleDefinition Rules() => JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
@@ -123,11 +125,11 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.TryBuild("tower", 4, 4, out _), Is.True);
             Assert.That(session.MapVersion, Is.EqualTo(1));
             Assert.That(simulation.Navigation.IsWalkable(new GridCell(4, 4)), Is.False);
-            Assert.That(source.facilities, Is.Empty);
+            Assert.That(source.facilities.Select(f => f.definitionId), Is.EqualTo(new[] { "hall" }));
             Assert.That(session.TryRemove(-7.5f, -3.5f, out _), Is.True);
             Assert.That(session.MapVersion, Is.EqualTo(2));
             Assert.That(simulation.Navigation.IsWalkable(new GridCell(4, 4)), Is.True);
-            Assert.That(session.Snapshot.facilities, Is.Empty);
+            Assert.That(session.Snapshot.facilities.Select(f => f.definitionId), Is.EqualTo(new[] { "hall" }));
         }
 
         private static MapLayout GateMap(bool open = false)
@@ -279,7 +281,7 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.TryBuild("tower", 4, 4, out var reason), Is.False);
             Assert.That(reason, Does.Contain("空间同步失败"));
             Assert.That(session.MapVersion, Is.Zero);
-            Assert.That(session.Snapshot.facilities, Is.Empty);
+            Assert.That(session.Snapshot.facilities.Select(f => f.definitionId), Is.EqualTo(new[] { "hall" }));
             Assert.That(simulation.Navigation.IsWalkable(new GridCell(4, 4)), Is.True);
             session.Advance(0.02f);
             Assert.That(session.TryBuild("tower", 4, 4, out _), Is.True);
@@ -345,7 +347,7 @@ namespace Game.Tools.MapPlaytest.Tests
                 session.Restart();
                 Assert.That(first.DisposeCount, Is.EqualTo(1));
                 Assert.That(session.MapVersion, Is.Zero);
-                Assert.That(session.Snapshot.facilities, Is.Empty);
+                Assert.That(session.Snapshot.facilities.Select(f => f.definitionId), Is.EqualTo(new[] { "hall" }));
                 Assert.That(session.Generation, Is.EqualTo(2));
             }
             finally
@@ -376,7 +378,7 @@ namespace Game.Tools.MapPlaytest.Tests
                 for (int i = 0; i < 20; i++)
                     session.Advance(0.02f);
                 Assert.That(session.SimulationTime, Is.GreaterThan(0.3));
-                Assert.That(session.Units.Count, Is.EqualTo(2));
+                Assert.That(session.Units.Count, Is.EqualTo(6));
                 Assert.That(session.TryRemove(-7.5f, -3.5f, out _), Is.True);
                 session.Restart();
                 Assert.That(session.MapVersion, Is.Zero);
@@ -398,7 +400,7 @@ namespace Game.Tools.MapPlaytest.Tests
             public MoveIntent Read() => new MoveIntent(X, Y);
         }
 
-        private sealed class Simulation : ISpatialBattleSimulation
+        private sealed class Simulation : IDefenseBattleSimulation
         {
             private BattleDefinition _definition;
             public double ElapsedTime { get; private set; }
@@ -440,6 +442,9 @@ namespace Game.Tools.MapPlaytest.Tests
                 }
             }
 
+            public void SynchronizeStructures(IReadOnlyList<DefenseStructureDefinition> structures) { }
+            public void SpawnEnemies(IReadOnlyList<MapPoint> entries, int countPerEntry) { }
+            public void CopyStructures(List<DefenseStructureSnapshot> destination) => destination.Clear();
             public void Dispose() => DisposeCount++;
         }
     }

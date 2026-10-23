@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Game.Battle.Simulation.Systems
 {
-    /// <summary>唯一写入单位位移的系统：英雄消费输入，怪物消费路径或自身随机方向。</summary>
+    /// <summary>推进主动移动：英雄消费输入，怪物消费路径；后续分离与地形系统约束本步最终位置。</summary>
     [DisableAutoCreation]
     [UpdateAfter(typeof(MonsterNavigationSystem))]
     [BurstCompile]

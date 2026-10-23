@@ -15,7 +15,8 @@ namespace Game.Maps.Tests
     {
         private static MapContentCatalog Catalog() => new MapContentCatalog(new[]
         {
-            new FacilityDefinition { id = "tower", width = 1, height = 1 }
+            new FacilityDefinition { id = "tower", width = 1, height = 1 },
+            new FacilityDefinition { id = "hall", width = 2, height = 2 }
         });
 
         [Test]
@@ -30,6 +31,8 @@ namespace Game.Maps.Tests
             Assert.That(issues.Any(i => i.Message.Contains("敌人入口")), Is.True);
             layout.markers.Add(new MapMarker { id = "hero", name = "Hero", kind = MarkerKind.HeroSpawn, x = 0.5f, y = 0.5f });
             layout.markers.Add(new MapMarker { id = "enemy", name = "Entry", kind = MarkerKind.EnemyEntry, x = 2.5f, y = 0.5f });
+            Assert.That(MapPlayabilityValidator.Validate(layout, catalog).Any(i => i.Message.Contains("主堡")), Is.True);
+            layout.facilities.Add(new InitialFacility { id = "castle", definitionId = "hall", x = 1, y = 1 });
             Assert.That(MapPlayabilityValidator.Validate(layout, catalog), Is.Empty);
             layout.terrain[layout.Geometry.IndexOf(new GridCell(14, 8))] = TerrainKind.Water;
             Assert.That(MapContentValidator.Validate(layout, catalog), Is.Empty);

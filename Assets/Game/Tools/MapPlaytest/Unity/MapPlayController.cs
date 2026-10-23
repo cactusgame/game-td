@@ -24,6 +24,7 @@ namespace Game.Tools.MapPlaytest.Unity
         // 保留序列化字段与脚本 GUID，已有试玩场景无需重新配置引用。
         public TextAsset mapJson;
         public TextAsset battleJson;
+        public TextAsset encounterJson;
         public MapVisualCatalog visuals;
         public MapVisualCatalog[] artCatalogs;
         public Camera mapCamera;
@@ -46,6 +47,8 @@ namespace Game.Tools.MapPlaytest.Unity
 
         private void Start()
         {
+            // 校验失败也能在 HUD 展示原因，而不是停留在 Loading。
+            _status = hud != null ? hud.rootVisualElement.Q<Label>("status") : null;
             try
             {
                 string json = string.IsNullOrEmpty(PendingPlaytestJson) ? mapJson.text : PendingPlaytestJson;
@@ -53,7 +56,11 @@ namespace Game.Tools.MapPlaytest.Unity
                 _catalog = FacilityCatalogJson.Read(visuals.facilityRules.text);
                 var definition = MapJson.LoadDefinition(json, _catalog);
                 var rules = JsonBattleDefinitionSource.Parse(battleJson.text);
-                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation());
+                var encounterAsset = encounterJson != null ? encounterJson : Resources.Load<TextAsset>("DefenseEncounter");
+                if (encounterAsset == null)
+                    throw new InvalidOperationException("缺少防守关卡配置 DefenseEncounter.json");
+                var encounter = JsonDefenseEncounterSource.Parse(encounterAsset.text);
+                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize(heroSprite, enemySprite);
@@ -141,7 +148,25 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             _unitView.Synchronize(_session.Units, _session.Definition);
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)
-                _status.text = $"{_tool} | {_session.SimulationTime:F1}s | map revision {_session.MapVersion} | Hero {_session.HeroHealth} HP";
+                _status.text = $"{OutcomeText()} | Waves {_session.SpawnedWaves}/2 | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} | {_session.SimulationTime:F1}s | map revision {_session.MapVersion} | Hero {_session.HeroHealth} HP";
+        }
+
+        private string OutcomeText() => _session.Outcome == "Victory" ? "Victory" : _session.Outcome == "Defeat" ? "Defeat" : "Defending";
+        private int AliveEnemies()
+        {
+            int count = 0;
+            foreach (var unit in _session.Units)
+                if (unit.Kind != Game.Battle.Domain.ValueObjects.UnitKind.Hero && unit.Health > 0)
+                    count++;
+            return count;
+        }
+        private int CastleHealth()
+        {
+            int health = 0;
+            foreach (var structure in _session.Structures)
+                if (structure.IsMainCastle)
+                    health += structure.Health;
+            return health;
         }
 
         public bool TryBuild(int x, int y)

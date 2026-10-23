@@ -32,8 +32,8 @@ namespace Game.Tools.MapPlaytest.Application.Adapters
                 if (marker.kind == MarkerKind.EnemyEntry)
                     enemies.Add(new MapPoint(marker.x, marker.y));
             }
-            // 首版试玩每入口生成一只怪物，避免沿用压力测试的千只怪物挤在同一个入口。
-            return new BattleDefinition(baseRules.Hero, baseRules.Goblin, baseRules.Runner, enemies.Count, 0,
+            // 怪物由对局波次在固定步边界生成，初始化不提前生成。
+            return new BattleDefinition(baseRules.Hero, baseRules.Goblin, baseRules.Runner, 0, 0,
                 layout.columns * layout.cellWidth, layout.rows * layout.cellHeight, baseRules.FixedStep, baseRules.Seed,
                 baseRules.Navigation, _map.CreateNavigationMap(_catalog), new MapPoint(hero.x, hero.y), enemies);
         }

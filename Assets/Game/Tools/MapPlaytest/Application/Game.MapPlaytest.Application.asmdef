@@ -6,6 +6,7 @@
     "Game.Battle.Domain",
     "Game.Battle.Contracts",
     "Game.Battle.Application",
+    "Game.Encounter.Domain",
     "Game.Construction.Application",
     "Game.Fortifications.Domain"
   ],

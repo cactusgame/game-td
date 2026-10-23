@@ -3,8 +3,8 @@
   "id": "multi-direction-gates",
   "columns": 32,
   "rows": 24,
-  "cellWidth": 1.0,
-  "cellHeight": 1.0,
+  "cellWidth": 1,
+  "cellHeight": 1,
   "originX": -16,
   "originY": -12,
   "terrain": [
@@ -793,7 +793,14 @@
       "y": -9.5
     }
   ],
-  "facilities": [],
+  "facilities": [
+    {
+      "id": "hall-defense",
+      "definitionId": "hall",
+      "x": 1,
+      "y": 1
+    }
+  ],
   "wallNodes": [
     {
       "id": "h-a",

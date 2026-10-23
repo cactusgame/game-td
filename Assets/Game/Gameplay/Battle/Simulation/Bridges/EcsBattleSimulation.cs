@@ -19,12 +19,18 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed class EcsBattleSimulation : ISpatialBattleSimulation
+    public sealed class EcsBattleSimulation : IDefenseBattleSimulation
     {
+        private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
+        private BattleDefinition _definition;
+        private ulong _nextId;
+        private Game.MapEngine.Domain.GridMap _spawnMap;
         private readonly World _world;
         private readonly BattleSystemGroup _group;
         private readonly MonsterNavigationSystem _navigation;
+        private readonly MonsterObjectiveSystem _objectives;
         private readonly TerrainCollisionSystem _terrainCollision;
+        private readonly MonsterSeparationSystem _separation;
         private readonly EntityQuery _units;
         // Entity 只是这个 World 中的句柄；数据在它所挂载的组件里。
         private readonly Entity _settings;
@@ -39,8 +45,12 @@ namespace Game.Battle.Simulation.Bridges
             // 组继承 ComponentSystemGroup（class），Managed API 返回可直接调用的托管系统对象。
             // Managed 不表示组内不能执行并行 Job。
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
+            _objectives = _world.GetOrCreateSystemManaged<MonsterObjectiveSystem>();
+            _group.AddSystemToUpdateList(_objectives);
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
+            _separation = _world.GetOrCreateSystemManaged<MonsterSeparationSystem>();
+            _group.AddSystemToUpdateList(_separation);
             _terrainCollision = _world.GetOrCreateSystemManaged<TerrainCollisionSystem>();
             _group.AddSystemToUpdateList(_terrainCollision);
             // MovementSystem/CircleContactSystem 是 ISystem 结构体，这里的 GetOrCreate 返回 SystemHandle。
@@ -48,12 +58,13 @@ namespace Game.Battle.Simulation.Bridges
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<MovementSystem>());
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<CircleContactSystem>());
             // 根据 UpdateAfter 等约束排序；接触系统声明在移动系统之后调用，不依赖添加顺序。
+            _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<StructureCombatSystem>());
             _group.SortSystems();
             // 一个设置实体保存本局设置和统计；它没有单位组件，所以不会匹配下面的 _units 查询。
             _settings = _world.EntityManager.CreateEntity(typeof(BattleSettings), typeof(ContactStatistics));
             // 查询同时具有三种组件的实体，允许它们还有其他组件。查询不是固定的旧实体数组，
             // Reset 后新生成且符合条件的单位也会匹配。
-            _units = _world.EntityManager.CreateEntityQuery(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals));
+            _units = _world.EntityManager.CreateEntityQuery(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion));
         }
 
         public void Reset(BattleDefinition definition)
@@ -66,6 +77,14 @@ namespace Game.Battle.Simulation.Bridges
             var em = _world.EntityManager;
             // 创建/销毁实体是结构性变更。先等待原有 Job，防止其继续访问即将被清空的数据。
             em.CompleteAllTrackedJobs();
+            _definition = definition;
+            _spawnMap = definition.NavigationMap;
+            _nextId = (ulong)definition.MonsterCount + 2;
+            foreach (var entity in _structures.Values)
+                em.DestroyEntity(entity);
+            _structures.Clear();
+            _separation.Configure(definition.Navigation.SeparationGap, definition.Navigation.SeparationSpeed);
+            _objectives.Configure(definition.NavigationMap);
             _navigation.Configure(definition.NavigationMap, definition.Navigation);
             _terrainCollision.Configure(definition.NavigationMap);
             // 只销毁单位查询匹配的实体，保留 _settings 与系统本身。
@@ -124,6 +143,8 @@ namespace Game.Battle.Simulation.Bridges
         {
             _world.EntityManager.CompleteAllTrackedJobs();
             // 敌方用含门洞的路线接近破门目标，实际通行仍由敌方碰撞地图裁决。
+            _spawnMap = map;
+            _objectives.Configure(friendlyMap ?? map);
             _navigation.Configure(friendlyMap ?? map, navigation);
             _terrainCollision.Configure(map, friendlyMap);
             using var query = _world.EntityManager.CreateEntityQuery(typeof(MonsterNavigationState));
@@ -131,6 +152,116 @@ namespace Game.Battle.Simulation.Bridges
             foreach (var state in entities)
             {
                 _world.EntityManager.SetComponentData(state, default(MonsterNavigationState));
+            }
+        }
+
+        /// <summary>同一波仍在同一模拟边界生成；在入口附近寻找有净空且互不重叠的位置。</summary>
+        public void SpawnEnemies(IReadOnlyList<Game.MapEngine.Domain.MapPoint> entries, int countPerEntry)
+        {
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            var occupied = new List<(float2 Position, float Radius)>();
+            using (var positions = _units.ToComponentDataArray<GroundTransform>(Allocator.Temp))
+            using (var health = _units.ToComponentDataArray<Vitals>(Allocator.Temp))
+            using (var motions = _units.ToComponentDataArray<UnitMotion>(Allocator.Temp))
+            {
+                for (int i = 0; i < positions.Length; i++)
+                    if (health[i].Health > 0)
+                        occupied.Add((positions[i].Position, motions[i].Radius));
+            }
+            var pathfinder = new Game.MapEngine.Domain.GridPathfinder(_spawnMap);
+            var path = new List<Game.MapEngine.Domain.GridCell>();
+            foreach (var entry in entries)
+            {
+                for (int i = 0; i < countPerEntry; i++)
+                {
+                    var position = FindSpawnPosition(new float2(entry.X, entry.Y), _definition.Goblin.Radius, occupied, pathfinder, path);
+                    ulong id = _nextId++;
+                    Spawn(id, _definition.Goblin, position, (uint)(id % (uint.MaxValue - 1)) + 1);
+                    occupied.Add((position, _definition.Goblin.Radius));
+                }
+            }
+        }
+
+        private float2 FindSpawnPosition(float2 entry, float radius, List<(float2 Position, float Radius)> occupied,
+            Game.MapEngine.Domain.GridPathfinder pathfinder, List<Game.MapEngine.Domain.GridCell> path)
+        {
+            float spacing = radius * 2 + _definition.Navigation.SeparationGap;
+            float2 best = entry;
+            float bestClearance = float.NegativeInfinity;
+            bool found = false;
+            _spawnMap.TryWorldToCell(entry.x, entry.y, out var start);
+            // 从近到远扫描同心环。边界或窄门附近跳过非法点，不把怪物生成到墙的另一侧。
+            for (int ring = 0; ring <= 8; ring++)
+            {
+                int samples = ring == 0 ? 1 : ring * 8;
+                for (int sample = 0; sample < samples; sample++)
+                {
+                    float angle = sample * (math.PI * 2 / samples);
+                    float2 candidate = entry + new float2(math.cos(angle), math.sin(angle)) * (ring * spacing);
+                    if (!_spawnMap.CanOccupy(candidate.x, candidate.y, radius) ||
+                        !_spawnMap.TryWorldToCell(candidate.x, candidate.y, out var cell) ||
+                        !pathfinder.TryFindPath(start, cell, path))
+                        continue;
+                    float clearance = float.PositiveInfinity;
+                    foreach (var other in occupied)
+                        clearance = math.min(clearance, math.distance(candidate, other.Position) - radius - other.Radius);
+                    if (clearance >= _definition.Navigation.SeparationGap - 0.0001f)
+                        return candidate;
+                    if (clearance > bestClearance)
+                    {
+                        best = candidate;
+                        bestClearance = clearance;
+                        found = true;
+                    }
+                }
+            }
+            if (!found)
+                throw new InvalidOperationException("Enemy entry has no reachable spawn space.");
+            // 极端拥堵时保留本波数量，选择重叠最少的合法点，后续局部分离持续疏散。
+            return best;
+        }
+
+        public void SynchronizeStructures(IReadOnlyList<DefenseStructureDefinition> definitions)
+        {
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            var retained = new HashSet<string>();
+            foreach (var definition in definitions)
+            {
+                retained.Add(definition.Id);
+                if (_structures.ContainsKey(definition.Id))
+                    continue;
+                var entity = em.CreateEntity(typeof(DefenseStructure));
+                em.SetComponentData(entity, new DefenseStructure
+                {
+                    Min = new float2(definition.MinX, definition.MinY),
+                    Max = new float2(definition.MaxX, definition.MaxY),
+                    Health = definition.MaxHealth, MaxHealth = definition.MaxHealth,
+                    IsMainCastle = definition.IsMainCastle ? (byte)1 : (byte)0,
+                    Attack = definition.Attack, Range = definition.Range, AttackInterval = definition.AttackInterval
+                });
+                _structures.Add(definition.Id, entity);
+            }
+            var removed = new List<string>();
+            foreach (var pair in _structures)
+                if (!retained.Contains(pair.Key))
+                {
+                    em.DestroyEntity(pair.Value);
+                    removed.Add(pair.Key);
+                }
+            foreach (var id in removed)
+                _structures.Remove(id);
+        }
+
+        public void CopyStructures(List<DefenseStructureSnapshot> destination)
+        {
+            _world.EntityManager.CompleteAllTrackedJobs();
+            destination.Clear();
+            foreach (var pair in _structures)
+            {
+                var structure = _world.EntityManager.GetComponentData<DefenseStructure>(pair.Value);
+                destination.Add(new DefenseStructureSnapshot(pair.Key, structure.Health, structure.IsMainCastle != 0));
             }
         }
 

@@ -60,7 +60,7 @@ namespace Game.Battle.Application.Sessions
         }
 
         /// <summary>每个画面帧调用；内部按固定步长推进，不把不稳定的画面帧时直接当作移动步长。</summary>
-        public void Advance(float deltaTime)
+        public void Advance(float deltaTime, Action beforeStep = null, Func<bool> afterStep = null)
         {
             // 非有限时间会污染累加器，使后续合法帧也永远无法补步；在任何状态修改前拒绝。
             if (float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
@@ -79,15 +79,24 @@ namespace Game.Battle.Application.Sessions
             while (_accumulator >= Definition.FixedStep && steps < MaxStepsPerFrame)
             {
                 // 接口调用会进入 EcsBattleSimulation.Step，再由系统组调度移动与接触处理。
+                beforeStep?.Invoke();
                 _simulation.Step(Definition.FixedStep, intent);
                 _accumulator -= Definition.FixedStep;
                 steps++;
+                if (afterStep != null)
+                {
+                    Refresh();
+                    if (!afterStep())
+                        break;
+                }
             }
 
             Refresh();
             // 此耗时包括固定步推进、等待相关 Job 和收集快照，不只是移动公式本身的耗时。
             LastSimulationMs = (Stopwatch.GetTimestamp() - start) * 1000.0 / Stopwatch.Frequency;
         }
+
+        public void RefreshSnapshot() => Refresh();
 
         private void Refresh()
         {

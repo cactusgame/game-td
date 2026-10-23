@@ -7,7 +7,11 @@
       "width": 1,
       "height": 1,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 25,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "hall",
@@ -15,7 +19,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 500,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "mage",
@@ -23,7 +31,11 @@
       "width": 1,
       "height": 1,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "foundry",
@@ -31,7 +43,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "farm",
@@ -39,7 +55,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "house",
@@ -47,7 +67,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "church",
@@ -55,7 +79,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "market",
@@ -63,7 +91,11 @@
       "width": 2,
       "height": 1,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "well",
@@ -71,7 +103,11 @@
       "width": 1,
       "height": 1,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     },
     {
       "id": "rubble",
@@ -79,7 +115,11 @@
       "width": 2,
       "height": 2,
       "blocksMovement": true,
-      "blocksShots": true
+      "blocksShots": true,
+      "maxHealth": 150,
+      "attack": 0,
+      "attackRange": 5,
+      "attackInterval": 1
     }
   ],
   "wall": {

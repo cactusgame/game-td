@@ -9,6 +9,10 @@ namespace Game.Maps.Domain
     {
         public string id;
         public string name;
+        public int maxHealth = 300;
+        public int attack;
+        public float attackRange = 5;
+        public float attackInterval = 1;
         public int width = 1;
         public int height = 1;
         public bool blocksMovement = true;
@@ -27,7 +31,10 @@ namespace Game.Maps.Domain
             Wall = wall ?? WallDefinition.Default;
             foreach (var item in definitions)
             {
-                if (item == null || string.IsNullOrWhiteSpace(item.id) || item.width <= 0 || item.height <= 0 || _facilities.ContainsKey(item.id))
+                if (item == null || string.IsNullOrWhiteSpace(item.id) || item.width <= 0 || item.height <= 0 || item.maxHealth <= 0 || item.attack < 0 ||
+                    float.IsNaN(item.attackRange) || float.IsInfinity(item.attackRange) || item.attackRange < 0 ||
+                    float.IsNaN(item.attackInterval) || float.IsInfinity(item.attackInterval) || item.attackInterval <= 0 ||
+                    _facilities.ContainsKey(item.id))
                     throw new ArgumentException("Invalid or duplicate facility definition.");
                 _facilities.Add(item.id, Copy(item));
             }
@@ -43,7 +50,7 @@ namespace Game.Maps.Domain
             return new FacilityDefinition
             {
                 id = item.id, name = item.name, width = item.width, height = item.height,
-                blocksMovement = item.blocksMovement, blocksShots = item.blocksShots
+                blocksMovement = item.blocksMovement, blocksShots = item.blocksShots, maxHealth = item.maxHealth, attack = item.attack, attackRange = item.attackRange, attackInterval = item.attackInterval
             };
         }
     }

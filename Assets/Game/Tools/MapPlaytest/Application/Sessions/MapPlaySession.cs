@@ -1,6 +1,8 @@
 using Game.Construction.Application.Sessions;
 using Game.Fortifications.Domain.ValueObjects;
 using System;
+using Game.Encounter.Domain.Definitions;
+using Game.Encounter.Domain.Aggregates.DefenseEncounter;
 using System.Collections.Generic;
 using Game.Battle.Application.Sessions;
 using Game.Battle.Contracts.Ports;
@@ -18,6 +20,12 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
     /// </summary>
     public sealed class MapPlaySession : IDisposable
     {
+        private readonly DefenseEncounterDefinition _encounterDefinition;
+        private DefenseEncounter _encounter;
+        private readonly List<DefenseStructureSnapshot> _structures = new List<DefenseStructureSnapshot>();
+        public IReadOnlyList<DefenseStructureSnapshot> Structures => _structures.AsReadOnly();
+        public string Outcome => _encounter?.Outcome ?? "Running";
+        public int SpawnedWaves => _encounter?.SpawnedWaves ?? 0;
         private readonly MapDefinition _initialMap;
         private readonly MapContentCatalog _catalog;
         private readonly BattleDefinition _rules;
@@ -43,8 +51,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
 
         public MapPlaySession(MapDefinition initialMap, MapContentCatalog catalog, BattleDefinition rules,
-            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation)
+            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null)
         {
+            _encounterDefinition = encounterDefinition ?? new DefenseEncounterDefinition();
             _initialMap = initialMap ?? throw new ArgumentNullException(nameof(initialMap));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
@@ -60,6 +69,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             var definition = new MapBattleDefinitionSource(_initialMap, _catalog, _rules).Load();
             var placements = new MapConstructionState(_initialMap, _catalog);
             var simulation = _createSimulation();
+            var encounter = new DefenseEncounter(_encounterDefinition);
+            var structures = new List<DefenseStructureSnapshot>();
             BattleSession battle;
             var gates = new GatePassageSession(_catalog);
             GridMap enemyNavigation;
@@ -67,8 +78,15 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             {
                 battle = new BattleSession(new PreparedDefinitionSource(definition), simulation, _input);
                 battle.Restart();
+                if (!(simulation is IDefenseBattleSimulation defense))
+                    throw new InvalidOperationException("防守对局需要支持建筑战斗和波次生成的模拟。");
+                defense.SynchronizeStructures(DescribeStructures(placements.Snapshot));
                 enemyNavigation = gates.Navigation(placements.Snapshot, false);
                 simulation.UpdateNavigationMap(enemyNavigation, definition.Navigation, gates.Navigation(placements.Snapshot, true));
+                defense.SpawnEnemies(definition.EnemySpawns, encounter.DueCount(0));
+                encounter.CommitWave();
+                battle.RefreshSnapshot();
+                defense.CopyStructures(structures);
             }
             catch
             {
@@ -82,6 +100,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             _gates = gates;
             _enemyNavigation = enemyNavigation;
             _faulted = false;
+            _encounter = encounter;
+            _structures.Clear();
+            _structures.AddRange(structures);
             Generation++;
             previousSimulation?.Dispose();
         }
@@ -89,10 +110,26 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public void Advance(float deltaTime)
         {
             RequireActive();
+            if (!_encounter.IsRunning)
+                return;
             double before = SimulationTime;
-            _battle.Advance(deltaTime);
+            _battle.Advance(deltaTime, SpawnDueWave, () =>
+            {
+                // 波次时间只读取模拟时钟；第二波在跨过第十秒的边界提交。
+                SpawnDueWave();
+                UpdateGates(true);
+                ReadStructures();
+                _encounter.Evaluate(_structures.Exists(item => item.IsMainCastle && item.Health <= 0), _battle.AliveMonsters);
+                return _encounter.IsRunning;
+            });
+            if (SimulationTime == before)
+                UpdateGates(false);
+        }
+
+        private void UpdateGates(bool applyDamage)
+        {
             int spatialVersion = _gates.SpatialVersion;
-            _gates.Update(_simulation, _placements.Snapshot, Definition, Units, SimulationTime, SimulationTime > before);
+            _gates.Update(_simulation, _placements.Snapshot, Definition, Units, SimulationTime, applyDamage);
             // 自动开门仅改变表现；只有破门改变敌方通行，不逐帧重建导航图。
             if (spatialVersion != _gates.SpatialVersion)
                 _enemyNavigation = _gates.Navigation(_placements.Snapshot, false);
@@ -101,6 +138,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public bool TryBuild(string definitionId, int x, int y, out string reason)
         {
             RequireActive();
+            if (!CanChangeConstruction(out reason))
+                return false;
             var candidate = _placements.CreateCandidate();
             if (!candidate.TryBuild(definitionId, x, y, UnitsRemainClear, out reason))
                 return false;
@@ -110,6 +149,20 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public bool TryRemove(float x, float y, out string reason)
         {
             RequireActive();
+            if (!CanChangeConstruction(out reason))
+                return false;
+            var layout = Snapshot;
+            foreach (var facility in layout.facilities)
+            {
+                var definition = _catalog.Find(facility.definitionId);
+                if (facility.definitionId == "hall" && layout.Geometry.TryWorldToCell(x, y, out var cell) &&
+                    cell.X >= facility.x && cell.X < facility.x + definition.width &&
+                    cell.Y >= facility.y && cell.Y < facility.y + definition.height)
+                {
+                    reason = "防守目标不能拆除";
+                    return false;
+                }
+            }
             var candidate = _placements.CreateCandidate();
             if (!candidate.TryRemove(x, y))
             {
@@ -125,6 +178,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         {
             RequireActive();
             gateId = null;
+            if (!CanChangeConstruction(out reason))
+                return false;
             string candidateId = MapLayout.NewId();
             var gate = new WallGateSnapshot(candidateId, startTile, widthTiles, openingTiles, isOpen);
             var candidate = _placements.CreateCandidate();
@@ -162,12 +217,16 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             try
             {
                 _simulation.UpdateNavigationMap(enemyNavigation, Definition.Navigation, _gates.Navigation(candidate.Snapshot, true));
+                if (_simulation is IDefenseBattleSimulation defense)
+                    defense.SynchronizeStructures(DescribeStructures(candidate.Snapshot));
             }
             catch (Exception updateError)
             {
                 try
                 {
                     _simulation.UpdateNavigationMap(_enemyNavigation, Definition.Navigation, _gates.Navigation(_placements.Snapshot, true));
+                    if (_simulation is IDefenseBattleSimulation defense)
+                        defense.SynchronizeStructures(DescribeStructures(_placements.Snapshot));
                 }
                 catch (Exception rollbackError)
                 {
@@ -182,6 +241,45 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             _enemyNavigation = enemyNavigation;
             reason = null;
             return true;
+        }
+
+        private void SpawnDueWave()
+        {
+            int count = _encounter.DueCount(SimulationTime);
+            if (count == 0)
+                return;
+            if (_simulation is IDefenseBattleSimulation defense)
+                defense.SpawnEnemies(Definition.EnemySpawns, count);
+            _encounter.CommitWave();
+            _battle.RefreshSnapshot();
+        }
+
+        private void ReadStructures()
+        {
+            if (_simulation is IDefenseBattleSimulation defense)
+                defense.CopyStructures(_structures);
+        }
+
+        private List<DefenseStructureDefinition> DescribeStructures(MapLayout layout)
+        {
+            var result = new List<DefenseStructureDefinition>();
+            foreach (var instance in layout.facilities)
+            {
+                var definition = _catalog.Find(instance.definitionId);
+                float minX = layout.originX + instance.x * layout.cellWidth;
+                float minY = layout.originY + instance.y * layout.cellHeight;
+                result.Add(new DefenseStructureDefinition(instance.id, instance.definitionId == "hall",
+                    minX, minY, minX + definition.width * layout.cellWidth,
+                    minY + definition.height * layout.cellHeight, definition.maxHealth,
+                    definition.attack, definition.attackRange, definition.attackInterval));
+            }
+            return result;
+        }
+
+        private bool CanChangeConstruction(out string reason)
+        {
+            reason = _encounter.IsRunning ? null : "对局已结束，请重试";
+            return _encounter.IsRunning;
         }
 
         private void RequireActive()

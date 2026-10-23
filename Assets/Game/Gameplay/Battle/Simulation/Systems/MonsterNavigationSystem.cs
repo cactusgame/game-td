@@ -39,12 +39,34 @@ namespace Game.Battle.Simulation.Systems
             bool heroInMap = _map.TryWorldToCell(heroGround.Position.x, heroGround.Position.y, out var goal);
             // Query 会完成此前移动 Job 对位置、导航进度和路径 Buffer 的冲突依赖。
             // 主线程依次重用 A* 工作区，不会由不同实体同时写入同一搜索数组。
-            foreach (var(ground, vitals, navigation, wander, path)in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRW<WanderState>, DynamicBuffer<NavigationWaypoint>>().WithAll<MonsterTag>())
+            foreach (var(ground, vitals, navigation, wander, path, motion)in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRW<WanderState>, DynamicBuffer<NavigationWaypoint>, RefRO<UnitMotion>>().WithAll<MonsterTag>())
             {
                 float radius = navigation.ValueRO.IsChasing != 0 ? _definition.LoseTargetRadius : _definition.DetectionRadius;
                 float rangeSquared = radius * radius;
                 float distanceSquared = math.lengthsq(heroGround.Position - ground.ValueRO.Position);
+                float2 targetPosition = heroGround.Position;
                 bool shouldChase = heroAlive && heroInMap && vitals.ValueRO.Health > 0 && distanceSquared <= rangeSquared;
+                if (navigation.ValueRO.HasCastleObjective != 0)
+                {
+                    // 主堡目标不受英雄感知半径限制。保持已有路线直至重算，避免每步搜索。
+                    if (now < navigation.ValueRO.NextRepathTime && navigation.ValueRO.StructureTarget != Entity.Null &&
+                        EntityManager.Exists(navigation.ValueRO.StructureTarget) &&
+                        EntityManager.GetComponentData<DefenseStructure>(navigation.ValueRO.StructureTarget).Health > 0)
+                        continue;
+                    targetPosition = navigation.ValueRO.StructureGoal;
+                    shouldChase = vitals.ValueRO.Health > 0 && navigation.ValueRO.StructureTarget != Entity.Null &&
+                        EntityManager.Exists(navigation.ValueRO.StructureTarget) &&
+                        EntityManager.GetComponentData<DefenseStructure>(navigation.ValueRO.StructureTarget).Health > 0;
+                    _map.TryWorldToCell(targetPosition.x, targetPosition.y, out goal);
+                    if (!shouldChase)
+                    {
+                        // 有主堡但无可达攻击位时等待，不能退回追英雄。
+                        navigation.ValueRW.IsChasing = 1;
+                        navigation.ValueRW.NextRepathTime = now + _definition.RepathSeconds;
+                        path.Clear();
+                        continue;
+                    }
+                }
                 if (!shouldChase)
                 {
                     // 一旦脱离感知范围就切换，不等待下一次重算；恢复游走时选新的随机方向。
@@ -74,7 +96,7 @@ namespace Game.Battle.Simulation.Systems
                         }
 
                         if (path.Length == 0)
-                            path.Add(new NavigationWaypoint{Position = heroGround.Position});
+                            path.Add(new NavigationWaypoint{Position = targetPosition});
                     }
                 // 无路时保持追踪但不移动，按配置重试；不能沿旧路线穿过无效地块。
                 }
@@ -83,7 +105,7 @@ namespace Game.Battle.Simulation.Systems
                 {
                     // 格子内的移动也要跟随，不能只追到英雄所在格子的中心就停止。
                     var writablePath = path;
-                    writablePath[path.Length - 1] = new NavigationWaypoint{Position = heroGround.Position};
+                    writablePath[path.Length - 1] = new NavigationWaypoint{Position = targetPosition};
                 }
             }
         }

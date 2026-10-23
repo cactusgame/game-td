@@ -8,6 +8,7 @@
     "Game.Maps.Serialization",
     "Game.Battle.Domain",
     "Game.Battle.Contracts",
+    "Game.Encounter.Domain",
     "Game.Battle.Simulation",
     "Game.Configuration",
     "Unity.InputSystem"
