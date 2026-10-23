@@ -5247,6 +5247,7 @@
         0,
         0
     ],
+    "groundTerrain": [],
     "markers": [
         {
             "id": "hero",
@@ -5259,8 +5260,8 @@
             "id": "west",
             "name": "西侧破口外",
             "kind": 1,
-            "x": -45.5,
-            "y": -4.0
+            "x": -2.0,
+            "y": -24.5
         }
     ],
     "facilities": [
@@ -5573,7 +5574,8 @@
                     "startTile": 26,
                     "widthTiles": 10,
                     "openingTiles": 6,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5611,7 +5613,8 @@
                     "startTile": 7,
                     "widthTiles": 8,
                     "openingTiles": 4,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5667,7 +5670,8 @@
                     "startTile": 7,
                     "widthTiles": 8,
                     "openingTiles": 4,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5681,7 +5685,8 @@
                     "startTile": 17,
                     "widthTiles": 8,
                     "openingTiles": 4,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5695,7 +5700,8 @@
                     "startTile": 17,
                     "widthTiles": 8,
                     "openingTiles": 4,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5709,7 +5715,8 @@
                     "startTile": 7,
                     "widthTiles": 6,
                     "openingTiles": 2,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5723,7 +5730,8 @@
                     "startTile": 7,
                     "widthTiles": 6,
                     "openingTiles": 2,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         },
@@ -5755,7 +5763,8 @@
                     "startTile": 4,
                     "widthTiles": 6,
                     "openingTiles": 4,
-                    "isOpen": false
+                    "isOpen": false,
+                    "isDestroyed": false
                 }
             ]
         }

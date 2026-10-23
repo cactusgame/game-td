@@ -13,6 +13,8 @@ namespace Game.Presentation.Views
         private readonly Transform _healthFill;
         private readonly SpriteRenderer _healthRenderer, _healthBackground;
         private readonly float _height;
+        private readonly System.Func<float, int> _depth;
+        private readonly string _layer;
         private Vector2 _last;
         private float _walkPhase;
         private readonly UnitAnimationPlayer _animations;
@@ -28,8 +30,10 @@ namespace Game.Presentation.Views
             Transform parent, Sprite sprite, Sprite white, Sprite circle,
             float height, float radius, Color teamColor,
             UnitAnimationPlayer animations = null,
-            UnitDeathSettings deathSettings = null)
+            UnitDeathSettings deathSettings = null, System.Func<float, int> depth = null, string layer = null)
         {
+            _depth = depth ?? BattleRenderSorting.UnitDepth;
+            _layer = layer ?? BattleRenderSorting.UnitLayer;
             _animations = animations;
             _deathSettings = deathSettings;
             if (animations != null)
@@ -40,7 +44,7 @@ namespace Game.Presentation.Views
             _root = new GameObject("UnitView");
             _root.transform.SetParent(parent, false);
             _shadow = Child("GroundShadow", circle, new Color(0.07f, 0.11f, 0.07f, 0.3f));
-            _shadow.sortingLayerName = BattleRenderSorting.ShadowLayer;
+            _shadow.sortingLayerName = layer ?? BattleRenderSorting.ShadowLayer;
             _shadow.transform.localScale = new Vector3(radius * 2.3f, radius * 0.7f, 1);
             _body = Child("Sprite", sprite, Color.white);
             float scale = height / (sprite.bounds.size.y * (animations != null ? animations.BodyHeightFraction : 1));
@@ -52,7 +56,7 @@ namespace Game.Presentation.Views
             fill.transform.SetParent(back.transform, false);
             fill.sprite = white;
             fill.color = teamColor;
-            fill.sortingLayerName = BattleRenderSorting.UnitLayer;
+            fill.sortingLayerName = _layer;
             fill.transform.localScale = new Vector3(0.92f, 0.60f, 1);
             _healthFill = fill.transform;
             _healthRenderer = fill;
@@ -65,7 +69,7 @@ namespace Game.Presentation.Views
             renderer.transform.SetParent(_root.transform, false);
             renderer.sprite = sprite;
             renderer.color = color;
-            renderer.sortingLayerName = BattleRenderSorting.UnitLayer;
+            renderer.sortingLayerName = _layer;
             return renderer;
         }
 
@@ -76,13 +80,6 @@ namespace Game.Presentation.Views
                 return;
             if (state.Health <= 0)
             {
-                // 英雄保留现有隐藏行为；怪物死亡表现完成后由 BattleView 销毁视图。
-                if (state.Kind == UnitKind.Hero)
-                {
-                    _root.SetActive(false);
-                    return;
-                }
-
                 RenderDeath(state, simulationTime);
                 return;
             }
@@ -162,7 +159,7 @@ namespace Game.Presentation.Views
         public void Destroy() => Object.Destroy(_root);
         private void SetDepth(float groundY)
         {
-            int order = BattleRenderSorting.UnitDepth(groundY);
+            int order = _depth(groundY);
             _body.sortingOrder = order;
             _shadow.sortingOrder = order;
             _healthRenderer.sortingOrder = order + 2;

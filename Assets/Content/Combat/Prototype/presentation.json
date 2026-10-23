@@ -35,11 +35,11 @@
     },
     {
       "UnitKind": "Goblin",
-      "ResourceId": "goblin-actions"
+      "ResourceId": "skeleton-actions"
     },
     {
       "UnitKind": "Runner",
-      "ResourceId": "runner-actions"
+      "ResourceId": "fallen-actions"
     }
   ]
 }

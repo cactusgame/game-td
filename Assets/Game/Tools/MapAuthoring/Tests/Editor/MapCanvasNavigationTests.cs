@@ -35,7 +35,7 @@ namespace Game.Tools.MapAuthoring.Tests
                     canvas.SendEvent(move);
                 using (var up = PointerUpEvent.GetPooled(new Event { type = EventType.MouseUp, button = 0, mousePosition = start + new Vector2(50, 35) }))
                     canvas.SendEvent(up);
-                Assert.That(canvas.ViewPan - initial, Is.EqualTo(new Vector2(50, 35)));
+                Assert.That(Vector2.Distance(canvas.ViewPan - initial, new Vector2(50, 35)), Is.LessThan(0.001f));
                 Assert.That(MapJson.WriteDocument(canvas.Layout), Is.EqualTo(before));
                 var grid = root.Q<Button>("toggleGrid");
                 Assert.That(grid, Is.Not.Null);

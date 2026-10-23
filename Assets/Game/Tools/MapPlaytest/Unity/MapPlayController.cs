@@ -64,7 +64,7 @@ namespace Game.Tools.MapPlaytest.Unity
                 _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
-                _unitView.Initialize(heroSprite, enemySprite);
+                _unitView.Initialize();
                 if (hud != null)
                 {
                     var root = hud.rootVisualElement;
@@ -171,7 +171,7 @@ namespace Game.Tools.MapPlaytest.Unity
                 _gateViewVersion = _session.GateViewVersion;
                 _view.SynchronizeGates(_session.Snapshot);
             }
-            _unitView.Synchronize(_session.Units, _session.Definition);
+            _unitView.Synchronize(_session.Units, _session.Definition, _session.SimulationTime, Time.deltaTime, _session.Outcome != "Running");
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)
                 _status.text = $"{OutcomeText()} | Waves {_session.SpawnedWaves}/2 | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} | {_session.SimulationTime:F1}s | map revision {_session.MapVersion} | Hero {_session.HeroHealth} HP";
         }

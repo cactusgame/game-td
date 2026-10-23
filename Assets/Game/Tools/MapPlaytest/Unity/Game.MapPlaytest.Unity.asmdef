@@ -12,6 +12,7 @@
     "Game.Battle.Simulation",
     "Game.Configuration",
     "Unity.InputSystem",
-    "Game.Presentation"
+    "Game.Presentation",
+    "Game.Battle.Unity"
   ]
 }

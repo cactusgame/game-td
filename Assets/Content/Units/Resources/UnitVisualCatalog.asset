@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b78b91670b8844f4d90bf821351efd56, type: 3}
+  m_Name: UnitVisualCatalog
+  m_EditorClassIdentifier: Game.Battle.Unity::Game.Battle.Unity.Assets.UnitVisualCatalog
+  Presentation: {fileID: 4900000, guid: 96b8bcc4c2245834ebb959a67adbe370, type: 3}
+  Animations:
+  - {fileID: 11400000, guid: 699aff57e3762884dbff13b9eb2f0d0d, type: 2}
+  - {fileID: 11400000, guid: bfaab5037e21a964782259e8dcf84d12, type: 2}
+  - {fileID: 11400000, guid: f934eedbb905ddc45991e0ba3371d97e, type: 2}
+  White: {fileID: 4966732595609684114, guid: 6b39d7c08e4474242bbe49c259a67c67, type: 3}
+  Circle: {fileID: -6231044458718751821, guid: 61a18cb62a940ac4abe5521ac9ed63b5, type: 3}

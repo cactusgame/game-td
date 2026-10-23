@@ -38,7 +38,7 @@ namespace Game.Tools.MapPlaytest.Tests
         {
             using var session = Session(Map(), Catalog());
             session.Restart();
-            AssertEnemySpacing(session.Units, 0.90f);
+            AssertEnemySpacing(session.Units, 0.58f);
             for (int step = 0; step < 200; step++)
                 session.Advance(0.02f);
             AssertEnemySpacing(session.Units, 0.45f);

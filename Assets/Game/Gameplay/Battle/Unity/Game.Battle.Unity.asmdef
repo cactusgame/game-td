@@ -1,0 +1,4 @@
+{
+  "name": "Game.Battle.Unity",
+  "references": ["Game.Presentation", "Game.Battle.Contracts", "Game.Battle.Domain"]
+}

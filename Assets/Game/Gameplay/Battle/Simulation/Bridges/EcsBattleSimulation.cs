@@ -175,10 +175,11 @@ namespace Game.Battle.Simulation.Bridges
             {
                 for (int i = 0; i < countPerEntry; i++)
                 {
-                    var position = FindSpawnPosition(new float2(entry.X, entry.Y), _definition.Goblin.Radius, occupied, pathfinder, path);
+                    var unit = i % 2 == 0 ? _definition.Goblin : _definition.Runner;
+                    var position = FindSpawnPosition(new float2(entry.X, entry.Y), unit.Radius, occupied, pathfinder, path);
                     ulong id = _nextId++;
-                    Spawn(id, _definition.Goblin, position, (uint)(id % (uint.MaxValue - 1)) + 1);
-                    occupied.Add((position, _definition.Goblin.Radius));
+                    Spawn(id, unit, position, (uint)(id % (uint.MaxValue - 1)) + 1);
+                    occupied.Add((position, unit.Radius));
                 }
             }
         }

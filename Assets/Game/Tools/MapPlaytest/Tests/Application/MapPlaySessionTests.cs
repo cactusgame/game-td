@@ -62,12 +62,12 @@ namespace Game.Tools.MapPlaytest.Tests
             for (int i = 0; i < 5000; i++)
             {
                 session.Advance(0.02f);
-                var enemy = session.Units.First(unit => unit.Kind != UnitKind.Hero);
+                var enemies = session.Units.Where(unit => unit.Kind != UnitKind.Hero && unit.Health > 0).ToArray();
                 int health = session.GetGateHealth("door");
                 if (health > 0)
-                    Assert.That(enemy.X, Is.GreaterThan(2.5f));
+                    Assert.That(enemies.All(enemy => enemy.X > 2.5f), Is.True);
                 damaged |= health < initialHealth;
-                if (enemy.X < 2)
+                if (enemies.Any(enemy => enemy.X < 2))
                 {
                     Assert.That(health, Is.Zero);
                     crossed = true;

@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
+  m_Name: skeleton-actions
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
+  Frames:
+  - {fileID: 21300000, guid: 70fc334033632c9409094022f52229e3, type: 3}
+  - {fileID: 21300000, guid: 1ba0ab79ab8ab254eb1bd257594af37c, type: 3}
+  - {fileID: 21300000, guid: 0d71dd950ad341b49bacc1120af18fca, type: 3}
+  - {fileID: 21300000, guid: e172fe25a76e9204081cf290e251ea23, type: 3}
+  - {fileID: 21300000, guid: 400861eb16de23b4ebc9036bddaae212, type: 3}
+  - {fileID: 21300000, guid: 60d3992f63a558c418482fb05f30294e, type: 3}
+  - {fileID: 21300000, guid: a576748a9bb3d454f82f4933fd1e61a0, type: 3}
+  - {fileID: 21300000, guid: 6c70b9c12c2071741ba7165bcf1dfd51, type: 3}
+  - {fileID: 21300000, guid: 79c2de1ab5dc7144980b6d8f837e488b, type: 3}
+  - {fileID: 21300000, guid: 785d489ab9c207647871ebea054c4c6d, type: 3}
+  - {fileID: 21300000, guid: fd72ad66d4e9c7743839b5cbd2fed342, type: 3}
+  - {fileID: 21300000, guid: 61ad00f92579c2340ab57a96adf22228, type: 3}
+  - {fileID: 21300000, guid: 9b44dfcc05aed0242941931054144fa6, type: 3}
+  - {fileID: 21300000, guid: 7f9527c753e252a4ebb8c21bb2caf657, type: 3}
+  - {fileID: 21300000, guid: 626c754aa6386cb42a4b830eae6655bd, type: 3}
+  - {fileID: 21300000, guid: 83e4ae17c35560f409d09a060cf0b39b, type: 3}
+  - {fileID: 21300000, guid: 1c6e3ca9f2217fb4d91ae511ab55c538, type: 3}
+  - {fileID: 21300000, guid: f95cf8eda56aa374fba5f846eb02c473, type: 3}
+  - {fileID: 21300000, guid: eb1f19a173777b04484ab351fc11336a, type: 3}
+  - {fileID: 21300000, guid: 4121b6743c2201b4e8e09a3a5b01eb01, type: 3}
+  - {fileID: 21300000, guid: ca7888eb8ee144c4f86111ddf9fec44f, type: 3}
+  - {fileID: 21300000, guid: d6eb48d4caf29aa469db4863f040f1b4, type: 3}
+  - {fileID: 21300000, guid: 3a8ac436c05fe9941b0a19fee885b0e8, type: 3}
+  - {fileID: 21300000, guid: b57e4015752bcfa4cb09177cccb42375, type: 3}
+  - {fileID: 21300000, guid: f507263f19a1c6144a4770791dd3c640, type: 3}
+  - {fileID: 21300000, guid: 19c64f674839c64478fdb8c4143d82df, type: 3}
+  - {fileID: 21300000, guid: 66a5d40f529ec8a419bfe8b4ed4be6c6, type: 3}
+  - {fileID: 21300000, guid: c6dbac939f9c47540a1fb1156b8e33d2, type: 3}
+  - {fileID: 21300000, guid: c1196a800cadbc24f91420ffb45d5d4a, type: 3}
+  - {fileID: 21300000, guid: b95cc1cd88d23894dbfd1c1701bc047b, type: 3}
+  - {fileID: 21300000, guid: 7c7d6d29a6edb214ebf455f545b3baee, type: 3}
+  - {fileID: 21300000, guid: a55499df3d818694b8785f75146a7ed3, type: 3}
+  - {fileID: 21300000, guid: 6bea1afd6f12c2c40bcc7875771c2f40, type: 3}
+  - {fileID: 21300000, guid: cb18b9c059c007a4c945cfaa34bc7add, type: 3}
+  - {fileID: 21300000, guid: 8a97e58c5d6a3f54c84de98cb977a2b6, type: 3}
+  - {fileID: 21300000, guid: 3a369fdee91d78f45837d5404b04b03c, type: 3}
+  - {fileID: 21300000, guid: 88e2c83b3badc8544bdb5a709beed7ff, type: 3}
+  - {fileID: 21300000, guid: 119dd727873223e469b020332b18f7bd, type: 3}
+  - {fileID: 21300000, guid: 429cb964a1e45d74eaa280b5f5ad0f58, type: 3}
+  - {fileID: 21300000, guid: 2abfb427b2f4b7141a7325a1946044db, type: 3}
+  - {fileID: 21300000, guid: 5524fefa453aa984aa75575e55b12851, type: 3}
+  - {fileID: 21300000, guid: d88a3f3eb10373f4d9bb43f26464a2b3, type: 3}
+  - {fileID: 21300000, guid: 28aa0244a705c3f48b1b2714f201d932, type: 3}
+  - {fileID: 21300000, guid: a2bdd5eb91b6e4f4aa4714d9eac04f1c, type: 3}
+  - {fileID: 21300000, guid: cf991e7173b2ef0439d59c8c0d1704a3, type: 3}
+  - {fileID: 21300000, guid: 46d812be9aa789f4b9b3d41eef48d739, type: 3}
+  - {fileID: 21300000, guid: 5640a7ff33099f64db067a0303625831, type: 3}
+  - {fileID: 21300000, guid: 566bed6c1a7819c4b9b20f3e73971397, type: 3}
+  - {fileID: 21300000, guid: a6daea02788d8f04a99a87e14292fbb0, type: 3}
+  - {fileID: 21300000, guid: cec07e27e01de3b408b8da9a97de47d4, type: 3}
+  - {fileID: 21300000, guid: f22c736a354e25b469d0e3d477bdebfd, type: 3}
+  - {fileID: 21300000, guid: d1305e2aca4c7b84d8fc50f5ebfde835, type: 3}
+  - {fileID: 21300000, guid: 61bbdcdf3a887094a925c9b274702ef8, type: 3}
+  - {fileID: 21300000, guid: adbf6de004f13d34a9eef1ec7ed1c933, type: 3}
+  - {fileID: 21300000, guid: d4d05aa53ee966141a35a7dbbd560fa1, type: 3}
+  - {fileID: 21300000, guid: 5ba2424bf0aad9e4f95abd2f93c41794, type: 3}
+  - {fileID: 21300000, guid: dcc37bd532e548b4fb3df1a6cc994d82, type: 3}
+  - {fileID: 21300000, guid: 90ae943da6c479847a251f4569e62510, type: 3}
+  - {fileID: 21300000, guid: f53e7d1365ed0fc459adea0bb194c584, type: 3}
+  - {fileID: 21300000, guid: 8b69e515815eefa4f97a0227e5126aa8, type: 3}
+  - {fileID: 21300000, guid: 93883d142d9489c4cb7abc087352cdcb, type: 3}
+  - {fileID: 21300000, guid: 5edb636029ee7e1428135e20dcb9004d, type: 3}
+  - {fileID: 21300000, guid: 6e61438e534f5e741a80db6beafae7bd, type: 3}
+  - {fileID: 21300000, guid: f105109c6dbee584397069a99188783a, type: 3}
+  - {fileID: 21300000, guid: 5c7fdb555327ae247b7c4834de978183, type: 3}
+  BodyHeightFraction: 0.69736844
+  DeathBodyHeightFraction: 0.69736844
+  FacesLeft: 0
+  Idle:
+    FirstFrame: 13
+    LastFrame: 13
+    Fps: 6
+    Loop: 1
+  Walk:
+    FirstFrame: 1
+    LastFrame: 12
+    Fps: 12
+    Loop: 1
+  Attack:
+    FirstFrame: 14
+    LastFrame: 22
+    Fps: 16
+    Loop: 0
+  Run:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Hurt:
+    FirstFrame: 13
+    LastFrame: 13
+    Fps: 8
+    Loop: 0
+  Death:
+    FirstFrame: 23
+    LastFrame: 33
+    Fps: 12
+    Loop: 0
+  Skill:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill2:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill3:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Jump:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Spawn:
+    FirstFrame: 34
+    LastFrame: 65
+    Fps: 16
+    Loop: 0
+  WalkBack:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0

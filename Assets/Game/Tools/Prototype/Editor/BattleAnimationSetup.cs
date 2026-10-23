@@ -22,7 +22,10 @@ namespace Game.Tools.Prototype
             if (view == null)
                 throw new InvalidOperationException("Open the battle scene before applying animations.");
             Undo.RecordObject(view, "Apply unit animations");
-            view.ConfigureAnimations(hero, knight, goblin, runner);
+            var resources = AssetDatabase.FindAssets("t:UnitAnimationSet", new[] { "Assets/Content/Units" })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<UnitAnimationSet>(AssetDatabase.GUIDToAssetPath(guid)))
+                .ToArray();
+            view.ConfigureAnimations(resources);
             ImportDeathAssets();
             EditorUtility.SetDirty(view);
             EditorSceneManager.MarkSceneDirty(view.gameObject.scene);

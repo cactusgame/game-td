@@ -1328,9 +1328,8 @@ MonoBehaviour:
   _battleCamera: {fileID: 682556579}
   _animationSets:
   - {fileID: 11400000, guid: 699aff57e3762884dbff13b9eb2f0d0d, type: 2}
-  - {fileID: 11400000, guid: 79bf4676fe38f114d942be252546168c, type: 2}
-  - {fileID: 11400000, guid: ba3e8ffc9f93c6549b5ea83fba70dc69, type: 2}
-  - {fileID: 11400000, guid: edf4c18ee27262149a7d8837156aba5a, type: 2}
+  - {fileID: 11400000, guid: bfaab5037e21a964782259e8dcf84d12, type: 2}
+  - {fileID: 11400000, guid: f934eedbb905ddc45991e0ba3371d97e, type: 2}
   _presentationConfig: {fileID: 4900000, guid: 96b8bcc4c2245834ebb959a67adbe370, type: 3}
   _arenaView: {fileID: 1231984343}
 --- !u!4 &1362957773

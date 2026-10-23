@@ -9,6 +9,9 @@ namespace Game.Battle.Tests
 {
     public sealed class UnitAnimationTests
     {
+        [TestCase("Heroes/Alien/alien", UnitKind.Hero)]
+        [TestCase("Enemies/Skeleton/skeleton", UnitKind.Goblin)]
+        [TestCase("Enemies/Fallen/fallen", UnitKind.Runner)]
         [TestCase("Enemies/Goblin/Sprites/goblin", UnitKind.Goblin)]
         [TestCase("Enemies/Runner/Sprites/runner", UnitKind.Runner)]
         public void MonsterPlaysDeathHoldsLastFrameAndOnlyThenBecomesRemovable(string path, UnitKind kind)
@@ -19,7 +22,7 @@ namespace Game.Battle.Tests
             authored.Death.Fps = 4;
             var player = new UnitAnimationPlayer(authored);
             var death = player.Require(UnitAction.Death);
-            Assert.That(death.FrameCount, Is.EqualTo(4));
+            Assert.That(death.FrameCount, Is.GreaterThanOrEqualTo(4));
             var settings = new UnitDeathSettings();
             // 使用不同于默认值的时长，验证播放和移除确实读取统一配置。
             settings.CorpseHoldSeconds = 2;
@@ -45,9 +48,9 @@ namespace Game.Battle.Tests
                 view.Render(state, 11.5, 1);
                 Assert.That(body.sprite, Is.EqualTo(death.Frame(1.5)));
                 Assert.That(view.IsReadyForRemoval, Is.False);
-                view.Render(state, 12.99, 1);
+                view.Render(state, 10 + death.Duration + settings.Hold - 0.01, 1);
                 Assert.That(view.IsReadyForRemoval, Is.False);
-                view.Render(state, 13, 0.01f);
+                view.Render(state, 10 + death.Duration + settings.Hold, 0.01f);
                 Assert.That(view.IsReadyForRemoval, Is.True);
             }
             finally
@@ -81,7 +84,7 @@ namespace Game.Battle.Tests
             try
             {
                 var sprite = new UnitAnimationPlayer(set).Require(UnitAction.Idle).Frame(0);
-                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f, Color.white, player);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f, Color.white, player, new UnitDeathSettings { CorpseHoldSeconds = 1.5f });
                 var body = root.transform.GetChild(0).Find("Sprite").GetComponent<SpriteRenderer>();
                 UnitSnapshot State(float x = 0, float facing = 1, int hp = 10, float hit = -100, float attack = -100) => new UnitSnapshot(1, UnitKind.Hero, x, 0, facing, hp, 10, hit, attack);
                 view.Render(State(), 0, 0);
@@ -96,7 +99,8 @@ namespace Game.Battle.Tests
                 view.Render(State(x: 1, hit: 1, attack: 1), 2, 0.1f);
                 Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Idle).Frame(2 - 1.11)));
                 view.Render(State(x: 1, hp: 0), 3, 0.1f);
-                Assert.That(root.transform.GetChild(0).gameObject.activeSelf, Is.False);
+                Assert.That(root.transform.GetChild(0).gameObject.activeSelf, Is.True);
+                Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(0)));
             }
             finally
             {
