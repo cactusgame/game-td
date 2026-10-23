@@ -55,7 +55,7 @@ namespace Game.Tools.Prototype
             camera.transform.position = new Vector3(0, 0, -10);
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.075f, 0.13f, 0.115f);
-            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
+            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json");
             var definition = Game.Infrastructure.Configuration.JsonBattleDefinitionSource.Parse(config.text);
             var arena = CreateArena(definition, white);
             var view = new GameObject("UnitViews").AddComponent<BattleView>();

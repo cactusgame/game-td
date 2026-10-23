@@ -18,7 +18,7 @@ namespace Game.Tools.MapPlaytest.Tests
 {
     public sealed class DefenseLoopTests
     {
-        private static MapContentCatalog Catalog() => FacilityCatalogJson.Read(File.ReadAllText("Assets/Content/Maps/Shared/facilities.json"));
+        private static MapContentCatalog Catalog() => FacilityCatalogJson.Read(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/facilities.json"));
         private static MapLayout Map()
         {
             var map = new MapLayout();
@@ -30,7 +30,7 @@ namespace Game.Tools.MapPlaytest.Tests
         }
         private static MapPlaySession Session(MapLayout map, MapContentCatalog catalog)
         {
-            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             return new MapPlaySession(new MapDefinition(map, catalog), catalog, rules, new Input(), () => new EcsBattleSimulation());
         }
         [Test]

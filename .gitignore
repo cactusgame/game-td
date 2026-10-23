@@ -140,3 +140,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# 内容配置工具与 Excel 临时文件
+/Tools/ContentConfiguration/__pycache__/
+/Config/~$*.xlsx

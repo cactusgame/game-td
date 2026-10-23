@@ -68,7 +68,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 sprites[i].name = "kingdom-" + i;
                 AssetDatabase.AddObjectToAsset(sprites[i], visual);
             }
-            visual.facilityRules = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Maps/Shared/facilities.json");
+            visual.facilityRules = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/facilities.json");
             string[] ids = { "hall", "house", "church", "market", "foundry", "tower", "farm", "well", "mage", "rubble" };
             int[] indices = { 0, 1, 2, 3, 4, 5, 6, 7, 2, 11 };
             visual.facilities = ids.Select((id, i) => new MapVisualCatalog.FacilityVisual { definitionId = id, sprite = sprites[indices[i]] }).ToArray();

@@ -8,8 +8,8 @@ namespace Game.Battle.Tests
 {
     public sealed class JsonConfigurationTests
     {
-        private const string PresentationPath = "Assets/Content/Combat/Prototype/presentation.json";
-        private const string BattlePath = "Assets/Content/Combat/Prototype/battle.json";
+        private const string PresentationPath = "Assets/Content/Configuration/Resources/GameConfig/presentation.json";
+        private const string BattlePath = "Assets/Content/Configuration/Resources/GameConfig/battle.json";
         [Test]
         public void ProductCanReloadResourceSelectionWithoutAnyAnimationAuthoringParameters()
         {

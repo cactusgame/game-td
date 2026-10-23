@@ -13,6 +13,7 @@
     "Game.Configuration",
     "Unity.InputSystem",
     "Game.Presentation",
-    "Game.Battle.Unity"
+    "Game.Battle.Unity",
+    "Game.Construction.Domain"
   ]
 }

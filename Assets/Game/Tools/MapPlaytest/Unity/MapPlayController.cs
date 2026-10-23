@@ -57,11 +57,13 @@ namespace Game.Tools.MapPlaytest.Unity
                 _catalog = FacilityCatalogJson.Read(visuals.facilityRules.text);
                 var definition = MapJson.LoadDefinition(json, _catalog);
                 var rules = JsonBattleDefinitionSource.Parse(battleJson.text);
-                var encounterAsset = encounterJson != null ? encounterJson : Resources.Load<TextAsset>("DefenseEncounter");
+                var combat = JsonCombatContentSource.Parse(Resources.Load<TextAsset>("GameConfig/combat-content").text);
+                var construction = JsonConstructionContentSource.Parse(Resources.Load<TextAsset>("GameConfig/construction-content").text);
+                var encounterAsset = encounterJson != null ? encounterJson : Resources.Load<TextAsset>("GameConfig/DefenseEncounter");
                 if (encounterAsset == null)
                     throw new InvalidOperationException("缺少防守关卡配置 DefenseEncounter.json");
                 var encounter = JsonDefenseEncounterSource.Parse(encounterAsset.text);
-                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter);
+                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter, construction);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize();
@@ -85,7 +87,7 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("restart").clicked += Restart;
                     root.Q<Button>("exit").clicked += Exit;
                 }
-                _cameraView = new MapPlayCamera(mapCamera, Resources.Load<TextAsset>("MapPlayCamera"));
+                _cameraView = new MapPlayCamera(mapCamera, Resources.Load<TextAsset>("GameConfig/MapPlayCamera"));
                 Restart();
             }
             catch (Exception error)

@@ -30,18 +30,19 @@ namespace Game.Battle.Simulation.Systems
             bool hasCastle = false;
             foreach (var structure in structures)
                 hasCastle |= structure.IsMainCastle != 0;
-            foreach (var (ground, motion, vitals, navigation) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRO<Vitals>, RefRW<MonsterNavigationState>>().WithAll<MonsterTag>())
+            foreach (var (ground, motion, vitals, navigation, profile) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRO<CombatProfile>>().WithAll<MonsterTag>())
             {
-                navigation.ValueRW.HasCastleObjective = hasCastle ? (byte)1 : (byte)0;
-                if (!hasCastle || vitals.ValueRO.Health <= 0 || SystemAPI.Time.ElapsedTime < navigation.ValueRO.NextRepathTime)
+                bool wantsCastle = hasCastle && profile.ValueRO.TargetMainCastle != 0;
+                navigation.ValueRW.HasCastleObjective = wantsCastle ? (byte)1 : (byte)0;
+                if (!wantsCastle || vitals.ValueRO.Health <= 0 || SystemAPI.Time.ElapsedTime < navigation.ValueRO.NextRepathTime)
                     continue;
-                TrySelectCastleGoal(ground.ValueRO.Position, motion.ValueRO.Radius, structures, entities,
+                TrySelectCastleGoal(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, structures, entities,
                     out var target, out var position);
                 navigation.ValueRW.StructureTarget = target;
                 navigation.ValueRW.StructureGoal = position;
             }
         }
-        private bool TrySelectCastleGoal(float2 position, float radius, NativeArray<DefenseStructure> structures,
+        private bool TrySelectCastleGoal(float2 position, float radius, float attackRange, NativeArray<DefenseStructure> structures,
             NativeArray<Entity> entities, out Entity target, out float2 destination)
         {
             target = Entity.Null;
@@ -63,7 +64,7 @@ namespace Game.Battle.Simulation.Systems
                     float edgeDistance = math.distance(candidate, closest);
                     if (edgeDistance > radius + math.max(_map.CellWidth, _map.CellHeight) || edgeDistance <= 0)
                         continue;
-                    candidate = closest + math.normalizesafe(candidate - closest) * (radius + 0.05f);
+                    candidate = closest + math.normalizesafe(candidate - closest) * (radius + math.min(0.05f, attackRange * 0.5f));
                     if (!_map.TryWorldToCell(candidate.x, candidate.y, out cell) || !_map.CanOccupy(candidate.x, candidate.y, radius))
                         continue;
                     float distance = math.distancesq(position, candidate);

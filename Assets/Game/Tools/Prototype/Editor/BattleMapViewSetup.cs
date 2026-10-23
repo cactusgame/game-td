@@ -10,7 +10,7 @@ namespace Game.Tools.Prototype
     /// <summary>更新现有地图预览、相机和场景引用，不重建单位/UI 或覆盖整个场景。</summary>
     public static class BattleMapViewSetup
     {
-        public const string SettingsPath = "Assets/Content/Combat/Prototype/presentation.json";
+        public const string SettingsPath = "Assets/Content/Configuration/Resources/GameConfig/presentation.json";
         public static TextAsset LoadSettingsAsset()
         {
             var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(SettingsPath);
@@ -33,7 +33,7 @@ namespace Game.Tools.Prototype
             var ground = GameObject.Find("TrainingGround");
             if (view == null || ground == null)
                 throw new InvalidOperationException("Open the battle prototype scene before configuring its map.");
-            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
+            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json");
             var definition = JsonBattleDefinitionSource.Parse(config.text);
             var settings = EnsureSettings();
             var arena = ground.GetComponent<BattleArenaView>();

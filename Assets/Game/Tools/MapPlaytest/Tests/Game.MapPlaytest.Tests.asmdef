@@ -15,7 +15,8 @@
     "Game.Fortifications.Domain",
     "Game.Maps.Serialization",
     "Game.MapPlaytest.Unity",
-    "Game.Presentation"
+    "Game.Presentation",
+    "Game.Construction.Domain"
   ],
   "includePlatforms": [
     "Editor"

@@ -17,7 +17,7 @@ namespace Game.Battle.Tests
     {
         private static BattleDefinition LoadDefinition()
         {
-            return JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            return JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
         }
 
         [Test]

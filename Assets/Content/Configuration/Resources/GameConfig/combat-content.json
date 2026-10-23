@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "units": [
+    {
+      "id": "hero.alien",
+      "name": "Alien",
+      "slot": "Hero",
+      "maxHealth": 120000,
+      "defense": 3,
+      "speed": 4.5,
+      "radius": 0.42,
+      "visualHeight": 1.65,
+      "attackId": "attack.alien",
+      "skillIds": "",
+      "behaviorId": "",
+      "animationId": "visual.alien"
+    },
+    {
+      "id": "enemy.skeleton",
+      "name": "骷髅兵",
+      "slot": "Goblin",
+      "maxHealth": 25,
+      "defense": 2,
+      "speed": 1.25,
+      "radius": 0.4,
+      "visualHeight": 1.35,
+      "attackId": "attack.skeleton",
+      "skillIds": "",
+      "behaviorId": "behavior.siege",
+      "animationId": "visual.skeleton"
+    },
+    {
+      "id": "enemy.fallen",
+      "name": "亡灵",
+      "slot": "Runner",
+      "maxHealth": 12,
+      "defense": 0,
+      "speed": 3.0,
+      "radius": 0.24,
+      "visualHeight": 0.95,
+      "attackId": "attack.fallen",
+      "skillIds": "",
+      "behaviorId": "behavior.siege",
+      "animationId": "visual.fallen"
+    }
+  ],
+  "attacks": [
+    {
+      "id": "attack.alien",
+      "name": "Alien接触攻击",
+      "mode": "Contact",
+      "damage": 150,
+      "interval": 1.0,
+      "range": 0.0,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.skeleton",
+      "name": "骷髅近战",
+      "mode": "Melee",
+      "damage": 9,
+      "interval": 1.0,
+      "range": 0.15,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.fallen",
+      "name": "亡灵近战",
+      "mode": "Melee",
+      "damage": 7,
+      "interval": 1.0,
+      "range": 0.15,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.tower",
+      "name": "箭楼直伤",
+      "mode": "Direct",
+      "damage": 25,
+      "interval": 1.0,
+      "range": 5.0,
+      "effectIds": ""
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill.alien_burst",
+      "name": "Alien爆发/设计示例",
+      "enabled": false,
+      "cooldown": 12.0,
+      "attackId": "attack.alien",
+      "effectIds": "effect.slow"
+    }
+  ],
+  "effects": [
+    {
+      "id": "effect.slow",
+      "name": "减速/设计示例",
+      "kind": "Slow",
+      "duration": 2.0,
+      "magnitude": 0.2,
+      "maxStacks": 1
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "behavior.siege",
+      "name": "攻城",
+      "target": "MainCastle",
+      "canAttackGates": true
+    },
+    {
+      "id": "behavior.hunt",
+      "name": "追逐英雄",
+      "target": "Hero",
+      "canAttackGates": false
+    }
+  ],
+  "animations": [
+    {
+      "id": "visual.alien",
+      "resourceId": "alien-actions"
+    },
+    {
+      "id": "visual.skeleton",
+      "resourceId": "skeleton-actions"
+    },
+    {
+      "id": "visual.fallen",
+      "resourceId": "fallen-actions"
+    }
+  ],
+  "contentVersion": "38f1f4714f301d88"
+}

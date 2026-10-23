@@ -54,7 +54,7 @@ Content/Shared/                 共用 Shader、材质、字体、音频、Atlas
 
 按真实需要建目录，不强制每个内容类型具备所有资产种类。
 规则配置引用稳定 DefinitionId；视图目录映射 Sprite/动画/Prefab/音效/锚点。Authoring 资产可暂时合并，但导出到领域和 ECS 时分开。
-产品可调配置统一使用 JSON；当前战斗相关配置集中放在 `Assets/Content/Combat/Prototype/`，规则为 `battle.json`，表现为 `presentation.json`。人物产品配置只选择资源 ID。动画帧范围、帧率、循环、标准动作定义、默认朝向、pivot 与视觉比例是素材制作元数据，随 `UnitAnimationSet` 资产保存和验收，不暴露到产品 JSON，也不在开局时重写。ScriptableObject 可以保存这些固定制作元数据与 Sprite 引用，不承载产品可调规则或对局可变状态。英雄、怪物等可调属性延续 JSON 配置加载约定，DTO 与验证/转换留在基础设施或 Authoring，不把 JsonUtility 带入纯领域层。
+产品可调配置以 `Config/GameContent.xlsx` 为唯一编辑源，通过 `Tools/ContentConfiguration/export_config.py` 或 Unity 的“Game/内容配置/导出 Excel”生成 JSON。生成结果统一放在 `Assets/Content/Configuration/Resources/GameConfig/`；规则投影为 `battle.json`，表现为 `presentation.json`，完整战斗与建设定义分别为 `combat-content.json`、`construction-content.json`。不得手工维护第二份生效配置。使用方式和当前执行范围见 `Docs/ExcelConfiguration.md`。人物产品配置只选择资源 ID。动画帧范围、帧率、循环、标准动作定义、默认朝向、pivot 与视觉比例是素材制作元数据，随 `UnitAnimationSet` 资产保存和验收，不暴露到产品 JSON，也不在开局时重写。ScriptableObject 可以保存这些固定制作元数据与 Sprite 引用，不承载产品可调规则或对局可变状态。英雄、怪物等可调属性延续 JSON 配置加载约定，DTO 与验证/转换留在基础设施或 Authoring，不把 JsonUtility 带入纯领域层。
 配置在创建或替换会话前验证，明确内容版本；共享配置不保存实例当前血量、技能剩余冷却。
 保持 Windows/手机可用的加载边界；不要硬编码桌面绝对路径，StreamingAssets 等平台差异由适配器处理。
 Sprite Atlas 按加载生命周期/材质/打包需求组织，默认内置交付；无真实需要不引入 Addressables。

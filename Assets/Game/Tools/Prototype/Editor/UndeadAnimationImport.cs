@@ -27,7 +27,7 @@ namespace Game.Tools.Prototype
                 AssetDatabase.CreateAsset(catalog, path);
             }
             catalog.Animations = new[] { AlienAnimationImport.Load(), skeleton, fallen };
-            catalog.Presentation = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/presentation.json");
+            catalog.Presentation = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/presentation.json");
             var view = UnityEngine.Object.FindAnyObjectByType<BattleView>();
             if (view != null)
             {

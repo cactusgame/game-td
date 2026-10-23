@@ -272,6 +272,7 @@ namespace Game.Battle.Simulation.Bridges
             // 统一移动 Job 所需的数据。英雄的导航组件为空，不使用怪物寻路分支。
             // 同组件类型组合称为 Archetype；这些组件数据会由 ECS 按 Chunk 组织存储。
             var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
+            em.AddComponentData(entity, new CombatProfile { AttackInterval = definition.AttackInterval, AttackRange = definition.AttackRange, TargetMainCastle = definition.TargetMainCastle ? (byte)1 : (byte)0 });
             em.AddBuffer<NavigationWaypoint>(entity);
             // SetComponentData 修改已有组件，不会自动添加缺失组件；这里写入只读定义中的初始属性。
             em.SetComponentData(entity, new UnitIdentity{Id = id, Kind = definition.Kind});

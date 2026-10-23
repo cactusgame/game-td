@@ -38,7 +38,7 @@ namespace Game.Battle.Tests
         {
             var unknown = (UnitKind)255;
             Assert.Throws<ArgumentOutOfRangeException>(() => new UnitDefinition(unknown, 10, 1, 0, 1, 0.4f, 1));
-            var definition = JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var definition = JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             Assert.Throws<ArgumentOutOfRangeException>(() => definition.GetUnit(unknown));
         }
 
@@ -49,7 +49,7 @@ namespace Game.Battle.Tests
         public void Step_InvalidTime_LeavesSimulationTimeUnchanged(float step)
         {
             using var simulation = new EcsBattleSimulation();
-            var definition = JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var definition = JsonBattleDefinitionSource.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             simulation.Reset(definition);
             Assert.Throws<ArgumentOutOfRangeException>(() => simulation.Step(step, default));
             Assert.That(simulation.ElapsedTime, Is.Zero);

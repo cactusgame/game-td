@@ -1,4 +1,10 @@
 {
   "name": "Game.Configuration",
-  "references": ["Game.Encounter.Domain", "Game.Battle.Domain", "Game.Battle.Contracts", "Game.MapEngine.Domain"]
+  "references": [
+    "Game.Encounter.Domain",
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.MapEngine.Domain",
+    "Game.Construction.Domain"
+  ]
 }

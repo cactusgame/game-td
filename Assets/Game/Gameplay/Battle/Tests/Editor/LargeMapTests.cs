@@ -19,8 +19,8 @@ namespace Game.Battle.Tests
         [Test]
         public void DefaultLargeMapIsNineLandscapeViewsAndNavigationCoversIt()
         {
-            var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
-            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Map;
+            var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/presentation.json")).Map;
             Assert.That(settings, Is.Not.Null);
             float visibleWidth = settings.VisibleWorldHeight * 16 / 9;
             Assert.That(definition.Width / visibleWidth, Is.EqualTo(3).Within(0.0001));
@@ -57,7 +57,7 @@ namespace Game.Battle.Tests
         [Test]
         public void HeroStartsAtCenterCanReachEveryCornerAndRestartsAtCenter()
         {
-            var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             var hero = new UnitDefinition(UnitKind.Hero, 100, 15, 3, 100, 0.42f, 1.65f);
             var definition = new BattleDefinition(hero, configured.Goblin, configured.Runner, 0, 0, 96, 54, 0.02f, 123, configured.Navigation);
             using var simulation = new EcsBattleSimulation();
@@ -82,7 +82,7 @@ namespace Game.Battle.Tests
         [Test]
         public void MonstersSpawnAcrossTheLargeMapAndStayInsideItsNavigationCoverage()
         {
-            var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var configured = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             var definition = new BattleDefinition(configured.Hero, configured.Goblin, configured.Runner, 6, 4, 96, 54, 0.02f, 123, configured.Navigation);
             using var simulation = new EcsBattleSimulation();
             var units = new List<UnitSnapshot>();

@@ -8,6 +8,11 @@ namespace Game.Battle.Domain.Definitions
     public sealed class UnitDefinition
     {
         public UnitKind Kind { get; }
+        public string Id { get; }
+        public float AttackInterval { get; }
+        public float AttackRange { get; }
+        public bool TargetMainCastle { get; }
+        public bool CanAttackGates { get; }
 
         public int MaxHealth { get; }
 
@@ -22,7 +27,7 @@ namespace Game.Battle.Domain.Definitions
 
         public float VisualHeight { get; }
 
-        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight)
+        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true)
         {
             if (kind != UnitKind.Hero && kind != UnitKind.Goblin && kind != UnitKind.Runner)
             {
@@ -34,6 +39,14 @@ namespace Game.Battle.Domain.Definitions
             RequirePositive(speed, nameof(speed));
             RequirePositive(radius, nameof(radius));
             RequirePositive(visualHeight, nameof(visualHeight));
+            RequirePositive(attackInterval, nameof(attackInterval));
+            if (float.IsNaN(attackRange) || float.IsInfinity(attackRange) || attackRange < 0)
+                throw new ArgumentOutOfRangeException(nameof(attackRange));
+            Id = id ?? kind.ToString();
+            AttackInterval = attackInterval;
+            AttackRange = attackRange;
+            TargetMainCastle = targetMainCastle;
+            CanAttackGates = canAttackGates;
             Kind = kind;
             MaxHealth = maxHealth;
             Attack = attack;

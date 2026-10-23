@@ -151,7 +151,7 @@ namespace Game.Tools.MapAuthoring.Tests
         [Test]
         public void ActualMovementRespectsImportedTerrainRadiusAndArbitraryOrigin()
         {
-            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             var walkable = Enumerable.Repeat(true, 12 * 12).ToArray();
             for (int y = 0; y < 12; y++)
                 walkable[y * 12 + 5] = false;
@@ -199,7 +199,7 @@ namespace Game.Tools.MapAuthoring.Tests
         [Test]
         public void ExplicitSpawnsDoNotUseTheOldCenteredRandomSpawnAssumption()
         {
-            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             var map = new GridMap(3, 3, 1, 1, 10, 20);
             var definition = new BattleDefinition(rules.Hero, rules.Goblin, rules.Runner, 1, 0, 3, 3, 0.02f, 1,
                 navigationMap: map, heroSpawn: new MapPoint(10.5f, 20.5f), enemySpawns: new[] { new MapPoint(12.5f, 22.5f) });

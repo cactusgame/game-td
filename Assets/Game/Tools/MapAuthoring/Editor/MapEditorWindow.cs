@@ -769,7 +769,7 @@ namespace Game.Tools.MapAuthoring.Editor
 
         private System.Collections.Generic.List<MapIssue> ValidateDocument()
         {
-            var rulesAsset = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
+            var rulesAsset = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json");
             var rules = JsonBattleDefinitionSource.Parse(rulesAsset.text);
             return MapPlayabilityValidator.Validate(_session.Document, _catalog, rules.Hero.Radius, Math.Max(rules.Goblin.Radius, rules.Runner.Radius));
         }

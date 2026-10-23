@@ -1,6 +1,22 @@
 {
   "name": "Game.Battle.Tests",
-  "references": ["Game.Battle.Domain", "Game.Battle.Contracts", "Game.Battle.Application", "Game.Battle.Simulation", "Game.Configuration", "Game.Presentation", "Game.MapEngine.Domain", "Unity.Entities", "Unity.Collections", "Unity.Mathematics"],
-  "includePlatforms": ["Editor"],
-  "optionalUnityReferences": ["TestAssemblies"]
+  "references": [
+    "Game.Battle.Domain",
+    "Game.Battle.Contracts",
+    "Game.Battle.Application",
+    "Game.Battle.Simulation",
+    "Game.Configuration",
+    "Game.Presentation",
+    "Game.MapEngine.Domain",
+    "Unity.Entities",
+    "Unity.Collections",
+    "Unity.Mathematics",
+    "Game.Construction.Domain"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
 }

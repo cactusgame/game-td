@@ -22,6 +22,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
     {
         private readonly DefenseEncounterDefinition _encounterDefinition;
         private DefenseEncounter _encounter;
+        private readonly Game.Construction.Domain.Definitions.ConstructionContentDefinition _construction;
         private readonly List<DefenseStructureSnapshot> _structures = new List<DefenseStructureSnapshot>();
         public IReadOnlyList<DefenseStructureSnapshot> Structures => _structures.AsReadOnly();
         public string Outcome => _encounter?.Outcome ?? "Running";
@@ -51,8 +52,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
 
         public MapPlaySession(MapDefinition initialMap, MapContentCatalog catalog, BattleDefinition rules,
-            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null)
+            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null)
         {
+            _construction = construction;
             _encounterDefinition = encounterDefinition ?? new DefenseEncounterDefinition();
             _initialMap = initialMap ?? throw new ArgumentNullException(nameof(initialMap));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
@@ -155,7 +157,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             foreach (var facility in layout.facilities)
             {
                 var definition = _catalog.Find(facility.definitionId);
-                if (facility.definitionId == "hall" && layout.Geometry.TryWorldToCell(x, y, out var cell) &&
+                if ((facility.definitionId == "hall" || (_construction != null && _construction.Buildings.TryGetValue(facility.definitionId, out var development) && !development.CanDemolish)) && layout.Geometry.TryWorldToCell(x, y, out var cell) &&
                     cell.X >= facility.x && cell.X < facility.x + definition.width &&
                     cell.Y >= facility.y && cell.Y < facility.y + definition.height)
                 {

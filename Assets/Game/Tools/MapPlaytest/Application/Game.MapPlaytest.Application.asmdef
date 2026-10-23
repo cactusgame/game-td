@@ -8,7 +8,8 @@
     "Game.Battle.Application",
     "Game.Encounter.Domain",
     "Game.Construction.Application",
-    "Game.Fortifications.Domain"
+    "Game.Fortifications.Domain",
+    "Game.Construction.Domain"
   ],
   "noEngineReferences": true
 }

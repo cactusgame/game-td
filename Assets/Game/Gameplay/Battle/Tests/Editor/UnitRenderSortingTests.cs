@@ -15,7 +15,7 @@ namespace Game.Battle.Tests
         public void UnitsAndHealthStayAboveGroundAcrossTheWholeMap(string path, UnitKind kind)
         {
             var animations = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>("Assets/Content/Units/" + path + "-actions.asset");
-            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Death;
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/presentation.json")).Death;
             var root = new GameObject("Sorting regression test");
             var ground = root.AddComponent<MeshRenderer>();
             ground.sortingLayerName = BattleRenderSorting.GroundLayer;
@@ -68,7 +68,7 @@ namespace Game.Battle.Tests
         [Test]
         public void UpperEdgeCameraLeavesRoomForHeroAndHealthBar()
         {
-            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Map;
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/presentation.json")).Map;
             float heroFeet = 27 - 0.42f;
             var center = BattleCameraFraming.Center(new Vector2(0, heroFeet), 96, 54, settings.VisibleWorldHeight, 16f / 9, settings.EdgeMargin, settings.TopEdgeMargin);
             float viewportTop = center.y + settings.VisibleWorldHeight * 0.5f;

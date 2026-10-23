@@ -65,9 +65,14 @@ namespace Game.Infrastructure.Configuration
         [Serializable]
         private sealed class UnitJson
         {
+            public string id;
+            public float attackInterval = 1;
+            public float attackRange = 0.15f;
+            public bool targetMainCastle = true;
+            public bool canAttackGates = true;
             public int maxHealth, attack, defense;
             public float speed, radius, visualHeight;
-            public UnitDefinition Build(UnitKind kind) => new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight);
+            public UnitDefinition Build(UnitKind kind) => new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight, id, attackInterval, attackRange, targetMainCastle, canAttackGates);
         }
     }
 }

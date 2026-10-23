@@ -21,7 +21,7 @@ namespace Game.Tools.MapAuthoring.Editor
         public const string SamplePath = "Assets/Content/Maps/Example/example.map.json";
         public const string ScenePath = "Assets/Scenes/Development/MapPlayground.unity";
         private const string ArtPath = "Assets/Content/Maps/Shared/Sprites/";
-        private const string RulesPath = "Assets/Content/Maps/Shared/facilities.json";
+        private const string RulesPath = "Assets/Content/Configuration/Resources/GameConfig/facilities.json";
         private const string PanelPath = "Assets/Content/Maps/Shared/MapPlayPanel.asset";
         private const string PreviewPath = "Assets/Generated/MapPlaytest/preview.map.json";
         private const string PreviewScene = "Assets/Generated/MapPlaytest/MapPlaytest.unity";
@@ -162,7 +162,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 controller.mapJson = map;
                 controller.visuals = visuals;
                 controller.artCatalogs = MapArtSelection.All().ToArray();
-                controller.battleJson = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
+                controller.battleJson = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json");
                 controller.mapCamera = camera;
                 controller.heroSprite = AssetDatabase.LoadAllAssetsAtPath("Assets/Content/Units/Heroes/Knight/Sprites/knight.png").OfType<Sprite>().FirstOrDefault();
                 string enemyPath = "Assets/Content/Units/Enemies/Goblin/Sprites/goblin.png";

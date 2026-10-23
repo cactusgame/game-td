@@ -86,7 +86,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                             continue;
                         if (unit.Kind == UnitKind.Hero)
                             opened.Add(gate.Id);
-                        else if (applyDamage)
+                        else if (applyDamage && stats.CanAttackGates)
                             state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval);
                     }
                     if (state.IsDestroyed && !Destroyed(gate.Id))

@@ -63,9 +63,9 @@ namespace Game.Battle.Tests
         [Test]
         public void DeathJsonOnlyControlsCorpseHold()
         {
-            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json")).Death;
+            var settings = BattlePresentationSettings.Parse(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/presentation.json")).Death;
             Assert.That(settings, Is.Not.Null);
-            Assert.That(System.IO.File.ReadAllText("Assets/Content/Combat/Prototype/presentation.json"), Does.Not.Contain("AnimationSeconds"));
+            Assert.That(System.IO.File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/presentation.json"), Does.Not.Contain("AnimationSeconds"));
             Assert.That(settings.Hold, Is.GreaterThanOrEqualTo(0));
         }
 

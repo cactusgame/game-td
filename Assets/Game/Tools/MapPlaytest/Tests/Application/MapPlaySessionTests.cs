@@ -34,7 +34,7 @@ namespace Game.Tools.MapPlaytest.Tests
             new FacilityDefinition { id = "hall", width = 2, height = 2, maxHealth = 500 }
         });
 
-        private static BattleDefinition Rules() => JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+        private static BattleDefinition Rules() => JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
 
         private static MapPlaySession Session(Func<ISpatialBattleSimulation> create, MapLayout source = null, IHeroInput input = null)
         {

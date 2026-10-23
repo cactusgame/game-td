@@ -4,28 +4,28 @@
     "CorpseHoldSeconds": 1.5
   },
   "Map": {
-    "VisibleWorldHeight": 18,
+    "VisibleWorldHeight": 18.0,
     "EdgeMargin": 0.75,
-    "TopEdgeMargin": 2,
+    "TopEdgeMargin": 2.0,
     "BorderThickness": 0.3,
-    "GroundPatternSize": 1,
+    "GroundPatternSize": 1.0,
     "GroundLight": {
       "r": 0.31,
       "g": 0.41,
       "b": 0.25,
-      "a": 1
+      "a": 1.0
     },
     "GroundDark": {
       "r": 0.3,
       "g": 0.4,
       "b": 0.245,
-      "a": 1
+      "a": 1.0
     },
     "BorderColor": {
       "r": 0.93,
       "g": 0.73,
       "b": 0.32,
-      "a": 1
+      "a": 1.0
     }
   },
   "Units": [
@@ -41,5 +41,6 @@
       "UnitKind": "Runner",
       "ResourceId": "fallen-actions"
     }
-  ]
+  ],
+  "contentVersion": "38f1f4714f301d88"
 }

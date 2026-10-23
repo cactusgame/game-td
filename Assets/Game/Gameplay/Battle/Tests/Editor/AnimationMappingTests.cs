@@ -10,7 +10,7 @@ namespace Game.Battle.Tests
 {
     public sealed class AnimationMappingTests
     {
-        private const string Config = "Assets/Content/Combat/Prototype/presentation.json";
+        private const string Config = "Assets/Content/Configuration/Resources/GameConfig/presentation.json";
         private const string Alien = "Assets/Content/Units/Heroes/Alien/alien-actions.asset";
         private const string Knight = "Assets/Content/Units/Heroes/Knight/Sprites/knight-actions.asset";
 

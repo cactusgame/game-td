@@ -113,7 +113,7 @@ namespace Game.Battle.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => GridMap.CreateOpenArena(26, 14, float.Epsilon));
             Assert.Throws<ArgumentOutOfRangeException>(() => new NavigationDefinition(1, -1, 0.25f));
             Assert.Throws<ArgumentOutOfRangeException>(() => new NavigationDefinition(1, 5, float.NaN));
-            var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Combat/Prototype/battle.json"));
+            var definition = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             Assert.That(definition.Navigation.DetectionRadius, Is.EqualTo(5));
             Assert.That(definition.Navigation.RepathSeconds, Is.EqualTo(0.25f));
             Assert.Throws<ArgumentException>(() => new BattleDefinition(definition.Hero, definition.Goblin, definition.Runner, 0, 0, 26, 14, 0.02f, 1, navigationMap: new GridMap(2, 2, 1, 1, 0, 0)));

@@ -1,0 +1,330 @@
+{
+  "单位": [
+    {
+      "key": "id",
+      "label": "单位ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "slot",
+      "label": "模拟槽位",
+      "type": "str"
+    },
+    {
+      "key": "maxHealth",
+      "label": "生命上限",
+      "type": "int"
+    },
+    {
+      "key": "defense",
+      "label": "防御",
+      "type": "int"
+    },
+    {
+      "key": "speed",
+      "label": "移速/地面单位每秒",
+      "type": "number"
+    },
+    {
+      "key": "radius",
+      "label": "碰撞半径/地面单位",
+      "type": "number"
+    },
+    {
+      "key": "visualHeight",
+      "label": "显示高度/地面单位",
+      "type": "number"
+    },
+    {
+      "key": "attackId",
+      "label": "普通攻击ID",
+      "type": "str"
+    },
+    {
+      "key": "skillIds",
+      "label": "技能ID/分号分隔",
+      "type": "str"
+    },
+    {
+      "key": "behaviorId",
+      "label": "行为ID",
+      "type": "str"
+    },
+    {
+      "key": "animationId",
+      "label": "动画绑定ID",
+      "type": "str"
+    }
+  ],
+  "攻击": [
+    {
+      "key": "id",
+      "label": "攻击ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "mode",
+      "label": "攻击模式",
+      "type": "str"
+    },
+    {
+      "key": "damage",
+      "label": "基础伤害",
+      "type": "int"
+    },
+    {
+      "key": "interval",
+      "label": "攻击间隔/秒",
+      "type": "number"
+    },
+    {
+      "key": "range",
+      "label": "攻击距离/地面单位",
+      "type": "number"
+    },
+    {
+      "key": "effectIds",
+      "label": "效果ID/分号分隔",
+      "type": "str"
+    }
+  ],
+  "技能": [
+    {
+      "key": "id",
+      "label": "技能ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "enabled",
+      "label": "启用/当前执行尚未接入",
+      "type": "bool"
+    },
+    {
+      "key": "cooldown",
+      "label": "冷却/秒",
+      "type": "number"
+    },
+    {
+      "key": "attackId",
+      "label": "攻击ID",
+      "type": "str"
+    },
+    {
+      "key": "effectIds",
+      "label": "效果ID/分号分隔",
+      "type": "str"
+    }
+  ],
+  "效果": [
+    {
+      "key": "id",
+      "label": "效果ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "kind",
+      "label": "效果类型",
+      "type": "str"
+    },
+    {
+      "key": "duration",
+      "label": "持续/秒",
+      "type": "number"
+    },
+    {
+      "key": "magnitude",
+      "label": "数值/减速比例0至1",
+      "type": "number"
+    },
+    {
+      "key": "maxStacks",
+      "label": "最大层数",
+      "type": "int"
+    }
+  ],
+  "怪物行为": [
+    {
+      "key": "id",
+      "label": "行为ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "target",
+      "label": "目标策略",
+      "type": "str"
+    },
+    {
+      "key": "canAttackGates",
+      "label": "允许破门",
+      "type": "bool"
+    }
+  ],
+  "动画绑定": [
+    {
+      "key": "id",
+      "label": "绑定ID",
+      "type": "str"
+    },
+    {
+      "key": "resourceId",
+      "label": "已制作动画资源ID",
+      "type": "str"
+    }
+  ],
+  "建筑": [
+    {
+      "key": "id",
+      "label": "建筑ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "width",
+      "label": "占地宽/格",
+      "type": "int"
+    },
+    {
+      "key": "height",
+      "label": "占地高/格",
+      "type": "int"
+    },
+    {
+      "key": "blocksMovement",
+      "label": "阻挡移动",
+      "type": "bool"
+    },
+    {
+      "key": "blocksShots",
+      "label": "阻挡射击",
+      "type": "bool"
+    },
+    {
+      "key": "maxHealth",
+      "label": "基础生命",
+      "type": "int"
+    },
+    {
+      "key": "attackId",
+      "label": "攻击ID/无则空",
+      "type": "str"
+    },
+    {
+      "key": "buildCost",
+      "label": "建造金币/初始建议值",
+      "type": "int"
+    },
+    {
+      "key": "buildSeconds",
+      "label": "建设时间/秒/初始建议值",
+      "type": "number"
+    },
+    {
+      "key": "canDemolish",
+      "label": "允许拆除",
+      "type": "bool"
+    },
+    {
+      "key": "refundRatio",
+      "label": "拆除返还比例0至1",
+      "type": "number"
+    }
+  ],
+  "升级分支": [
+    {
+      "key": "id",
+      "label": "升级ID",
+      "type": "str"
+    },
+    {
+      "key": "buildingId",
+      "label": "建筑ID",
+      "type": "str"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "str"
+    },
+    {
+      "key": "prerequisiteId",
+      "label": "前置升级ID/空为根",
+      "type": "str"
+    },
+    {
+      "key": "exclusiveGroup",
+      "label": "互斥组/同组不能共选",
+      "type": "str"
+    },
+    {
+      "key": "cost",
+      "label": "升级金币/初始建议值",
+      "type": "int"
+    },
+    {
+      "key": "seconds",
+      "label": "升级时间/秒",
+      "type": "number"
+    },
+    {
+      "key": "maxHealthBonus",
+      "label": "生命增量",
+      "type": "int"
+    },
+    {
+      "key": "attackBonus",
+      "label": "攻击增量",
+      "type": "int"
+    },
+    {
+      "key": "rangeBonus",
+      "label": "射程增量",
+      "type": "number"
+    }
+  ],
+  "全局参数": [
+    {
+      "key": "id",
+      "label": "配置路径/勿改键名",
+      "type": "str"
+    },
+    {
+      "key": "value",
+      "label": "数值",
+      "type": "str"
+    },
+    {
+      "key": "type",
+      "label": "数据类型/勿改",
+      "type": "str"
+    }
+  ]
+}
