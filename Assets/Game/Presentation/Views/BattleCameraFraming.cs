@@ -5,6 +5,18 @@ namespace Game.Presentation.Views
     /// <summary>固定世界视野的跟随相机几何；地图变大不会自动把画面拉远。</summary>
     public static class BattleCameraFraming
     {
+        /// <summary>地图坐标不一定以零为中心；仅限制位置，不改变世界视野。</summary>
+        public static Vector2 CenterOnMap(Vector2 target, Rect mapBounds, float visibleHeight, float aspect, float edgeMargin, float topEdgeMargin)
+        {
+            Vector2 offset = Center(target - mapBounds.center, mapBounds.width, mapBounds.height,
+                visibleHeight, aspect, edgeMargin, topEdgeMargin);
+            if (mapBounds.width <= visibleHeight * aspect)
+                offset.x = 0;
+            if (mapBounds.height <= visibleHeight)
+                offset.y = 0;
+            return mapBounds.center + offset;
+        }
+
         public static Vector2 Center(Vector2 target, float mapWidth, float mapHeight, float visibleHeight, float aspect, float edgeMargin, float topEdgeMargin = -1)
         {
             float halfHeight = visibleHeight * 0.5f;

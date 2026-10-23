@@ -11,6 +11,7 @@
     "Game.Encounter.Domain",
     "Game.Battle.Simulation",
     "Game.Configuration",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Game.Presentation"
   ]
 }

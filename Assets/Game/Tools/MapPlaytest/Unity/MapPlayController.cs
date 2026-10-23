@@ -36,6 +36,7 @@ namespace Game.Tools.MapPlaytest.Unity
         private MapPlaySession _session;
         private MapWorldView _view;
         private MapPlayUnitView _unitView;
+        private MapPlayCamera _cameraView;
         private MapContentCatalog _catalog;
         private string _tool = "Inspect";
         private float _feedbackUntil;
@@ -84,6 +85,7 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("restart").clicked += Restart;
                     root.Q<Button>("exit").clicked += Exit;
                 }
+                _cameraView = new MapPlayCamera(mapCamera, Resources.Load<TextAsset>("MapPlayCamera"));
                 Restart();
             }
             catch (Exception error)
@@ -115,11 +117,34 @@ namespace Game.Tools.MapPlaytest.Unity
             _unitView.Clear();
             RefreshMapView();
             var layout = _session.Snapshot;
-            float height = layout.rows * layout.cellHeight;
-            mapCamera.transform.position = new Vector3(layout.originX + layout.columns * layout.cellWidth * 0.5f,
-                layout.originY + height * 0.5f + height * 0.12f, -10);
-            mapCamera.orthographicSize = Mathf.Max(height * 0.72f,
-                layout.columns * layout.cellWidth / Mathf.Max(0.1f, mapCamera.aspect) * 0.5f + 1);
+            _cameraView.SetMap(new Rect(layout.originX, layout.originY,
+                layout.columns * layout.cellWidth, layout.rows * layout.cellHeight));
+            FollowHero();
+        }
+
+        private void LateUpdate()
+        {
+            if (_session != null && _cameraView != null)
+                FollowHero();
+        }
+
+        private void FollowHero()
+        {
+            foreach (var unit in _session.Units)
+            {
+                if (unit.Kind != Game.Battle.Domain.ValueObjects.UnitKind.Hero)
+                    continue;
+                float hudFraction = 0;
+                if (hud != null && hud.rootVisualElement.panel != null)
+                {
+                    var controls = hud.rootVisualElement.Q<VisualElement>("mapControls");
+                    float panelHeight = hud.rootVisualElement.panel.visualTree.worldBound.height;
+                    if (controls != null && panelHeight > 0 && !float.IsNaN(controls.worldBound.yMax))
+                        hudFraction = controls.worldBound.yMax / panelHeight;
+                }
+                _cameraView.Follow(new Vector2(unit.X, unit.Y), hudFraction);
+                break;
+            }
         }
 
         private int _gateViewVersion = -1;

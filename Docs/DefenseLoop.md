@@ -49,3 +49,11 @@ WASD 移动英雄，Build tower 后点击空地建箭楼；Restart from map 恢�
 算法验证见 `MonsterSeparationTests`（完全重合、五只疏散、死亡排除、墙边约束）与 `DefenseLoopTests.SameWaveSpawnsApartAndKeepsVisibleSpacingWhileFollowingTheCastle`（同波生成及持续寻路间距）。空间哈希避免常规全场两两比较，极密集桶仍需额外测量，未据此承诺千怪或手机性能。
 
 本次间距修复后编译通过，192 项 EditMode 测试全部通过。实际试玩确认模拟时钟持续推进，同波怪物可辨识地分开移动，Console 无运行错误。验证截图位于项目临时目录 `Temp/crowd-separation.png`，不作为游戏资源导入。
+
+## 固定视野的英雄跟随镜头
+
+试玩由 `MapPlayController.LateUpdate → MapPlayCamera.Follow → BattleCameraFraming.CenterOnMap` 更新镜头，读取最近的英雄快照。`Assets/Content/Maps/Shared/Resources/MapPlayCamera.json` 定义固定世界视野高度（当前 10）、地图边缘留白和顶部建筑图像余量。地图尺寸不参与缩放；大地图限制镜头中心以避免越界，小地图在不足视野的轴上居中留白。地图原点不必为零。
+
+顶部工具栏不计入游戏视口；窗口比例变化时重新计算视口和边界。Unity 对相机外的 SpriteRenderer 执行视锥裁剪，不因离开镜头停用单位或跳过 ECS 步骤。因此镜头外出怪、寻路、攻击、主堡承伤与胜败仍正常进行。此轮没有实现地图分块加载或跳过屏外视图同步，不能把它宣称为完整的大地图流送优化。
+
+镜头修改后编译通过，196 项 EditMode 测试全部通过；新增测试覆盖大小地图缩放一致、非零原点、横竖屏及边缘限制。
