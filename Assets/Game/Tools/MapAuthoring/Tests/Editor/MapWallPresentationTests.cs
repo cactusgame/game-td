@@ -14,6 +14,90 @@ namespace Game.Tools.MapAuthoring.Tests
 {
     public sealed class MapWallPresentationTests
     {
+        /// <summary>开门、关门和破门只切换预生成门表现，静态地表、对象和 Mesh 身份不变。</summary>
+        /// <summary>模拟试玩切换释放临时素材：旧快照必须失效，重建后保留所有建筑与城门。</summary>
+        [Test]
+        public void CanvasRecoversAfterCatalogReleasesTemporarySprites()
+        {
+            var map = new MapLayout();
+            map.wallNodes.Add(new WallNode { id = "a", x = -8.5f, y = 2.5f });
+            map.wallNodes.Add(new WallNode { id = "b", x = 9.5f, y = 2.5f });
+            map.wallEdges.Add(new WallEdge { id = "wall", from = "a", to = "b",
+                gates = new System.Collections.Generic.List<WallGate> { new WallGate { id = "door" } } });
+            map.facilities.Add(new InitialFacility { id = "building", definitionId = "tower", x = 2, y = 2 });
+            var source = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(Editor.MapEditorWindow.VisualPath);
+            var visuals = Object.Instantiate(source);
+            // 强制使用由目录拥有生命周期的临时金属 Sprite。
+            visuals.gateMetal = null;
+            var catalog = FacilityCatalogJson.Read(visuals.facilityRules.text);
+            var canvas = new Editor.MapCanvas { Layout = map, Visuals = visuals, Catalog = catalog };
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var cache = typeof(Editor.MapCanvas).GetField("_sprites", flags);
+            try
+            {
+                var entries = MapSceneSprites.Build(map, visuals, catalog);
+                cache.SetValue(canvas, entries);
+                Assert.That(entries.Any(entry => entry.Id == "door" && entry.Wall != null), Is.True);
+                string before = MapJson.WriteDocument(canvas.Layout);
+                typeof(MapVisualCatalog).GetMethod("OnDisable", flags).Invoke(visuals, null);
+                Assert.That(entries.Any(entry => entry.Wall != null && entry.Wall.Mesh.Sprite == null), Is.True);
+                typeof(Editor.MapCanvas).GetMethod("InvalidateReleasedResources", flags).Invoke(canvas, null);
+                Assert.That(cache.GetValue(canvas), Is.Null);
+                var refreshed = MapSceneSprites.Build(canvas.Layout, visuals, catalog);
+                Assert.That(refreshed.All(entry => entry.Wall == null || entry.Wall.Mesh.Sprite != null), Is.True);
+                Assert.That(refreshed.Any(entry => entry.Id == "building"), Is.True);
+                Assert.That(refreshed.Any(entry => entry.Id == "door" && entry.Wall != null), Is.True);
+                Assert.That(MapJson.WriteDocument(canvas.Layout), Is.EqualTo(before));
+            }
+            finally
+            {
+                Object.DestroyImmediate(visuals);
+            }
+        }
+
+        [Test]
+        public void GateStateChangesReuseAllMapObjectsAndMeshes()
+        {
+            var map = new MapLayout();
+            map.wallNodes.Add(new WallNode { id = "a", x = -8.5f, y = 2.5f });
+            map.wallNodes.Add(new WallNode { id = "b", x = 9.5f, y = 2.5f });
+            var gate = new WallGate { id = "door" };
+            map.wallEdges.Add(new WallEdge { id = "wall", from = "a", to = "b",
+                gates = new System.Collections.Generic.List<WallGate> { gate } });
+            var visuals = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(Editor.MapEditorWindow.VisualPath);
+            var root = new GameObject("Gate reuse verification");
+            try
+            {
+                var view = root.AddComponent<MapWorldView>();
+                view.Rebuild(map, visuals, FacilityCatalogJson.Read(visuals.facilityRules.text));
+                for (int state = 0; state < 3; state++)
+                {
+                    var group = root.transform.Find($"Map state view/Gate door state {state}");
+                    var renderers = group.GetComponentsInChildren<MeshRenderer>(true);
+                    Assert.That(renderers, Is.Not.Empty, $"城门状态 {state} 不能是空组");
+                    Assert.That(group.GetComponentsInChildren<MeshFilter>(true).All(filter => filter.sharedMesh.vertexCount > 0), Is.True);
+                }
+                var objects = root.GetComponentsInChildren<Transform>(true);
+                var meshes = root.GetComponentsInChildren<MeshFilter>(true).Select(item => item.sharedMesh).ToArray();
+                Assert.That(root.transform.Find("Map state view/Gate door state 0").gameObject.activeSelf, Is.True);
+                for (int i = 0; i < 12; i++)
+                {
+                    gate.isOpen = i % 2 == 0;
+                    view.SynchronizeGates(map);
+                    Assert.That(root.transform.Find("Map state view/Gate door state 1").gameObject.activeSelf, Is.EqualTo(gate.isOpen));
+                }
+                gate.isDestroyed = true;
+                view.SynchronizeGates(map);
+                Assert.That(root.transform.Find("Map state view/Gate door state 2").gameObject.activeSelf, Is.True);
+                CollectionAssert.AreEqual(objects, root.GetComponentsInChildren<Transform>(true));
+                CollectionAssert.AreEqual(meshes, root.GetComponentsInChildren<MeshFilter>(true).Select(item => item.sharedMesh).ToArray());
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         [Test]
         public void WallCenterlineUsesExactNodesWithoutChangingTheSource()
         {

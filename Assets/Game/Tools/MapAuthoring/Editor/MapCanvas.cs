@@ -3,6 +3,8 @@ using Game.Maps.Unity.Views;
 using Game.Maps.Unity.Assets;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using Game.MapEngine.Domain;
 using Game.Maps.Domain;
 using UnityEngine;
@@ -30,6 +32,8 @@ namespace Game.Tools.MapAuthoring.Editor
         public MapContentCatalog Catalog;
         public bool ShowRules;
         public bool ShowGrid;
+        public bool ShowCoordinates;
+        private GUIStyle _coordinateStyle;
         public bool PanTool;
         private bool _spaceHeld;
         public Vector2 ViewPan => _pan;
@@ -52,6 +56,11 @@ namespace Game.Tools.MapAuthoring.Editor
             AddToClassList("map-canvas");
             focusable = true;
             generateVisualContent += Draw;
+            RegisterCallback<AttachToPanelEvent>(_ => EditorApplication.playModeStateChanged += OnPlayModeChanged);
+            RegisterCallback<DetachFromPanelEvent>(_ => EditorApplication.playModeStateChanged -= OnPlayModeChanged);
+            var coordinates = new IMGUIContainer(DrawCoordinates) { pickingMode = PickingMode.Ignore };
+            coordinates.StretchToParentSize();
+            Add(coordinates);
             RegisterCallback<PointerDownEvent>(evt =>
             {
                 Focus();
@@ -176,10 +185,62 @@ namespace Game.Tools.MapAuthoring.Editor
             return new Rect(top.x, top.y, Layout.cellWidth * width * _scale, Layout.cellHeight * height * _scale);
         }
 
+        /// <summary>仅绘制可见格子的诊断坐标，复用地图映射；覆盖在场景内容上且不截获编辑输入。</summary>
+        private void DrawCoordinates()
+        {
+            if (!ShowCoordinates || Layout == null || contentRect.width < 1 || contentRect.height < 1)
+                return;
+            UpdateMapping();
+            _coordinateStyle ??= new GUIStyle(UnityEditor.EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = Color.white }
+            };
+            var lower = ToWorld(new Vector2(0, contentRect.height));
+            var upper = ToWorld(new Vector2(contentRect.width, 0));
+            int minX = Mathf.Max(0, Mathf.FloorToInt((lower.x - Layout.originX) / Layout.cellWidth));
+            int maxX = Mathf.Min(Layout.columns - 1, Mathf.FloorToInt((upper.x - Layout.originX) / Layout.cellWidth));
+            int minY = Mathf.Max(0, Mathf.FloorToInt((lower.y - Layout.originY) / Layout.cellHeight));
+            int maxY = Mathf.Min(Layout.rows - 1, Mathf.FloorToInt((upper.y - Layout.originY) / Layout.cellHeight));
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    var cell = CellRect(x, y);
+                    string text = $"({x}, {y})";
+                    _coordinateStyle.fontSize = Mathf.Max(1, Mathf.Min(12,
+                        Mathf.FloorToInt(Mathf.Min(cell.height * 0.4f, cell.width / (text.Length * 0.65f)))));
+                    var size = _coordinateStyle.CalcSize(new GUIContent(text));
+                    var label = new Rect(cell.center.x - size.x * 0.5f, cell.center.y - size.y * 0.5f, size.x, size.y);
+                    UnityEditor.EditorGUI.DrawRect(label, new Color(0, 0, 0, 0.7f));
+                    GUI.Label(label, text, _coordinateStyle);
+                }
+            }
+        }
+
+        /// <summary>试玩切换会释放目录的临时 Sprite，旧绘制快照必须失效，编辑文档保持不变。</summary>
+        private void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            _surfaces.Clear();
+            _sprites = null;
+            MarkDirtyRepaint();
+        }
+
+        /// <summary>临时绘制资源被目录释放后，丢弃整份派生快照，让本次绘制重新解析素材。</summary>
+        private void InvalidateReleasedResources()
+        {
+            // 资源 OnDisable 与面板刷新顺序不固定；绘制前也检查临时资源的 Unity 生命周期。
+            if (_sprites != null && _sprites.Any(entry => entry.Wall != null && entry.Wall.Mesh.Sprite == null))
+                _sprites = null;
+            if (_surfaces.Values.Any(patches => patches.Any(patch => patch != null && patch.Sprite == null)))
+                _surfaces.Clear();
+        }
+
         private void Draw(MeshGenerationContext ctx)
         {
             if (Layout == null || Visuals == null || contentRect.width < 1 || contentRect.height < 1)
                 return;
+            InvalidateReleasedResources();
             UpdateMapping();
             var geometry = Layout.Geometry;
             var navigation = ShowRules ? MapSpatialRules.CreateNavigationMap(Layout, Catalog) : null;
@@ -205,7 +266,7 @@ namespace Game.Tools.MapAuthoring.Editor
                     }
                 }
                 else
-                    Quad(ctx, rect, Visuals.Terrain(Layout.terrain[i])?.ground);
+                    Quad(ctx, rect, Visuals.Terrain(Layout.GroundAt(i))?.ground);
                 if (ShowRules)
                     Rectangle(ctx.painter2D, rect, navigation.IsWalkable(cell) ? new Color(0.1f, 0.8f, 0.4f, 0.18f) : new Color(1, 0.15f, 0.1f, 0.4f), ShowGrid ? new Color(0, 0, 0, 0.25f) : Color.clear);
                 else if (ShowGrid && rect.width >= 8)
@@ -236,10 +297,12 @@ namespace Game.Tools.MapAuthoring.Editor
                 if (node.id == SelectedId || ShowGrid) Circle(ctx.painter2D, ToScreen(node.x, node.y), node.id == SelectedId ? Color.yellow : Color.white, 4);
             foreach (var edge in Layout.wallEdges)
             {
-                if (edge.id != SelectedId || !edge.hasGate || !WallGateRules.Validate(Layout, edge, out _))
-                    continue;
-                var gate = WallGateRules.Center(Layout, edge);
-                Circle(ctx.painter2D, ToScreen(gate.X, gate.Y), Color.yellow, 6);
+                foreach (var item in edge.gates)
+                {
+                    if (item.id != SelectedId || !WallGateRules.TryGetSpan(Layout, edge, item, out var span))
+                        continue;
+                    Circle(ctx.painter2D, ToScreen(span.Center.X, span.Center.Y), Color.yellow, 6);
+                }
             }
             foreach (var marker in Layout.markers)
                 Circle(ctx.painter2D, ToScreen(marker.x, marker.y), marker.id == SelectedId ? Color.yellow : marker.kind == MarkerKind.HeroSpawn ? Color.cyan : new Color(1, 0.35f, 0.2f), 8);

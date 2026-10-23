@@ -16,6 +16,7 @@ namespace Game.Fortifications.Unity.Assets
         public float textureHeight = 0.9f;
         [NonSerialized] public Sprite Masonry;
         [NonSerialized] public Sprite Paving;
+        [NonSerialized] public Sprite Iron;
         [NonSerialized] public float GateSideInset;
 
         public WallVisualStyle WithMaterials(Sprite masonry, Sprite paving, float gateSideInset)

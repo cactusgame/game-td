@@ -1,3 +1,4 @@
+using System.Linq;
 using Game.Fortifications.Domain.Definitions;
 using Game.MapEngine.Unity.Views;
 using System.Collections.Generic;
@@ -39,18 +40,18 @@ namespace Game.Fortifications.Unity.Views
             float last = length - geometry.PortDistance(geometry.RadiusAt(network, network.FindNode(endId)));
             if (last <= first + 0.0001f)
                 yield break;
-            if (edge.HasGate && WallGateRules.Validate(network, edge, definition.JunctionRadius, out _))
+            float cursor = first;
+            if (WallGateRules.Validate(network, edge, definition, out _))
             {
-                var center = WallGateRules.Center(network, edge);
-                float distance = Vector2.Dot(new Vector2(center.X, center.Y) - start, direction);
-                float halfFrame = edge.Gate.Width * (0.5f - visuals.GateSideInset) - geometry.Width * 0.125f;
-                foreach (var entry in BuildSection(edge.Id, start, direction, normal, first, distance - halfFrame, geometry, masonry, paving))
-                    yield return entry;
-                foreach (var entry in BuildSection(edge.Id, start, direction, normal, distance + halfFrame, last, geometry, masonry, paving))
-                    yield return entry;
-                yield break;
+                foreach (var gate in edge.Gates.OrderBy(item => item.StartTile))
+                {
+                    WallGateRules.TryGetSpan(network, edge, gate, out var span);
+                    foreach (var entry in BuildSection(edge.Id, start, direction, normal, cursor, span.Start, geometry, masonry, paving))
+                        yield return entry;
+                    cursor = span.End;
+                }
             }
-            foreach (var entry in BuildSection(edge.Id, start, direction, normal, first, last, geometry, masonry, paving))
+            foreach (var entry in BuildSection(edge.Id, start, direction, normal, cursor, last, geometry, masonry, paving))
                 yield return entry;
         }
 
@@ -68,7 +69,7 @@ namespace Game.Fortifications.Unity.Views
         /// <param name="geometry">墙身、连接底座接口、女墙和垛口共用的表现尺寸。</param>
         /// <param name="masonry">立面石砖素材。</param>
         /// <param name="paving">平台及女墙、垛口顶面使用的铺地素材。</param>
-        private static IEnumerable<SceneRenderEntry> BuildSection(string id, Vector2 start, Vector2 direction,
+        internal static IEnumerable<SceneRenderEntry> BuildSection(string id, Vector2 start, Vector2 direction,
             Vector2 normal, float first, float last, WallRenderGeometry geometry, Sprite masonry, Sprite paving)
         {
             if (last <= first)
@@ -102,7 +103,7 @@ namespace Game.Fortifications.Unity.Views
                 yield return entry;
         }
 
-        private static void AddRail(WallSurfaceBuilder builder, Vector2 start, Vector2 direction, Vector2 normal,
+        internal static void AddRail(WallSurfaceBuilder builder, Vector2 start, Vector2 direction, Vector2 normal,
             float first, float last, float sign, WallRenderGeometry geometry, Sprite masonry, Sprite paving)
         {
             Vector2 offset = normal * sign * (geometry.Width - geometry.RailWidth) * 0.5f;

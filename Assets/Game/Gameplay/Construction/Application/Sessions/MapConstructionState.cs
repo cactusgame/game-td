@@ -1,3 +1,5 @@
+using System.Linq;
+using Game.Fortifications.Domain.ValueObjects;
 using Game.Maps.Domain;
 using Game.Maps.Domain.Mappings;
 using Game.Fortifications.Domain.Aggregates.WallNetwork;
@@ -66,22 +68,41 @@ namespace Game.Construction.Application.Sessions
             return true;
         }
 
-        public bool TrySetGateOpen(string edgeId, bool isOpen, Func<GridMap, bool> unitsRemainClear, out string reason)
+        /// <summary>运行时放门或调整已有门；复用工事规则，净空失败不提交任何墙网变化。</summary>
+        public bool TryPlaceGate(string edgeId, WallGateSnapshot gate, Func<GridMap, bool> unitsRemainClear, out string reason)
         {
-            var edge = _walls.Snapshot.FindEdge(edgeId);
-            if (edge == null || !edge.HasGate)
+            var walls = _walls.CreateCandidate();
+            if (!walls.TryPlaceGate(edgeId, gate, _catalog.Wall, out reason))
+                return false;
+            var next = Snapshot;
+            MapWallSnapshotMapper.Write(walls.Snapshot, next);
+            var navigation = MapSpatialRules.CreateNavigationMap(next, _catalog);
+            if (!unitsRemainClear(navigation))
+            {
+                reason = "新城门覆盖单位，操作未提交";
+                return false;
+            }
+            Commit(next, navigation);
+            reason = null;
+            return true;
+        }
+
+        public bool TrySetGateOpen(string gateId, bool isOpen, Func<GridMap, bool> unitsRemainClear, out string reason)
+        {
+            var gate = _walls.Snapshot.Edges.SelectMany(edge => edge.Gates).FirstOrDefault(item => item.Id == gateId);
+            if (gate == null)
             {
                 reason = "该墙段没有城门";
                 return false;
             }
-            if (edge.Gate.IsOpen == isOpen)
+            if (gate.IsOpen == isOpen)
             {
                 reason = null;
                 return true;
             }
             var next = Snapshot;
             var walls = _walls.CreateCandidate();
-            if (!walls.TrySetGateOpen(edgeId, isOpen, out reason))
+            if (!walls.TrySetGateOpen(gateId, isOpen, out reason))
                 return false;
             MapWallSnapshotMapper.Write(walls.Snapshot, next);
             var navigation = MapSpatialRules.CreateNavigationMap(next, _catalog);

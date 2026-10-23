@@ -15,6 +15,74 @@ namespace Game.Tools.MapAuthoring.Tests
     public sealed class MapEditorWorkflowTests
     {
         [Test]
+        public void ObstaclesPreserveGroundMoveReplaceAndRoundTrip()
+        {
+            var window = ScriptableObject.CreateInstance<MapEditorWindow>();
+            try
+            {
+                window.CreateGUI();
+                var fixture = new MapLayout();
+                System.IO.File.WriteAllText("Temp/map-editor-obstacle-test.json", MapJson.WriteDocument(fixture));
+                window.OpenMapAsset("Temp/map-editor-obstacle-test.json");
+                var canvas = window.rootVisualElement.Q<MapCanvas>();
+                var palette = window.rootVisualElement.Q<MapPalette>();
+                palette.SelectTerrain(TerrainKind.Tree);
+                canvas.Pressed(new Vector2(-7.5f, -3.5f), 0);
+                canvas.Released();
+                palette.SelectTerrain(TerrainKind.Water);
+                canvas.Pressed(new Vector2(-7.5f, -3.5f), 0);
+                canvas.Released();
+                int source = 4 * fixture.columns + 4;
+                Assert.That(canvas.Layout.terrain[source], Is.EqualTo(TerrainKind.Tree));
+                Assert.That(canvas.Layout.GroundAt(source), Is.EqualTo(TerrainKind.Water));
+                var reopened = MapJson.ReadDocument(MapJson.WriteDocument(canvas.Layout));
+                Assert.That(reopened.GroundAt(source), Is.EqualTo(TerrainKind.Water));
+                palette.SelectTool(MapEditorTool.Select);
+                canvas.Pressed(new Vector2(-7.5f, -3.5f), 0);
+                canvas.Dragged(new Vector2(-6.5f, -3.5f));
+                canvas.Released();
+                Assert.That(canvas.Layout.terrain[source], Is.EqualTo(TerrainKind.Water));
+                Assert.That(canvas.Layout.terrain[source + 1], Is.EqualTo(TerrainKind.Tree));
+                palette.SelectTerrain(TerrainKind.Rock);
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.terrain[source + 1], Is.EqualTo(TerrainKind.Rock));
+                palette.SelectFacility("tower");
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.terrain[source + 1], Is.EqualTo(TerrainKind.Grass));
+                palette.SelectTerrain(TerrainKind.Water);
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.facilities.Count, Is.EqualTo(1));
+                Assert.That(window.rootVisualElement.Q<VisualElement>("issues").Query<Button>().ToList()
+                    .Any(button => button.text.Contains("格子 (5, 4)")), Is.True);
+                palette.SelectTerrain(TerrainKind.Grass);
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                palette.SelectFacility("tower");
+                string oldId = canvas.Layout.facilities.Single().id;
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.facilities.Single().id, Is.Not.EqualTo(oldId));
+                palette.SelectTerrain(TerrainKind.Dirt);
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.facilities.Count, Is.EqualTo(1));
+                palette.SelectTerrain(TerrainKind.Tree);
+                canvas.Pressed(new Vector2(-6.5f, -3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.facilities, Is.Empty);
+                Assert.That(canvas.Layout.GroundAt(source + 1), Is.EqualTo(TerrainKind.Dirt));
+            }
+            finally
+            {
+                window.DiscardChanges();
+                Object.DestroyImmediate(window);
+            }
+        }
+
+        [Test]
         public void EditorToolsPaintPlaceMoveAndExportOperateOnTheDocument()
         {
             var window = ScriptableObject.CreateInstance<MapEditorWindow>();
@@ -69,18 +137,29 @@ namespace Game.Tools.MapAuthoring.Tests
                 palette.SelectTool(MapEditorTool.Gate);
                 canvas.Pressed(new Vector2(0.5f, 3.5f), 0);
                 canvas.Released();
-                Assert.That(canvas.Layout.wallEdges.Single().hasGate, Is.True);
-                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(0.5f).Within(0.001f));
+                Assert.That(canvas.Layout.wallEdges.Single().gates.Count > 0, Is.True);
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single(), canvas.Layout.wallEdges.Single().gates[0]).X, Is.EqualTo(0.5f).Within(0.001f));
                 root.Q<Toggle>("gateOpen").value = true;
-                canvas.Pressed(new Vector2(1.5f, 3.5f), 0);
-                canvas.Released();
-                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(1.5f).Within(0.001f));
-                Assert.That(canvas.Layout.wallEdges.Single().gate.isOpen, Is.True);
+                window.ApplyGate();
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single(), canvas.Layout.wallEdges.Single().gates[0]).X, Is.EqualTo(0.5f).Within(0.001f));
+                Assert.That(canvas.Layout.wallEdges.Single().gates[0].isOpen, Is.True);
                 palette.SelectTool(MapEditorTool.Select);
-                canvas.Pressed(new Vector2(1.5f, 5), 0);
-                canvas.Dragged(new Vector2(2.5f, 5));
+                canvas.Pressed(new Vector2(0.5f, 3.7f), 0);
+                canvas.Dragged(new Vector2(1.5f, 3.7f));
                 canvas.Released();
-                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single()).X, Is.EqualTo(2.5f).Within(0.001f));
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single(), canvas.Layout.wallEdges.Single().gates[0]).X, Is.EqualTo(1.5f).Within(0.001f));
+
+                palette.SelectTool(MapEditorTool.Gate);
+                canvas.Pressed(new Vector2(-4.5f, 3.5f), 0);
+                canvas.Released();
+                Assert.That(canvas.Layout.wallEdges.Single().gates.Count, Is.EqualTo(2));
+                palette.SelectTool(MapEditorTool.Select);
+                canvas.Pressed(new Vector2(1.5f, 3.7f), 0);
+                canvas.Dragged(new Vector2(-3.5f, 3.7f));
+                canvas.Released();
+                // 与另一门框重叠的拖动整笔拒绝，原门仍留在原位。
+                Assert.That(WallGateRules.Center(canvas.Layout, canvas.Layout.wallEdges.Single(), canvas.Layout.wallEdges.Single().gates[0]).X,
+                    Is.EqualTo(1.5f).Within(0.001f));
 
                 var export = MapJson.WriteDocument(canvas.Layout);
                 var reopened = MapJson.ReadDocument(export);

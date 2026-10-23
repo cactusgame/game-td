@@ -19,8 +19,8 @@ namespace Game.Fortifications.Tests.Domain
                 new WallNodeSnapshot("b", new MapPoint(5, 0)),
                 new WallNodeSnapshot("c", new MapPoint(5, 5))
             };
-            var gate = withGate ? new WallGateSnapshot(0.5f, 4.5f, 2, true) : null;
-            return new WallNetwork(new WallNetworkSnapshot(nodes, new[] { new WallEdgeSnapshot("ab", "a", "b", gate) }));
+            var gate = withGate ? new WallGateSnapshot("gate-a", 3, 4, 2, true) : null;
+            return new WallNetwork(new WallNetworkSnapshot(nodes, new[] { new WallEdgeSnapshot("ab", "a", "b", gate == null ? null : new[] { gate }) }));
         }
 
         [Test]
@@ -67,10 +67,10 @@ namespace Game.Fortifications.Tests.Domain
             var walls = Create(true);
             var before = walls.Snapshot;
             var candidate = walls.CreateCandidate();
-            Assert.That(candidate.TrySetGateOpen("ab", false, out _), Is.True);
-            Assert.That(candidate.Snapshot.FindEdge("ab").Gate.IsOpen, Is.False);
-            Assert.That(before.FindEdge("ab").Gate.IsOpen, Is.True);
-            Assert.That(walls.Snapshot.FindEdge("ab").Gate.IsOpen, Is.True);
+            Assert.That(candidate.TrySetGateOpen("gate-a", false, out _), Is.True);
+            Assert.That(candidate.Snapshot.FindEdge("ab").Gates[0].IsOpen, Is.False);
+            Assert.That(before.FindEdge("ab").Gates[0].IsOpen, Is.True);
+            Assert.That(walls.Snapshot.FindEdge("ab").Gates[0].IsOpen, Is.True);
             Assert.That(candidate.TryRemoveEdge("ab"), Is.True);
             Assert.That(candidate.Snapshot.Edges, Is.Empty);
             Assert.That(walls.Snapshot.Edges.Count, Is.EqualTo(1));

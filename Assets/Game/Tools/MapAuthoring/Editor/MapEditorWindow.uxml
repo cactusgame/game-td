@@ -26,6 +26,7 @@
       <ui:VisualElement class="canvas-panel">
         <ui:VisualElement class="view-toolbar">
           <ui:Button name="toggleGrid" text="显示 Tile 网格" />
+          <ui:Button name="toggleCoordinates" text="显示坐标" tooltip="显示与内容校验一致的 Tile 格子坐标（列, 行），从 (0, 0) 开始" />
           <ui:Button name="toggleRules" text="显示实际通行" tooltip="显示地形、建筑和城墙共同决定的实际通行状态" />
         </ui:VisualElement>
         <ui:VisualElement name="canvasHost" class="canvas-host" />
@@ -47,7 +48,8 @@
         <ui:Button name="delete" text="删除选择（Delete）" />
         <ui:Label text="城门设置（横向墙段）" class="heading" />
         <ui:Label text="先画墙，再用城门工具点击墙段。每段墙可放一座门；净宽随门框等比调整。" class="hint" />
-        <ui:FloatField name="gateWidth" label="城门总宽" value="4.5" />
+        <ui:IntegerField name="gateWidth" label="门框宽度（Tile）" value="4" />
+        <ui:IntegerField name="gateOpening" label="门洞净宽（Tile）" value="2" />
         <ui:Toggle name="gateOpen" label="初始开门" />
         <ui:Button name="applyGate" text="应用到所选城门" />
         <ui:Button name="removeGate" text="移除城门（恢复墙体）" />

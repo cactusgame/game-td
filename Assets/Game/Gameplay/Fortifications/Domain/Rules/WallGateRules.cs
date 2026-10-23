@@ -1,46 +1,101 @@
 using System;
+using System.Linq;
+using Game.Fortifications.Domain.Definitions;
 using Game.Fortifications.Domain.ValueObjects;
 using Game.MapEngine.Domain;
 
 namespace Game.Fortifications.Domain.Rules
 {
-    /// <summary>当前门型的连接规则；不读取图片或地图编辑器。后续门型可扩展独立定义。</summary>
+    /// <summary>任意墙向、多座门、整数 Tile 区间及连接底座净空的共同规则。</summary>
     public static class WallGateRules
     {
-        public const float OpeningRatio = 4f / 9f;
+        public static bool TryGetSpan(WallNetworkSnapshot network, WallEdgeSnapshot edge, WallGateSnapshot gate, out WallGateSpan span)
+        {
+            span = default;
+            if (!WallConnectionRules.TryGetSpan(network, edge, out var a, out var b))
+                return false;
+            if (a.X > b.X || a.X == b.X && a.Y > b.Y)
+            {
+                var swap = a;
+                a = b;
+                b = swap;
+            }
+            float dx = b.X - a.X;
+            float dy = b.Y - a.Y;
+            float length = (float)Math.Sqrt(dx * dx + dy * dy);
+            var direction = new MapPoint(dx / length, dy / length);
+            // 正方形格任意方向均为一个格长；长方形格按归一化格坐标中的单位长度换算。
+            float tileLength = 1f / (float)Math.Sqrt(direction.X * direction.X / (network.CellWidth * network.CellWidth) +
+                direction.Y * direction.Y / (network.CellHeight * network.CellHeight));
+            float start = gate.StartTile * tileLength;
+            float end = start + gate.WidthTiles * tileLength;
+            float center = (start + end) * 0.5f;
+            float halfOpening = gate.OpeningTiles * tileLength * 0.5f;
+            span = new WallGateSpan(a, direction, start, end, center - halfOpening, center + halfOpening, tileLength);
+            return true;
+        }
 
-        public static bool Validate(WallNetworkSnapshot network, WallEdgeSnapshot edge, float endMargin, out string reason)
+        public static int SnapStartTile(WallNetworkSnapshot network, WallEdgeSnapshot edge, MapPoint center, int widthTiles)
+        {
+            var probe = new WallGateSnapshot("preview", 0, widthTiles, 1, false);
+            if (!TryGetSpan(network, edge, probe, out var span))
+                return 0;
+            float distance = (center.X - span.Origin.X) * span.Direction.X + (center.Y - span.Origin.Y) * span.Direction.Y;
+            return (int)Math.Round(distance / span.TileLength - widthTiles * 0.5f, MidpointRounding.AwayFromZero);
+        }
+
+        public static bool Validate(WallNetworkSnapshot network, WallEdgeSnapshot edge, WallDefinition definition, out string reason)
+        {
+            foreach (var gate in edge.Gates)
+            {
+                if (!ValidateGate(network, edge, gate, definition, out reason))
+                    return false;
+            }
+            reason = null;
+            return true;
+        }
+
+        public static bool ValidateGate(WallNetworkSnapshot network, WallEdgeSnapshot edge, WallGateSnapshot gate,
+            WallDefinition definition, out string reason)
         {
             reason = null;
-            if (!edge.HasGate)
-                return true;
-            var gate = edge.Gate;
-            if (!WallConnectionRules.TryGetSpan(network, edge, out var a, out var b))
-                reason = "城门墙段或节点无效";
-            else if (!Finite(gate.Position) || !Finite(gate.Width) || !Finite(gate.OpeningWidth) ||
-                     gate.Position < 0 || gate.Position > 1 || gate.Width <= 0 || gate.OpeningWidth <= 0 || gate.OpeningWidth >= gate.Width)
-                reason = "城门位置、总宽或门洞净宽无效";
-            else if (Math.Abs(a.Y - b.Y) > 0.0001f)
-                reason = "当前门型只允许连接横向墙段";
-            else if (Math.Abs(gate.OpeningWidth - gate.Width * OpeningRatio) > 0.001f)
-                reason = "当前门型须等比缩放门框和门洞";
+            if (gate == null || string.IsNullOrWhiteSpace(gate.Id))
+                reason = "城门缺少独立 ID";
+            else if (gate.StartTile < 0 || gate.WidthTiles < 3 || gate.OpeningTiles < 1 || gate.OpeningTiles > gate.WidthTiles - 2 || (gate.WidthTiles - gate.OpeningTiles) % 2 != 0)
+                reason = "城门使用整数 Tile：门框至少 3 格，门洞至少 1 格，两侧门柱各至少保留 1 个整格且等宽";
+            else if (!TryGetSpan(network, edge, gate, out var span))
+                reason = "城门所属墙段或节点无效";
             else
             {
-                float length = Math.Abs(b.X - a.X);
-                if (gate.Position * length - gate.Width * 0.5f < endMargin ||
-                    gate.Position * length + gate.Width * 0.5f > length - endMargin)
-                    reason = "城门太靠近墙端或墙段太短；门框须完整位于两个连接底座之间";
+                var a = network.FindNode(edge.From);
+                var b = network.FindNode(edge.To);
+                float dx = b.Position.X - a.Position.X;
+                float dy = b.Position.Y - a.Position.Y;
+                float length = (float)Math.Sqrt(dx * dx + dy * dy);
+                string firstId = a.Position == span.Origin ? a.Id : b.Id;
+                string lastId = firstId == a.Id ? b.Id : a.Id;
+                float first = WallConnectionRules.PortDistance(WallConnectionRules.JunctionRadiusAt(network, firstId, definition), definition);
+                float last = length - WallConnectionRules.PortDistance(WallConnectionRules.JunctionRadiusAt(network, lastId, definition), definition);
+                if (span.Start < first - 0.0001f || span.End > last + 0.0001f)
+                    reason = "城门超出可用墙段或覆盖端部连接底座";
+                foreach (var other in edge.Gates)
+                {
+                    if (other == null || ReferenceEquals(other, gate))
+                        continue;
+                    if (other.Id == gate.Id)
+                    {
+                        reason = "城门 ID 重复：" + gate.Id;
+                        break;
+                    }
+                    if (TryGetSpan(network, edge, other, out var otherSpan) &&
+                        span.Start < otherSpan.End - 0.0001f && span.End > otherSpan.Start + 0.0001f)
+                    {
+                        reason = "门框与城门重叠：" + other.Id;
+                        break;
+                    }
+                }
             }
             return reason == null;
         }
-
-        public static MapPoint Center(WallNetworkSnapshot network, WallEdgeSnapshot edge)
-        {
-            var a = network.FindNode(edge.From).Position;
-            var b = network.FindNode(edge.To).Position;
-            return new MapPoint(a.X + (b.X - a.X) * edge.Gate.Position, a.Y + (b.Y - a.Y) * edge.Gate.Position);
-        }
-
-        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

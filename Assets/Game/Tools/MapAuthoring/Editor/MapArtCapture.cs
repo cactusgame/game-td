@@ -13,7 +13,7 @@ namespace Game.Tools.MapAuthoring.Editor
     public static class MapArtCapture
     {
         public static void Capture(string destination, bool detail = false, Game.Maps.Domain.MapLayout layout = null,
-            Vector2? focus = null, float? orthographicSize = null)
+            Vector2? focus = null, float? orthographicSize = null, int outputWidth = 2400, int outputHeight = 1600)
         {
             var active = SceneManager.GetActiveScene();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
@@ -23,7 +23,7 @@ namespace Game.Tools.MapAuthoring.Editor
             var previousTarget = RenderTexture.active;
             try
             {
-                var visuals = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(MapEditorWindow.VisualPath);
+                var visuals = MapArtSelection.Current;
                 var map = layout ?? MapJson.ReadDocument(File.ReadAllText(MapArtShowcase.Path));
                 var root = new GameObject("Art verification map");
                 root.AddComponent<MapWorldView>().Rebuild(map, visuals, FacilityCatalogJson.Read(visuals.facilityRules.text));
@@ -40,7 +40,7 @@ namespace Game.Tools.MapAuthoring.Editor
                     camera.transform.position = new Vector3(focus.Value.x, focus.Value.y, -10);
                 if (orthographicSize.HasValue)
                     camera.orthographicSize = orthographicSize.Value;
-                target = RenderTexture.GetTemporary(2400, 1600, 24);
+                target = RenderTexture.GetTemporary(outputWidth, outputHeight, 24);
                 camera.targetTexture = target;
                 camera.Render();
                 RenderTexture.active = target;
@@ -61,3 +61,5 @@ namespace Game.Tools.MapAuthoring.Editor
         }
     }
 }
+
+

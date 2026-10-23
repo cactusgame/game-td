@@ -25,7 +25,7 @@ namespace Game.Fortifications.Domain.Aggregates.WallNetwork
                 if (!connections.Add(key) || !Rules.WallConnectionRules.TryGetSpan(initial, edge, out _, out _))
                     throw new ArgumentException("墙网包含重复连接或零长度墙段。", nameof(initial));
             }
-            _snapshot = new WallNetworkSnapshot(initial.Nodes, initial.Edges);
+            _snapshot = new WallNetworkSnapshot(initial.Nodes, initial.Edges, initial.CellWidth, initial.CellHeight);
         }
 
         public WallNetwork CreateCandidate() => new WallNetwork(_snapshot);
@@ -48,25 +48,59 @@ namespace Game.Fortifications.Domain.Aggregates.WallNetwork
                 reason = "墙段长度不能为零";
                 return false;
             }
-            var next = new WallNetworkSnapshot(_snapshot.Nodes, _snapshot.Edges.Concat(new[] { edge }));
-            if (!Rules.WallGateRules.Validate(next, edge, 0.5f, out reason))
+            var next = new WallNetworkSnapshot(_snapshot.Nodes, _snapshot.Edges.Concat(new[] { edge }), _snapshot.CellWidth, _snapshot.CellHeight);
+            if (!Rules.WallGateRules.Validate(next, edge, Definitions.WallDefinition.Default, out reason))
                 return false;
             _snapshot = next;
             return true;
         }
 
-        public bool TrySetGateOpen(string edgeId, bool isOpen, out string reason)
+        public bool TryPlaceGate(string edgeId, WallGateSnapshot gate, Definitions.WallDefinition definition, out string reason)
         {
-            var edge = _snapshot.FindEdge(edgeId);
-            if (edge == null || !edge.HasGate)
+            if (gate == null || string.IsNullOrWhiteSpace(gate.Id) ||
+                _snapshot.Nodes.Any(node => node.Id == gate.Id) || _snapshot.Edges.Any(wall => wall.Id == gate.Id))
             {
-                reason = "该墙段没有城门";
+                reason = "城门必须具有独立且不与墙网重复的 ID";
                 return false;
             }
-            var changed = new WallEdgeSnapshot(edge.Id, edge.From, edge.To, edge.Gate.WithOpen(isOpen));
-            _snapshot = new WallNetworkSnapshot(_snapshot.Nodes, _snapshot.Edges.Select(item => item.Id == edgeId ? changed : item));
+            var edge = _snapshot.FindEdge(edgeId);
+            if (edge == null)
+            {
+                reason = "城门所属墙段不存在";
+                return false;
+            }
+            if (_snapshot.Edges.Any(item => item.Id != edgeId && item.Gates.Any(existing => existing.Id == gate.Id)))
+            {
+                reason = "城门 ID 已属于其他墙段";
+                return false;
+            }
+            var gates = edge.Gates.Where(item => item.Id != gate.Id).Concat(new[] { gate });
+            var changed = new WallEdgeSnapshot(edge.Id, edge.From, edge.To, gates);
+            var next = ReplaceEdge(changed);
+            if (!Rules.WallGateRules.Validate(next, changed, definition, out reason))
+                return false;
+            _snapshot = next;
+            return true;
+        }
+
+        public bool TrySetGateOpen(string gateId, bool isOpen, out string reason)
+        {
+            var edge = _snapshot.Edges.FirstOrDefault(item => item.Gates.Any(gate => gate.Id == gateId));
+            if (edge == null)
+            {
+                reason = "城门不存在";
+                return false;
+            }
+            var gates = edge.Gates.Select(gate => gate.Id == gateId ? gate.WithOpen(isOpen) : gate);
+            _snapshot = ReplaceEdge(new WallEdgeSnapshot(edge.Id, edge.From, edge.To, gates));
             reason = null;
             return true;
+        }
+
+        private WallNetworkSnapshot ReplaceEdge(WallEdgeSnapshot edge)
+        {
+            return new WallNetworkSnapshot(_snapshot.Nodes, _snapshot.Edges.Select(item => item.Id == edge.Id ? edge : item),
+                _snapshot.CellWidth, _snapshot.CellHeight);
         }
 
         public bool TryRemoveEdge(string edgeId)
@@ -75,7 +109,7 @@ namespace Game.Fortifications.Domain.Aggregates.WallNetwork
                 return false;
             var edges = _snapshot.Edges.Where(edge => edge.Id != edgeId).ToArray();
             var nodes = _snapshot.Nodes.Where(node => edges.Any(edge => edge.From == node.Id || edge.To == node.Id));
-            _snapshot = new WallNetworkSnapshot(nodes, edges);
+            _snapshot = new WallNetworkSnapshot(nodes, edges, _snapshot.CellWidth, _snapshot.CellHeight);
             return true;
         }
     }

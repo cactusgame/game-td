@@ -40,7 +40,13 @@ namespace Game.Maps.Unity.Views
                     continue;
                 float x = layout.originX + (item.x + definition.width * 0.5f) * layout.cellWidth;
                 float y = layout.originY + (item.y + 0.5f) * layout.cellHeight;
-                AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * 1.2f);
+                AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * visuals.facilityWidthScale * (item.definitionId == "hall" ? visuals.keepWidthScale : 1));
+                if (item.definitionId == "hall" && visuals.Facility(item.definitionId) != null)
+                {
+                    var entry = entries[entries.Count - 1];
+                    entry.Height *= visuals.keepHeightScale;
+                    entry.Center = new Vector2(x, y + entry.Height * 0.45f);
+                }
             }
             if (!MapWallSnapshotMapper.TryRead(layout, out var network))
             {
@@ -48,28 +54,47 @@ namespace Game.Maps.Unity.Views
                 return entries;
             }
             var style = visuals.WallStyle;
+            // 表现高度不改变地面占地与门洞的通行宽度。
+            var wallAppearance = new WallDefinition(catalog.Wall.Width * visuals.wallWidthScale, catalog.Wall.Height * visuals.wallHeightScale, Mathf.Max(catalog.Wall.JunctionRadius, catalog.Wall.Width * visuals.wallWidthScale * 0.6f), catalog.Wall.JunctionClearance);
             foreach (var edge in layout.wallEdges)
             {
-                entries.AddRange(RaisedWallPresentation.Build(network, network.FindEdge(edge.id), catalog.Wall, style));
-                if (edge.hasGate && WallGateRules.Validate(layout, edge, out _))
+                entries.AddRange(RaisedWallPresentation.Build(network, network.FindEdge(edge.id), wallAppearance, style));
+                var source = network.FindEdge(edge.id);
+                foreach (var gate in source.Gates)
                 {
-                    var center = WallGateRules.Center(layout, edge);
-                    int count = entries.Count;
-                    AddFoot(entries, edge.id, edge.gate.isOpen ? visuals.gateOpen : visuals.gateClosed,
-                        new Vector2(center.X, center.Y), edge.gate.width, "gate/" + edge.id);
-                    if (entries.Count > count)
+                    entries.AddRange(GatePresentation.Build(network, source, gate, wallAppearance, style));
+                    if (visuals.wallJunction != null && Game.Fortifications.Domain.Rules.WallGateRules.TryGetSpan(network, source, gate, out var span))
                     {
-                        var gate = entries[entries.Count - 1];
-                        var wall = new WallRenderGeometry(catalog.Wall, style);
-                        gate.Center.y = center.Y - wall.Width * 0.5f + gate.Height * (0.5f - visuals.gateFootInset);
-                        gate.GroundY = center.Y - wall.Width * 0.5f - wall.DepthStep;
+                        var origin = new Vector2(span.Origin.X, span.Origin.Y);
+                        var direction = new Vector2(span.Direction.X, span.Direction.Y);
+                        AddPlatform(entries, gate.Id + "/left-platform", visuals.wallJunction, origin + direction * span.Start, visuals.wallJunctionWidth, visuals.wallJunctionHeight);
+                        AddPlatform(entries, gate.Id + "/right-platform", visuals.wallJunction, origin + direction * span.End, visuals.wallJunctionWidth, visuals.wallJunctionHeight);
                     }
                 }
             }
             foreach (var node in layout.wallNodes)
-                entries.AddRange(WallJunctionPresentation.Build(network, network.FindNode(node.id), catalog.Wall, style));
+            {
+                if (visuals.wallJunction == null)
+                    entries.AddRange(WallJunctionPresentation.Build(network, network.FindNode(node.id), wallAppearance, style));
+                if (visuals.wallJunction != null)
+                    AddPlatform(entries, node.id + "/tower", visuals.wallJunction, new Vector2(node.x, node.y), visuals.wallJunctionWidth, visuals.wallJunctionHeight);
+            }
             entries.Sort(CompareDepth);
             return entries;
+        }
+
+        private static void AddPlatform(List<SceneRenderEntry> entries, string id, Sprite sprite, Vector2 ground, float width, float height)
+        {
+            AddFoot(entries, id, sprite, ground, width);
+            if (sprite != null && height > 0)
+            {
+                var entry = entries[entries.Count - 1];
+                entry.Height = height;
+                entry.Center = ground + Vector2.up * (height * 0.45f - width * 0.3f);
+            }
+            // 平台图片覆盖墙体接缝，按近侧墙脚排序，避免同一点的 Mesh 遮住站兵面。
+            if (sprite != null)
+                entries[entries.Count - 1].GroundY -= Mathf.Max(0.6f, width);
         }
 
         private static int CompareDepth(SceneRenderEntry left, SceneRenderEntry right)
@@ -86,27 +111,25 @@ namespace Game.Maps.Unity.Views
             return System.StringComparer.Ordinal.Compare(left.SortKey, right.SortKey);
         }
 
-        /// <summary>图片点击属于表现查询；命中后只把稳定墙段 ID 交给编辑或开关门用例。</summary>
+        /// <summary>图片点击属于表现查询；命中后只把稳定城门 ID 交给编辑或开关门用例。</summary>
         public static string PickGate(MapLayout layout, MapVisualCatalog visuals, Vector2 point, MapContentCatalog catalog)
         {
             string selected = null;
             float front = float.PositiveInfinity;
-            var wall = new WallRenderGeometry(catalog.Wall, visuals.WallStyle);
-            foreach (var edge in layout.wallEdges)
+            if (!MapWallSnapshotMapper.TryRead(layout, out var network))
+                return null;
+            foreach (var edge in network.Edges)
             {
-                if (!edge.hasGate || !WallGateRules.Validate(layout, edge, out _))
-                    continue;
-                var sprite = edge.gate.isOpen ? visuals.gateOpen : visuals.gateClosed;
-                if (sprite == null)
-                    continue;
-                var center = WallGateRules.Center(layout, edge);
-                float height = edge.gate.width * sprite.rect.height / sprite.rect.width;
-                float bottom = center.Y - wall.Width * 0.5f - height * visuals.gateFootInset;
-                var bounds = new Rect(center.X - edge.gate.width * 0.5f, bottom, edge.gate.width, height);
-                if (bounds.Contains(point) && center.Y < front)
+                foreach (var gate in edge.Gates)
                 {
-                    selected = edge.id;
-                    front = center.Y;
+                    if (!Game.Fortifications.Domain.Rules.WallGateRules.ValidateGate(network, edge, gate, catalog.Wall, out _) ||
+                        !Game.Fortifications.Domain.Rules.WallGateRules.TryGetSpan(network, edge, gate, out var span))
+                        continue;
+                    if (GatePresentation.HitTest(span, new WallDefinition(catalog.Wall.Width * visuals.wallWidthScale, catalog.Wall.Height * visuals.wallHeightScale, Mathf.Max(catalog.Wall.JunctionRadius, catalog.Wall.Width * visuals.wallWidthScale * 0.6f), catalog.Wall.JunctionClearance), point) && span.Center.Y < front)
+                    {
+                        selected = gate.Id;
+                        front = span.Center.Y;
+                    }
                 }
             }
             return selected;
@@ -121,3 +144,12 @@ namespace Game.Maps.Unity.Views
         }
     }
 }
+
+
+
+
+
+
+
+
+

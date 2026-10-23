@@ -25,6 +25,7 @@ namespace Game.Tools.MapPlaytest.Unity
         public TextAsset mapJson;
         public TextAsset battleJson;
         public MapVisualCatalog visuals;
+        public MapVisualCatalog[] artCatalogs;
         public Camera mapCamera;
         public UIDocument hud;
         public Sprite heroSprite;
@@ -59,6 +60,15 @@ namespace Game.Tools.MapPlaytest.Unity
                 if (hud != null)
                 {
                     var root = hud.rootVisualElement;
+                    if (artCatalogs != null && artCatalogs.Length > 0)
+                    {
+                        var names = new System.Collections.Generic.List<string>();
+                        foreach (var catalog in artCatalogs)
+                            names.Add(catalog.name);
+                        var picker = new DropdownField("美术套装", names, Math.Max(0, Array.IndexOf(artCatalogs, visuals)));
+                        picker.RegisterValueChangedCallback(evt => SwitchArt(artCatalogs[picker.index]));
+                        root.Add(picker);
+                    }
                     _status = root.Q<Label>("status");
                     root.Q<Button>("inspect").clicked += () => _tool = "Inspect";
                     root.Q<Button>("build").clicked += () => _tool = "Build";
@@ -79,6 +89,19 @@ namespace Game.Tools.MapPlaytest.Unity
             }
         }
 
+        /// <summary>只替换表现；本局规则、墙门状态、单位和模拟时钟继续由现有会话拥有。</summary>
+        public void SwitchArt(MapVisualCatalog catalog)
+        {
+            if (catalog == null)
+                throw new ArgumentNullException(nameof(catalog));
+            if (catalog.facilityRules != visuals.facilityRules)
+                throw new InvalidOperationException("美术套装必须引用同一份地图规则。");
+            visuals = catalog;
+            if (_session != null)
+                _view.Rebuild(_session.Snapshot, visuals, _catalog);
+            _gateViewVersion = _session.GateViewVersion;
+        }
+
         public void Restart()
         {
             _session.Restart();
@@ -91,6 +114,8 @@ namespace Game.Tools.MapPlaytest.Unity
             mapCamera.orthographicSize = Mathf.Max(height * 0.72f,
                 layout.columns * layout.cellWidth / Mathf.Max(0.1f, mapCamera.aspect) * 0.5f + 1);
         }
+
+        private int _gateViewVersion = -1;
 
         private void Update()
         {
@@ -109,6 +134,11 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
+            if (_gateViewVersion != _session.GateViewVersion)
+            {
+                _gateViewVersion = _session.GateViewVersion;
+                _view.SynchronizeGates(_session.Snapshot);
+            }
             _unitView.Synchronize(_session.Units, _session.Definition);
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)
                 _status.text = $"{_tool} | {_session.SimulationTime:F1}s | map revision {_session.MapVersion} | Hero {_session.HeroHealth} HP";
@@ -141,9 +171,9 @@ namespace Game.Tools.MapPlaytest.Unity
         {
             var map = _session.Snapshot;
             string id = MapSceneSprites.PickGate(map, visuals, new Vector2(x, y), _catalog);
-            var edge = map.wallEdges.Find(item => item.id == id);
+            var gate = WallGateRules.Find(map, id, out _);
             string reason = "该位置没有城门";
-            if (edge == null || !_session.TrySetGateOpen(edge.id, !edge.gate.isOpen, out reason))
+            if (gate == null || !_session.TrySetGateOpen(gate.id, !gate.isOpen, out reason))
             {
                 if (_status != null)
                 {
@@ -189,3 +219,4 @@ namespace Game.Tools.MapPlaytest.Unity
         private void OnDestroy() => _session?.Dispose();
     }
 }
+

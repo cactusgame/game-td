@@ -8,10 +8,17 @@ namespace Game.Fortifications.Domain.ValueObjects
     public sealed class WallNetworkSnapshot
     {
         public IReadOnlyList<WallNodeSnapshot> Nodes { get; }
+        public float CellWidth { get; }
+        public float CellHeight { get; }
         public IReadOnlyList<WallEdgeSnapshot> Edges { get; }
 
-        public WallNetworkSnapshot(IEnumerable<WallNodeSnapshot> nodes, IEnumerable<WallEdgeSnapshot> edges)
+        public WallNetworkSnapshot(IEnumerable<WallNodeSnapshot> nodes, IEnumerable<WallEdgeSnapshot> edges, float cellWidth = 1, float cellHeight = 1)
         {
+            if (float.IsNaN(cellWidth) || float.IsInfinity(cellWidth) || cellWidth <= 0 ||
+                float.IsNaN(cellHeight) || float.IsInfinity(cellHeight) || cellHeight <= 0)
+                throw new ArgumentException("Tile 尺寸必须为有限正数。");
+            CellWidth = cellWidth;
+            CellHeight = cellHeight;
             var nodeArray = nodes.ToArray();
             var edgeArray = edges.ToArray();
             if (nodeArray.Any(node => node == null) || edgeArray.Any(edge => edge == null))

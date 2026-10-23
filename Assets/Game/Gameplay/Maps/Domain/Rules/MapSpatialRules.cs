@@ -18,25 +18,8 @@ namespace Game.Maps.Domain
             var obstacles = new System.Collections.Generic.List<ObstacleFootprint>();
             for (int i = 0; i < walkable.Length; i++)
                 walkable[i] = TerrainRules.IsWalkable(layout.terrain[i]);
-            foreach (var edge in layout.wallEdges)
-            {
-                var from = layout.wallNodes.Find(node => node.id == edge.from);
-                var to = layout.wallNodes.Find(node => node.id == edge.to);
-                if (from == null || to == null)
-                    continue;
-                var a = new MapPoint(from.x, from.y);
-                var b = new MapPoint(to.x, to.y);
-                if (edge.hasGate && WallGateRules.Validate(layout, edge, out _) && edge.gate.isOpen)
-                {
-                    var center = WallGateRules.Center(layout, edge);
-                    float direction = Math.Sign(to.x - from.x);
-                    float half = edge.gate.openingWidth * 0.5f * direction;
-                    obstacles.Add(ObstacleFootprint.Segment(a, new MapPoint(center.X - half, center.Y), LegacyNavigationEnvelopeWidth));
-                    obstacles.Add(ObstacleFootprint.Segment(new MapPoint(center.X + half, center.Y), b, LegacyNavigationEnvelopeWidth));
-                }
-                else
-                    obstacles.Add(ObstacleFootprint.Segment(a, b, LegacyNavigationEnvelopeWidth));
-            }
+            if (Mappings.MapWallSnapshotMapper.TryRead(layout, out var walls))
+                obstacles.AddRange(Game.Fortifications.Domain.Rules.WallObstacleRules.BuildNavigationObstacles(walls, catalog.Wall, LegacyNavigationEnvelopeWidth));
             foreach (var item in layout.facilities)
             {
                 var definition = catalog.Find(item.definitionId);

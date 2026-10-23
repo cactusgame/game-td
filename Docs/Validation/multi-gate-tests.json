@@ -1,0 +1,811 @@
+[
+  {
+    "success": true,
+    "command": "command run_tests",
+    "data": {
+      "command": "run_tests",
+      "parameters": {
+        "mode": "editor",
+        "filter": "Game.Fortifications.Tests",
+        "filter_type": "assembly"
+      },
+      "result": {
+        "Summary": {
+          "Total": 23,
+          "Passed": 23,
+          "Failed": 0,
+          "Skipped": 0,
+          "Inconclusive": 0
+        },
+        "Results": [
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.OpenDoors_NavigationCuts_ExcludeOnlyTheirOwnOpenings",
+            "Status": "Passed",
+            "Duration": 0.0383371,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_OverlapOverflowOrFractionalSideColumns_RejectsWithoutPartialState(3,4,2)",
+            "Status": "Passed",
+            "Duration": 0.0024612,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_OverlapOverflowOrFractionalSideColumns_RejectsWithoutPartialState(18,4,2)",
+            "Status": "Passed",
+            "Duration": 0.0004685,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_OverlapOverflowOrFractionalSideColumns_RejectsWithoutPartialState(-1,4,2)",
+            "Status": "Passed",
+            "Duration": 0.0005944,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_OverlapOverflowOrFractionalSideColumns_RejectsWithoutPartialState(10,2,1)",
+            "Status": "Passed",
+            "Duration": 0.0003461,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_OverlapOverflowOrFractionalSideColumns_RejectsWithoutPartialState(10,5,2)",
+            "Status": "Passed",
+            "Duration": 0.0006602,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_TwoDoorsOnAnyWallDirection_PreservesIndependentIdentity(20,0)",
+            "Status": "Passed",
+            "Duration": 0.0026621,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_TwoDoorsOnAnyWallDirection_PreservesIndependentIdentity(0,20)",
+            "Status": "Passed",
+            "Duration": 0.0007186,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_TwoDoorsOnAnyWallDirection_PreservesIndependentIdentity(12,16)",
+            "Status": "Passed",
+            "Duration": 0.0134512,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_TwoDoorsOnAnyWallDirection_PreservesIndependentIdentity(16,-12)",
+            "Status": "Passed",
+            "Duration": 0.0001664,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.Place_TwoDoorsOnAnyWallDirection_PreservesIndependentIdentity(-12,16)",
+            "Status": "Passed",
+            "Duration": 0.0002748,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.RectangularTiles_SameTileCount_UsesPhysicalLengthAlongWall",
+            "Status": "Passed",
+            "Duration": 0.0019509,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.MultiGateTests.ReverseWall_StoredTileIntervals_KeepDoorWorldPosition",
+            "Status": "Passed",
+            "Duration": 0.0035428,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Candidate_GateChangeAndRemoval_KeepOriginalAndEarlierSnapshotsIntact",
+            "Status": "Passed",
+            "Duration": 0.0024224,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Connect_MissingOrCoincidentEndpoints_LeavesNoPartialConnection",
+            "Status": "Passed",
+            "Duration": 0.0008564,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Connect_ReversedDuplicate_RejectsWithoutChangingTheNetwork",
+            "Status": "Passed",
+            "Duration": 0.0007723,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Definition_InvalidPhysicalWidth_RejectsBeforeCreatingAView(float.NaN)",
+            "Status": "Passed",
+            "Duration": 0.0099615,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Definition_InvalidPhysicalWidth_RejectsBeforeCreatingAView(float.PositiveInfinity)",
+            "Status": "Passed",
+            "Duration": 0.0002636,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Definition_InvalidPhysicalWidth_RejectsBeforeCreatingAView(0)",
+            "Status": "Passed",
+            "Duration": 0.0003256,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Definition_InvalidPhysicalWidth_RejectsBeforeCreatingAView(-1)",
+            "Status": "Passed",
+            "Duration": 0.0003049,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Import_RepeatedConnection_RejectsInvalidRuntimeTopology",
+            "Status": "Passed",
+            "Duration": 0.0034384,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Junction_ConnectionChord_UsesPhysicalWallWidth",
+            "Status": "Passed",
+            "Duration": 0.0022406,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Fortifications.Tests.Domain.WallNetworkTests.Snapshot_ChangingInputCollections_DoesNotChangePublishedTopology",
+            "Status": "Passed",
+            "Duration": 0.0038454,
+            "Message": null,
+            "StackTrace": null
+          }
+        ],
+        "Duration": 6.41,
+        "StatusPath": null,
+        "Mode": "EditMode",
+        "FilterApplied": "assembly: Game.Fortifications.Tests",
+        "success": true,
+        "result": null
+      },
+      "target": {
+        "host": "127.0.0.1",
+        "port": 7800,
+        "projectPath": "D:\\projects\\game-td"
+      }
+    },
+    "errors": [],
+    "warnings": []
+  },
+  {
+    "success": true,
+    "command": "command run_tests",
+    "data": {
+      "command": "run_tests",
+      "parameters": {
+        "mode": "editor",
+        "filter": "Game.MapAuthoring.Tests",
+        "filter_type": "assembly"
+      },
+      "result": {
+        "Summary": {
+          "Total": 51,
+          "Passed": 51,
+          "Failed": 0,
+          "Skipped": 0,
+          "Inconclusive": 0
+        },
+        "Results": [
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.ActualMovementRespectsImportedTerrainRadiusAndArbitraryOrigin",
+            "Status": "Passed",
+            "Duration": 0.079244,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.BuildRejectsBlockedTerrainOccupancyMarkersAndUnitsWithoutPartialState",
+            "Status": "Passed",
+            "Duration": 0.0102366,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.CircleClearanceUsesRectangularCellsAndCannotCutCorners",
+            "Status": "Passed",
+            "Duration": 0.0004128,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.CrossingWallsRequireAnExplicitSharedNode",
+            "Status": "Passed",
+            "Duration": 0.0025449,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.ExplicitSpawnsDoNotUseTheOldCenteredRandomSpawnAssumption",
+            "Status": "Passed",
+            "Duration": 0.0026541,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.ExportRoundTripAndRuntimeEditsNeverMutateTheSource",
+            "Status": "Passed",
+            "Duration": 0.0080209,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.HistoryTracksWholeOperationSavedRevisionAndBranchingAcrossReload",
+            "Status": "Passed",
+            "Duration": 0.0010506,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.ValidationLocatesBadFacilityAndInvalidWallReferences",
+            "Status": "Passed",
+            "Duration": 0.0021328,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapAuthoringTests.WallIdentityAndTopologySurviveExportAndRuntimeRemoval",
+            "Status": "Passed",
+            "Duration": 0.0024467,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapCanvasNavigationTests.PanToolMovesTheViewWithoutEditingTheDocumentAndGridIsIndependent",
+            "Status": "Passed",
+            "Duration": 0.310962,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(0)",
+            "Status": "Passed",
+            "Duration": 0.0130631,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(15)",
+            "Status": "Passed",
+            "Duration": 0.0108681,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(30)",
+            "Status": "Passed",
+            "Duration": 0.0129882,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(45)",
+            "Status": "Passed",
+            "Duration": 0.0240138,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(60)",
+            "Status": "Passed",
+            "Duration": 0.0527474,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(75)",
+            "Status": "Passed",
+            "Duration": 0.0228786,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(85)",
+            "Status": "Passed",
+            "Duration": 0.0190272,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(89)",
+            "Status": "Passed",
+            "Duration": 0.0184048,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(90)",
+            "Status": "Passed",
+            "Duration": 0.014202,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(91)",
+            "Status": "Passed",
+            "Duration": 0.0343856,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(95)",
+            "Status": "Passed",
+            "Duration": 0.0188305,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(105)",
+            "Status": "Passed",
+            "Duration": 0.0180059,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(120)",
+            "Status": "Passed",
+            "Duration": 0.0177982,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(135)",
+            "Status": "Passed",
+            "Duration": 0.0206572,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(150)",
+            "Status": "Passed",
+            "Duration": 0.0214084,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.EveryWallAngleKeepsThicknessAndUprightEdges(165)",
+            "Status": "Passed",
+            "Duration": 0.0093524,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapDepthAndDiagonalTests.InsertingBuildingOrReorderingSourceDoesNotReorderExistingObjects",
+            "Status": "Passed",
+            "Duration": 0.1152558,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapEditorWorkflowTests.EditorToolsPaintPlaceMoveAndExportOperateOnTheDocument",
+            "Status": "Passed",
+            "Duration": 0.054147,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.FractionalTileJson_Import_RejectsInsteadOfSilentlyTruncating",
+            "Status": "Passed",
+            "Duration": 0.0035412,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateErrors_OverlapOrEndOverflow_LocateIndividualDoor",
+            "Status": "Passed",
+            "Duration": 0.0042324,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateGeometry_AllWallDirections_HasValidMeshesAndSharedStone(0)",
+            "Status": "Passed",
+            "Duration": 0.0202064,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateGeometry_AllWallDirections_HasValidMeshesAndSharedStone(25)",
+            "Status": "Passed",
+            "Duration": 0.0070123,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateGeometry_AllWallDirections_HasValidMeshesAndSharedStone(70)",
+            "Status": "Passed",
+            "Duration": 0.0112136,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateGeometry_AllWallDirections_HasValidMeshesAndSharedStone(90)",
+            "Status": "Passed",
+            "Duration": 0.0044835,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.GateGeometry_AllWallDirections_HasValidMeshesAndSharedStone(135)",
+            "Status": "Passed",
+            "Duration": 0.0044306,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.LegacySingleGate_Import_ConvertsToIndependentIntegerTileDoor",
+            "Status": "Passed",
+            "Duration": 0.0019135,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapGateTests.SaveAndHistory_IndependentDoors_PreserveEachIdAndState",
+            "Status": "Passed",
+            "Duration": 0.0014719,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapSurfaceTests.AdjacentSurfacePatchesUseIdenticalBoundaryPositionsUvsAndAlpha",
+            "Status": "Passed",
+            "Duration": 0.004953,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapSurfaceTests.OneRoadBrushConnectsHorizontallyVerticallyAndAroundCorners",
+            "Status": "Passed",
+            "Duration": 0.0017092,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapSurfaceTests.ShowcaseHasFiveBuildingKindsAndIndependentValidContent",
+            "Status": "Passed",
+            "Duration": 0.0101139,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallGeometryContractTests.NodeAndWallUseTheSameOpeningWidthAndCenter",
+            "Status": "Passed",
+            "Duration": 0.0041924,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallGeometryContractTests.SeparateDeckMaterialProducesValidMeshesWithoutWritingMapData",
+            "Status": "Passed",
+            "Duration": 0.0172578,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallPresentationTests.ConnectedNodesAndFreeEndsKeepTheirGroundCoordinates",
+            "Status": "Passed",
+            "Duration": 0.0013756,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallPresentationTests.DiagonalCenterlineKeepsTheAuthoredGroundEndpoints",
+            "Status": "Passed",
+            "Duration": 0.0050094,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallPresentationTests.GameViewBuildsWallAndNodeMeshesWithinTheirBaseRadii",
+            "Status": "Passed",
+            "Duration": 0.0650578,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.MapWallPresentationTests.WallCenterlineUsesExactNodesWithoutChangingTheSource",
+            "Status": "Passed",
+            "Duration": 0.0009824,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.WallArchitectureTests.CloseGate_UnitClearanceFailure_LeavesVersionNavigationAndWallStateUnchanged",
+            "Status": "Passed",
+            "Duration": 0.0069899,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.WallArchitectureTests.InvalidDraft_MissingNode_StillProducesLocatedDiagnosticsInsteadOfAViewException",
+            "Status": "Passed",
+            "Duration": 0.0006156,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.WallArchitectureTests.InvalidDraft_NonfiniteGateNode_ReportsInvalidGateWithoutThrowing",
+            "Status": "Passed",
+            "Duration": 0.0004551,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.WallArchitectureTests.PhysicalDefinition_JsonAndDifferentTerrainGrids_KeepWallDimensionsIndependentOfArtwork",
+            "Status": "Passed",
+            "Duration": 0.0004832,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapAuthoring.Tests.WallArchitectureTests.WallAssemblies_DoNotReferenceMapContentEditorOrBattle",
+            "Status": "Passed",
+            "Duration": 0.0006249,
+            "Message": null,
+            "StackTrace": null
+          }
+        ],
+        "Duration": 4.5,
+        "StatusPath": null,
+        "Mode": "EditMode",
+        "FilterApplied": "assembly: Game.MapAuthoring.Tests",
+        "success": true,
+        "result": null
+      },
+      "target": {
+        "host": "127.0.0.1",
+        "port": 7800,
+        "projectPath": "D:\\projects\\game-td"
+      }
+    },
+    "errors": [],
+    "warnings": []
+  },
+  {
+    "success": true,
+    "command": "command run_tests",
+    "data": {
+      "command": "run_tests",
+      "parameters": {
+        "mode": "editor",
+        "filter": "Game.Maps.Tests",
+        "filter_type": "assembly"
+      },
+      "result": {
+        "Summary": {
+          "Total": 6,
+          "Passed": 6,
+          "Failed": 0,
+          "Skipped": 0,
+          "Inconclusive": 0
+        },
+        "Results": [
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.CollinearAndCrossingSegmentsKeepTheirGenericGeometrySemantics",
+            "Status": "Passed",
+            "Duration": 0.0017264,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.GenericObstaclesComposeNavigationWithoutKnowingFacilityOrWallTypes",
+            "Status": "Passed",
+            "Duration": 0.0061582,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.MalformedSourceProducesLocationsInsteadOfCrashingPlayabilityValidation",
+            "Status": "Passed",
+            "Duration": 0.0060873,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.ReusableRenderingAssemblyDoesNotDependOnBattleOrInput",
+            "Status": "Passed",
+            "Duration": 0.0004343,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.SourceSchemaAndStableObjectIdsRoundTripAfterMovingAdapters",
+            "Status": "Passed",
+            "Duration": 0.0010752,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Maps.Tests.MapBoundaryTests.SourceWithoutSpawnsCanBeDefinedButCannotEnterTowerDefensePlay",
+            "Status": "Passed",
+            "Duration": 0.0066793,
+            "Message": null,
+            "StackTrace": null
+          }
+        ],
+        "Duration": 3.14,
+        "StatusPath": null,
+        "Mode": "EditMode",
+        "FilterApplied": "assembly: Game.Maps.Tests",
+        "success": true,
+        "result": null
+      },
+      "target": {
+        "host": "127.0.0.1",
+        "port": 7800,
+        "projectPath": "D:\\projects\\game-td"
+      }
+    },
+    "errors": [],
+    "warnings": []
+  },
+  {
+    "success": true,
+    "command": "command run_tests",
+    "data": {
+      "command": "run_tests",
+      "parameters": {
+        "mode": "editor",
+        "filter": "Game.MapPlaytest.Tests",
+        "filter_type": "assembly"
+      },
+      "result": {
+        "Summary": {
+          "Total": 15,
+          "Passed": 15,
+          "Failed": 0,
+          "Skipped": 0,
+          "Inconclusive": 0
+        },
+        "Results": [
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.ApplicationSessionHasNoUnityEcsOrSerializationDependency",
+            "Status": "Passed",
+            "Duration": 0.0019116,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.BuildAndRemovePublishMapAndSimulationSpaceTogetherWithoutChangingTheSource",
+            "Status": "Passed",
+            "Duration": 0.0098344,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.BuildingOverAMovingUnitIsRejectedBeforeSpatialPublication",
+            "Status": "Passed",
+            "Duration": 0.0072214,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.FailedRestartDisposesCandidateAndPreservesTheRunningSession",
+            "Status": "Passed",
+            "Duration": 0.0022423,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.FailedSpatialRollbackPreventsFurtherSimulationUntilRestart",
+            "Status": "Passed",
+            "Duration": 0.0084278,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.FailedSpatialUpdateRestoresSimulationAndDoesNotPublishCandidate",
+            "Status": "Passed",
+            "Duration": 0.0046546,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.GateCannotCloseOverAUnitAndFailedUpdatesDoNotChangeItsState",
+            "Status": "Passed",
+            "Duration": 0.0133326,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.GateChangesPublishNavigationAndRestartRestoresTheSourceState",
+            "Status": "Passed",
+            "Duration": 0.0126791,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.InvalidPlayProfileDoesNotAllocateSimulation",
+            "Status": "Passed",
+            "Duration": 0.003323,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.RealEcsHero_VerticalGate_StopsThenCrossesAfterOpening",
+            "Status": "Passed",
+            "Duration": 0.0521537,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.RealEcsHeroStopsAtClosedGateAndCrossesAfterItOpens",
+            "Status": "Passed",
+            "Duration": 0.0312775,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.RealEcsSessionAdvancesAndReleasesItsWorldAfterSpatialEditsAndRestart",
+            "Status": "Passed",
+            "Duration": 0.0088656,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.RestartRestoresInitialPlacementsAndEachOwnedSimulationIsDisposedOnce",
+            "Status": "Passed",
+            "Duration": 0.001638,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.RuntimePlaceGate_SpatialFailure_DoesNotPublishDoorOrItsIdentity",
+            "Status": "Passed",
+            "Duration": 0.0029475,
+            "Message": null,
+            "StackTrace": null
+          },
+          {
+            "FullName": "Game.Tools.MapPlaytest.Tests.MapPlaySessionTests.TwoGates_ClosingOne_DoesNotCloseOrRejectTheOtherOccupiedOpening",
+            "Status": "Passed",
+            "Duration": 0.0037272,
+            "Message": null,
+            "StackTrace": null
+          }
+        ],
+        "Duration": 3.36,
+        "StatusPath": null,
+        "Mode": "EditMode",
+        "FilterApplied": "assembly: Game.MapPlaytest.Tests",
+        "success": true,
+        "result": null
+      },
+      "target": {
+        "host": "127.0.0.1",
+        "port": 7800,
+        "projectPath": "D:\\projects\\game-td"
+      }
+    },
+    "errors": [],
+    "warnings": []
+  }
+]

@@ -19,6 +19,7 @@ namespace Game.Infrastructure.Maps.Serialization
                 layout.markers.Exists(item => item == null) || layout.facilities.Exists(item => item == null) ||
                 layout.wallNodes.Exists(item => item == null) || layout.wallEdges.Exists(item => item == null))
                 throw new FormatException("地图包含未知地形或空对象，请修正 JSON 后重新打开。");
+            MapGateMigration.Read(json, layout);
             return layout;
         }
 

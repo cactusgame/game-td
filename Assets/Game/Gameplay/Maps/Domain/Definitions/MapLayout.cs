@@ -20,6 +20,28 @@ namespace Game.Maps.Domain
         public float originX = -12;
         public float originY = -8;
         public TerrainKind[] terrain = new TerrainKind[24 * 16];
+        // 兼容旧地图：terrain 保留树石的阻挡语义，此可选数组记录障碍下方的地表。
+        public TerrainKind[] groundTerrain;
+        public static bool IsTerrainObstacle(TerrainKind kind) => kind == TerrainKind.Tree || kind == TerrainKind.Rock;
+        public TerrainKind GroundAt(int index)
+        {
+            if (!IsTerrainObstacle(terrain[index]))
+                return terrain[index];
+            return groundTerrain != null && groundTerrain.Length == terrain.Length ? groundTerrain[index] : TerrainKind.Grass;
+        }
+        public void PaintGround(int index, TerrainKind kind)
+        {
+            if (groundTerrain == null || groundTerrain.Length != terrain.Length)
+            {
+                var ground = new TerrainKind[terrain.Length];
+                for (int i = 0; i < terrain.Length; i++)
+                    ground[i] = GroundAt(i);
+                groundTerrain = ground;
+            }
+            groundTerrain[index] = kind;
+            if (!IsTerrainObstacle(terrain[index]))
+                terrain[index] = kind;
+        }
         public List<MapMarker> markers = new List<MapMarker>();
         public List<InitialFacility> facilities = new List<InitialFacility>();
         public List<WallNode> wallNodes = new List<WallNode>();
@@ -42,6 +64,7 @@ namespace Game.Maps.Domain
         {
             var copy = (MapLayout)MemberwiseClone();
             copy.terrain = terrain == null ? null : (TerrainKind[])terrain.Clone();
+            copy.groundTerrain = groundTerrain == null ? null : (TerrainKind[])groundTerrain.Clone();
             copy.markers = markers?.ConvertAll(item => item?.Copy());
             copy.facilities = facilities?.ConvertAll(item => item?.Copy());
             copy.wallNodes = wallNodes?.ConvertAll(item => item?.Copy());
@@ -92,25 +115,26 @@ namespace Game.Maps.Domain
         public string id;
         public string from;
         public string to;
-        public bool hasGate;
-        public WallGate gate = new WallGate();
+        public List<WallGate> gates = new List<WallGate>();
 
         public WallEdge Copy()
         {
             var copy = (WallEdge)MemberwiseClone();
-            copy.gate = gate?.Copy();
+            copy.gates = gates?.ConvertAll(item => item?.Copy());
             return copy;
         }
     }
 
-    /// <summary>一条墙段上的城门。位置是 from 到 to 的比例；尺寸使用地面世界单位。</summary>
+    /// <summary>门框起点和宽度使用沿墙整数 Tile，方向来自所属墙段；中心允许落在半格坐标。</summary>
     [Serializable]
     public sealed class WallGate
     {
-        public float position = 0.5f;
-        public float width = 4.5f;
-        public float openingWidth = 2;
+        public string id;
+        public int startTile = 7;
+        public int widthTiles = 4;
+        public int openingTiles = 2;
         public bool isOpen;
+        public bool isDestroyed;
         public WallGate Copy() => (WallGate)MemberwiseClone();
     }
 }

@@ -35,6 +35,7 @@ namespace Game.Tools.MapAuthoring.Editor
         [SerializeField] private TerrainKind _activeTerrain;
         [SerializeField] private string _activeFacility = "tower";
         [SerializeField] private bool _showGrid;
+        [SerializeField] private bool _showCoordinates;
         [SerializeField] private bool _showRules;
         private string _selectedId;
         private string _wallTail;
@@ -55,12 +56,23 @@ namespace Game.Tools.MapAuthoring.Editor
             rootVisualElement.Clear();
             var template = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UiPath);
             template.CloneTree(rootVisualElement);
-            _visuals = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(VisualPath);
+            _visuals = MapArtSelection.Current;
             if (_visuals == null)
             {
                 rootVisualElement.Add(new Label("请运行 Game/地图编辑器/安装示例内容"));
                 return;
             }
+            var artCatalogs = MapArtSelection.All();
+            var artPicker = new PopupField<string>("美术套装", artCatalogs.ConvertAll(item => item.name),
+                Mathf.Max(0, artCatalogs.IndexOf(_visuals)));
+            artPicker.RegisterValueChangedCallback(evt =>
+            {
+                MapArtSelection.Select(artCatalogs[artPicker.index]);
+                CreateGUI();
+            });
+            rootVisualElement.Q("paletteHost").parent.Insert(0, artPicker);
+            var referenceButton = new Button(() => OpenMapAsset(PixelArtSetup.MapPath)) { text = "参考图城镇地图" };
+            rootVisualElement.Q("paletteHost").parent.Insert(1, referenceButton);
             _catalog = FacilityCatalogJson.Read(_visuals.facilityRules.text);
             if (_session == null)
             {
@@ -84,7 +96,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 if (_canvas != null)
                     _canvas.PanTool = _palette.Tool == MapEditorTool.Pan;
             };
-            _canvas = new MapCanvas { Visuals = _visuals, Catalog = _catalog, ShowGrid = _showGrid, ShowRules = _showRules, PanTool = _palette.Tool == MapEditorTool.Pan };
+            _canvas = new MapCanvas { Visuals = _visuals, Catalog = _catalog, ShowGrid = _showGrid, ShowCoordinates = _showCoordinates, ShowRules = _showRules, PanTool = _palette.Tool == MapEditorTool.Pan };
             Q<VisualElement>("canvasHost").Add(_canvas);
             _canvas.Pressed = BeginGesture;
             _canvas.Dragged = ContinueGesture;
@@ -114,6 +126,13 @@ namespace Game.Tools.MapAuthoring.Editor
                 RefreshViewButtons();
                 _canvas.MarkDirtyRepaint();
             };
+            Q<Button>("toggleCoordinates").clicked += () =>
+            {
+                _showCoordinates = !_showCoordinates;
+                _canvas.ShowCoordinates = _showCoordinates;
+                RefreshViewButtons();
+                _canvas.MarkDirtyRepaint();
+            };
             Q<Button>("toggleRules").clicked += () =>
             {
                 _showRules = !_showRules;
@@ -130,6 +149,7 @@ namespace Game.Tools.MapAuthoring.Editor
         private void RefreshViewButtons()
         {
             SetViewButton(Q<Button>("toggleGrid"), " Tile 网格", _showGrid);
+            SetViewButton(Q<Button>("toggleCoordinates"), "坐标", _showCoordinates);
             SetViewButton(Q<Button>("toggleRules"), "实际通行", _showRules);
         }
 
@@ -323,6 +343,19 @@ namespace Game.Tools.MapAuthoring.Editor
             if (Tool == 0 && _selectedId != null)
             {
                 Vector2 delta = point - _pressPoint;
+                if (_selectedId.StartsWith("obstacle/"))
+                {
+                    var parts = _selectedId.Split('/');
+                    int source = int.Parse(parts[2]) * _beforeGesture.columns + int.Parse(parts[1]);
+                    if (_beforeGesture.Geometry.TryWorldToCell(point.x, point.y, out var destination))
+                    {
+                        _gesture = _beforeGesture.Copy();
+                        var kind = _gesture.terrain[source];
+                        _gesture.terrain[source] = _gesture.GroundAt(source);
+                        MapEditSession.Paint(_gesture, _catalog, _gesture.Geometry.IndexOf(destination), kind);
+                        _gestureChanged = _gesture.Geometry.IndexOf(destination) != source;
+                    }
+                }
                 var facility = _gesture.facilities.Find(item => item.id == _selectedId);
                 var original = _beforeGesture.facilities.Find(item => item.id == _selectedId);
                 if (facility != null)
@@ -347,18 +380,14 @@ namespace Game.Tools.MapAuthoring.Editor
                     node.y = center.Y;
                     _gestureChanged = true;
                 }
-                var gateEdge = _gesture.wallEdges.Find(item => item.id == _selectedId && item.hasGate);
-                if (gateEdge != null)
+                var gate = WallGateRules.Find(_gesture, _selectedId, out var gateEdge);
+                if (gate != null)
                 {
-                    var previous = _beforeGesture.wallEdges.Find(item => item.id == _selectedId);
-                    var center = WallGateRules.Center(_beforeGesture, previous);
-                    var a = _gesture.wallNodes.Find(item => item.id == gateEdge.from);
-                    var b = _gesture.wallNodes.Find(item => item.id == gateEdge.to);
-                    if (_gesture.Geometry.TryWorldToCell(center.X + delta.x, center.Y, out var gateCell))
-                    {
-                        gateEdge.gate.position = (_gesture.Geometry.CellCenter(gateCell).X - a.x) / (b.x - a.x);
-                        _gestureChanged = true;
-                    }
+                    var originalGate = WallGateRules.Find(_beforeGesture, _selectedId, out var originalEdge);
+                    var center = WallGateRules.Center(_beforeGesture, originalEdge, originalGate);
+                    gate.startTile = WallGateRules.SnapStartTile(_gesture, gateEdge,
+                        new Game.MapEngine.Domain.MapPoint(center.X + delta.x, center.Y + delta.y), gate.widthTiles);
+                    _gestureChanged = gate.startTile != originalGate.startTile;
                 }
                 _canvas.Layout = _gesture;
                 _canvas.MarkDirtyRepaint();
@@ -383,9 +412,9 @@ namespace Game.Tools.MapAuthoring.Editor
                     float t = steps == 0 ? 0 : (float)i / steps;
                     var painted = new GridCell(Mathf.RoundToInt(Mathf.Lerp(start.X, cell.X, t)), Mathf.RoundToInt(Mathf.Lerp(start.Y, cell.Y, t)));
                     int index = geometry.IndexOf(painted);
-                    if (_gesture.terrain[index] != terrain)
+                    if (_gesture.terrain[index] != terrain || _gesture.GroundAt(index) != terrain)
                     {
-                        _gesture.terrain[index] = terrain;
+                        MapEditSession.Paint(_gesture, _catalog, index, terrain);
                         _gestureChanged = true;
                     }
                 }
@@ -408,12 +437,12 @@ namespace Game.Tools.MapAuthoring.Editor
             else if (!dragging && Tool == 4)
             {
                 var facility = new InitialFacility { id = MapLayout.NewId(), definitionId = _palette.FacilityId, x = cell.X, y = cell.Y };
-                if (!MapSpatialRules.CanPlaceFacility(_gesture, _catalog, facility, out var reason))
+                if (!MapEditSession.TryReplaceFacility(_gesture, _catalog, facility, out var replacement, out var reason))
                 {
                     SetStatus(reason);
                     return;
                 }
-                _gesture.facilities.Add(facility);
+                _gesture = replacement;
                 _selectedId = facility.id;
                 _gestureChanged = true;
             }
@@ -445,34 +474,36 @@ namespace Game.Tools.MapAuthoring.Editor
             else if (!dragging && Tool == (int)MapEditorTool.Gate)
             {
                 string id = Pick(_gesture, point);
-                var edge = _gesture.wallEdges.Find(item => item.id == id);
-                if (edge == null)
+                var selectedGate = WallGateRules.Find(_gesture, id, out _);
+                if (selectedGate != null)
                 {
-                    SetStatus("请点击横向墙段的地面线，避开端点和建筑。");
-                    return;
+                    _selectedId = selectedGate.id;
                 }
-                var a = _gesture.wallNodes.Find(item => item.id == edge.from);
-                var b = _gesture.wallNodes.Find(item => item.id == edge.to);
-                var previous = edge.gate;
-                bool hadGate = edge.hasGate;
-                float dx = b.x - a.x;
-                edge.gate = new WallGate
+                else
                 {
-                    position = Mathf.Abs(dx) < 0.0001f ? 0.5f : (center.X - a.x) / dx,
-                    width = Q<FloatField>("gateWidth").value,
-                    openingWidth = Q<FloatField>("gateWidth").value * WallGateRules.OpeningRatio,
-                    isOpen = Q<Toggle>("gateOpen").value
-                };
-                edge.hasGate = true;
-                if (!WallGateRules.Validate(_gesture, edge, out var reason))
-                {
-                    edge.hasGate = hadGate;
-                    edge.gate = previous;
-                    SetStatus(reason);
-                    return;
+                    var edge = _gesture.wallEdges.Find(item => item.id == id);
+                    if (edge == null)
+                    {
+                        SetStatus("请点击任意方向墙段的地面线，避开端点和建筑。");
+                        return;
+                    }
+                    int width = Q<IntegerField>("gateWidth").value;
+                    var gate = new WallGate
+                    {
+                        id = MapLayout.NewId(),
+                        startTile = WallGateRules.SnapStartTile(_gesture, edge, new Game.MapEngine.Domain.MapPoint(point.x, point.y), width),
+                        widthTiles = width,
+                        openingTiles = Q<IntegerField>("gateOpening").value,
+                        isOpen = Q<Toggle>("gateOpen").value
+                    };
+                    if (!WallGateRules.TryPlace(_gesture, edge, gate, _catalog.Wall, out var reason))
+                    {
+                        SetStatus(reason);
+                        return;
+                    }
+                    _selectedId = gate.id;
+                    _gestureChanged = true;
                 }
-                _selectedId = edge.id;
-                _gestureChanged = true;
             }
             _canvas.Layout = _gesture;
             _canvas.SelectedId = _selectedId;
@@ -485,17 +516,19 @@ namespace Game.Tools.MapAuthoring.Editor
                 return;
             if (_gestureChanged && Tool == 0)
             {
-                var gateEdge = _gesture.wallEdges.Find(item => item.id == _selectedId && item.hasGate);
-                if (gateEdge != null && !WallGateRules.Validate(_gesture, gateEdge, out var gateReason))
+                foreach (var edge in _gesture.wallEdges)
                 {
-                    _gesture = null;
-                    _beforeGesture = null;
-                    Refresh(false);
-                    SetStatus("移动未提交：" + gateReason);
-                    return;
+                    if (!WallGateRules.Validate(_gesture, edge, out var gateReason, _catalog.Wall))
+                    {
+                        _gesture = null;
+                        _beforeGesture = null;
+                        Refresh(false);
+                        SetStatus("移动未提交：" + gateReason);
+                        return;
+                    }
                 }
                 var facility = _gesture.facilities.Find(item => item.id == _selectedId);
-                if (facility != null && !MapSpatialRules.CanPlaceFacility(_gesture, _catalog, facility, out var reason))
+                if (facility != null && !MapEditSession.TryReplaceFacility(_gesture, _catalog, facility, out _, out var reason))
                 {
                     _gesture = null;
                     _beforeGesture = null;
@@ -535,6 +568,9 @@ namespace Game.Tools.MapAuthoring.Editor
                 if (building != null)
                     return building.id;
             }
+            if (document.Geometry.TryWorldToCell(point.x, point.y, out var obstacleCell) &&
+                MapLayout.IsTerrainObstacle(document.terrain[document.Geometry.IndexOf(obstacleCell)]))
+                return "obstacle/" + obstacleCell.X + "/" + obstacleCell.Y;
             var edge = document.wallEdges.Find(item =>
             {
                 var a = document.wallNodes.Find(value => value.id == item.from);
@@ -552,27 +588,30 @@ namespace Game.Tools.MapAuthoring.Editor
             Q<Label>("selection").text = marker != null ? $"{marker.kind}: {marker.name}\n({marker.x}, {marker.y})\n{marker.id}" : facility != null ? $"{facility.definitionId} 格子 ({facility.x}, {facility.y})\n{facility.id}" : node != null ? $"墙节点 ({node.x}, {node.y})\n{node.id}" : _selectedId ?? "尚未选择对象";
             Q<TextField>("markerName").SetValueWithoutNotify(marker?.name ?? "");
             Q<Button>("rename").SetEnabled(marker != null);
-            var gateEdge = document.wallEdges.Find(item => item.id == _selectedId && item.hasGate);
-            Q<Button>("applyGate").SetEnabled(gateEdge != null);
-            Q<Button>("removeGate").SetEnabled(gateEdge != null);
-            if (gateEdge != null)
+            var gate = WallGateRules.Find(document, _selectedId, out _);
+            Q<Button>("applyGate").SetEnabled(gate != null);
+            Q<Button>("removeGate").SetEnabled(gate != null);
+            if (gate != null)
             {
-                Q<FloatField>("gateWidth").SetValueWithoutNotify(gateEdge.gate.width);
-                Q<Toggle>("gateOpen").SetValueWithoutNotify(gateEdge.gate.isOpen);
-                Q<Label>("selection").text = $"城门 · {(gateEdge.gate.isOpen ? "初始开启" : "初始关闭")}\n门洞净宽 {gateEdge.gate.openingWidth:F2}\n{gateEdge.id}";
+                Q<IntegerField>("gateWidth").SetValueWithoutNotify(gate.widthTiles);
+                Q<IntegerField>("gateOpening").SetValueWithoutNotify(gate.openingTiles);
+                Q<Toggle>("gateOpen").SetValueWithoutNotify(gate.isOpen);
+                Q<Label>("selection").text = $"城门 · {(gate.isOpen ? "初始开启" : "初始关闭")}\n门框 {gate.widthTiles} Tile / 净宽 {gate.openingTiles} Tile\n{gate.id}";
             }
         }
 
-        private void ApplyGate()
+        /// <summary>提交所选城门的整数 Tile 配置；按钮与编辑器自动化共用此入口。</summary>
+        public void ApplyGate()
         {
             var document = _session.Document;
-            var edge = document.wallEdges.Find(item => item.id == _selectedId && item.hasGate);
-            if (edge == null)
+            var gate = WallGateRules.Find(document, _selectedId, out var edge);
+            if (gate == null)
                 return;
-            edge.gate.width = Q<FloatField>("gateWidth").value;
-            edge.gate.openingWidth = edge.gate.width * WallGateRules.OpeningRatio;
-            edge.gate.isOpen = Q<Toggle>("gateOpen").value;
-            if (!WallGateRules.Validate(document, edge, out var reason))
+            var changed = gate.Copy();
+            changed.widthTiles = Q<IntegerField>("gateWidth").value;
+            changed.openingTiles = Q<IntegerField>("gateOpening").value;
+            changed.isOpen = Q<Toggle>("gateOpen").value;
+            if (!WallGateRules.TryPlace(document, edge, changed, _catalog.Wall, out var reason))
             {
                 SetStatus(reason);
                 return;
@@ -585,12 +624,12 @@ namespace Game.Tools.MapAuthoring.Editor
         private void RemoveGate()
         {
             var document = _session.Document;
-            var edge = document.wallEdges.Find(item => item.id == _selectedId && item.hasGate);
-            if (edge == null)
+            var gate = WallGateRules.Find(document, _selectedId, out var edge);
+            if (gate == null)
                 return;
-            edge.hasGate = false;
-            edge.gate = new WallGate();
+            edge.gates.Remove(gate);
             _session.Commit(document);
+            _selectedId = null;
             Refresh(false);
             Validate();
         }
@@ -611,6 +650,14 @@ namespace Game.Tools.MapAuthoring.Editor
             if (_selectedId == null)
                 return;
             var document = _session.Document;
+            foreach (var edge in document.wallEdges)
+                edge.gates.RemoveAll(gate => gate.id == _selectedId);
+            if (_selectedId.StartsWith("obstacle/"))
+            {
+                var parts = _selectedId.Split('/');
+                int index = int.Parse(parts[2]) * document.columns + int.Parse(parts[1]);
+                document.terrain[index] = document.GroundAt(index);
+            }
             document.markers.RemoveAll(item => item.id == _selectedId);
             document.facilities.RemoveAll(item => item.id == _selectedId);
             document.wallEdges.RemoveAll(item => item.id == _selectedId || item.from == _selectedId || item.to == _selectedId);
@@ -631,6 +678,31 @@ namespace Game.Tools.MapAuthoring.Editor
             }
         }
 
+        private string IssueText(MapIssue issue)
+        {
+            if (issue.X >= 0 && issue.Y >= 0)
+                return $"格子 ({issue.X}, {issue.Y}) · {issue.Message}";
+            var document = _session.Document;
+            var facility = document.facilities.Find(item => item.id == issue.ObjectId);
+            if (facility != null)
+                return $"格子 ({facility.x}, {facility.y}) · {issue.Message}";
+            var node = document.wallNodes.Find(item => item.id == issue.ObjectId);
+            var marker = document.markers.Find(item => item.id == issue.ObjectId);
+            var edge = document.wallEdges.Find(item => item.id == issue.ObjectId || item.gates.Exists(gate => gate.id == issue.ObjectId));
+            if (edge != null)
+            {
+                var a = document.wallNodes.Find(item => item.id == edge.from);
+                var b = document.wallNodes.Find(item => item.id == edge.to);
+                if (a != null && b != null)
+                    return $"地面 ({a.x}, {a.y}) → ({b.x}, {b.y}) · {issue.Message}";
+            }
+            if (node != null)
+                return $"地面 ({node.x}, {node.y}) · {issue.Message}";
+            if (marker != null)
+                return $"地面 ({marker.x}, {marker.y}) · {issue.Message}";
+            return issue.Message;
+        }
+
         private void Validate()
         {
             var issues = ValidateDocument();
@@ -647,7 +719,7 @@ namespace Game.Tools.MapAuthoring.Editor
                     else
                         LocateObject(issue.ObjectId);
                     SetStatus(issue.Message);
-                }) { text = issue.Message };
+                }) { text = IssueText(issue) };
                 button.AddToClassList("issue");
                 host.Add(button);
             }
@@ -668,6 +740,12 @@ namespace Game.Tools.MapAuthoring.Editor
         private void LocateObject(string id)
         {
             var layout = _session.Document;
+            var gate = WallGateRules.Find(layout, id, out var owner);
+            if (gate != null && WallGateRules.TryGetSpan(layout, owner, gate, out var span))
+            {
+                _canvas.LocatePoint(span.Center.X, span.Center.Y);
+                return;
+            }
             var marker = layout.markers.Find(item => item.id == id);
             var node = layout.wallNodes.Find(item => item.id == id);
             var facility = layout.facilities.Find(item => item.id == id);
@@ -710,7 +788,7 @@ namespace Game.Tools.MapAuthoring.Editor
         private void Play()
         {
             var definition = RequireValid();
-            MapEditorSetup.StartPlaytest(MapJson.WriteDocument(definition.CreateWorkingCopy()));
+            MapEditorSetup.StartPlaytest(MapJson.WriteDocument(definition.CreateWorkingCopy()), _visuals);
         }
 
         private void OnKey(KeyDownEvent evt)
@@ -755,3 +833,4 @@ namespace Game.Tools.MapAuthoring.Editor
         }
     }
 }
+

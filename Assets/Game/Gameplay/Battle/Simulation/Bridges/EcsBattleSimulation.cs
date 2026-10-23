@@ -120,11 +120,12 @@ namespace Game.Battle.Simulation.Bridges
         }
 
         /// <summary>建设提交的同步边界：先完成旧步，再同时替换路径查询与实际碰撞地图。</summary>
-        public void UpdateNavigationMap(Game.MapEngine.Domain.GridMap map, NavigationDefinition navigation)
+        public void UpdateNavigationMap(Game.MapEngine.Domain.GridMap map, NavigationDefinition navigation, Game.MapEngine.Domain.GridMap friendlyMap = null)
         {
             _world.EntityManager.CompleteAllTrackedJobs();
-            _navigation.Configure(map, navigation);
-            _terrainCollision.Configure(map);
+            // 敌方用含门洞的路线接近破门目标，实际通行仍由敌方碰撞地图裁决。
+            _navigation.Configure(friendlyMap ?? map, navigation);
+            _terrainCollision.Configure(map, friendlyMap);
             using var query = _world.EntityManager.CreateEntityQuery(typeof(MonsterNavigationState));
             using var entities = query.ToEntityArray(Allocator.Temp);
             foreach (var state in entities)

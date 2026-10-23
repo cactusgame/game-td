@@ -1,0 +1,1536 @@
+fileFormatVersion: 2
+guid: 1323c9c0c7346a34489f454249ce5c3f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3221368476359668609
+    second: kingdom-sheet_0
+  - first:
+      213: -4775910801109007173
+    second: kingdom-sheet_1
+  - first:
+      213: 5621810222662677213
+    second: kingdom-sheet_2
+  - first:
+      213: -7175106164531005857
+    second: kingdom-sheet_3
+  - first:
+      213: -874858919580522983
+    second: kingdom-sheet_4
+  - first:
+      213: -1399144199091308113
+    second: kingdom-sheet_5
+  - first:
+      213: -7377973218881222800
+    second: kingdom-sheet_6
+  - first:
+      213: -4154294381524263455
+    second: kingdom-sheet_7
+  - first:
+      213: 4314077191280746252
+    second: kingdom-sheet_8
+  - first:
+      213: -6957607598656420399
+    second: kingdom-sheet_9
+  - first:
+      213: 8074322837059534856
+    second: kingdom-sheet_10
+  - first:
+      213: 5201599660346922834
+    second: kingdom-sheet_11
+  - first:
+      213: -3075555224860388647
+    second: kingdom-sheet_12
+  - first:
+      213: 5207001745589161499
+    second: kingdom-sheet_13
+  - first:
+      213: 6647546296825709446
+    second: kingdom-sheet_14
+  - first:
+      213: -2066461062967817430
+    second: kingdom-sheet_15
+  - first:
+      213: -6467279500811614080
+    second: kingdom-sheet_16
+  - first:
+      213: 8344403662021474611
+    second: kingdom-sheet_17
+  - first:
+      213: 4415929489939267033
+    second: kingdom-sheet_18
+  - first:
+      213: -8533081826519752493
+    second: kingdom-sheet_19
+  - first:
+      213: -1827972184755209919
+    second: kingdom-sheet_20
+  - first:
+      213: -6538993755266493761
+    second: kingdom-sheet_21
+  - first:
+      213: 922568118453560472
+    second: kingdom-sheet_22
+  - first:
+      213: -7630998508348501048
+    second: kingdom-sheet_23
+  - first:
+      213: 2984318716410247775
+    second: kingdom-sheet_24
+  - first:
+      213: -1123533138360932188
+    second: kingdom-sheet_25
+  - first:
+      213: 8753311157235811824
+    second: kingdom-sheet_26
+  - first:
+      213: -4360031041728417254
+    second: kingdom-sheet_27
+  - first:
+      213: 3249408401933643495
+    second: kingdom-sheet_28
+  - first:
+      213: -712384186023738153
+    second: kingdom-sheet_29
+  - first:
+      213: 8331134220424658097
+    second: kingdom-sheet_30
+  - first:
+      213: -5805623779479626440
+    second: kingdom-sheet_31
+  - first:
+      213: -947073043408888668
+    second: kingdom-sheet_32
+  - first:
+      213: -6830106802540636146
+    second: kingdom-sheet_33
+  - first:
+      213: -2364095593142297407
+    second: kingdom-sheet_34
+  - first:
+      213: -5988856857013470308
+    second: kingdom-sheet_35
+  - first:
+      213: 8029056969940257711
+    second: kingdom-sheet_36
+  - first:
+      213: 8548623986139098950
+    second: kingdom-sheet_37
+  - first:
+      213: -7488333670140643379
+    second: kingdom-sheet_38
+  - first:
+      213: -2818675537046877579
+    second: kingdom-sheet_39
+  - first:
+      213: 7165876348342237115
+    second: kingdom-sheet_40
+  - first:
+      213: 1222954161647694798
+    second: kingdom-sheet_41
+  - first:
+      213: 1801409967948220933
+    second: kingdom-sheet_42
+  - first:
+      213: -1105198934680781610
+    second: kingdom-sheet_43
+  - first:
+      213: -1929204680338824134
+    second: kingdom-sheet_44
+  - first:
+      213: 3526005922615945
+    second: kingdom-sheet_45
+  - first:
+      213: -5398888332354764211
+    second: kingdom-sheet_46
+  - first:
+      213: 9157498159849617913
+    second: kingdom-sheet_47
+  - first:
+      213: -2593199933259098886
+    second: kingdom-sheet_48
+  - first:
+      213: 567612925536044633
+    second: kingdom-sheet_49
+  - first:
+      213: -2823585016786644822
+    second: kingdom-sheet_50
+  - first:
+      213: 1452937842327509282
+    second: kingdom-sheet_51
+  - first:
+      213: -8312614816123994046
+    second: kingdom-sheet_52
+  - first:
+      213: 3453069312382664657
+    second: kingdom-sheet_53
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 1
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 0
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: kingdom-sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 871
+        width: 369
+        height: 373
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7cc0f330766b43d0800000000000000
+      internalID: -3221368476359668609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1172
+        width: 6
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb442f42e6e88bdb0800000000000000
+      internalID: -4775910801109007173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_2
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 1175
+        width: 47
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd2f774ac9ea40e40800000000000000
+      internalID: 5621810222662677213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_3
+      rect:
+        serializedVersion: 2
+        x: 366
+        y: 1203
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f56f96d65f6ec6c90800000000000000
+      internalID: -7175106164531005857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_4
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 1173
+        width: 62
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91622d5a270ebd3f0800000000000000
+      internalID: -874858919580522983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_5
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 1177
+        width: 23
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa93d9f83cd359ce0800000000000000
+      internalID: -1399144199091308113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_6
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 1169
+        width: 35
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0774d36927c2c9990800000000000000
+      internalID: -7377973218881222800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_7
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 803
+        width: 317
+        height: 437
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ed58d8354bf856c0800000000000000
+      internalID: -4154294381524263455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_8
+      rect:
+        serializedVersion: 2
+        x: 906
+        y: 1078
+        width: 176
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0f57e7395eaedb30800000000000000
+      internalID: 4314077191280746252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_9
+      rect:
+        serializedVersion: 2
+        x: 1182
+        y: 1114
+        width: 67
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d5868380cc917f90800000000000000
+      internalID: -6957607598656420399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_10
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 1159
+        width: 35
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80002c837d1cd0070800000000000000
+      internalID: 8074322837059534856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_11
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 1142
+        width: 15
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25755c2f45bcf2840800000000000000
+      internalID: 5201599660346922834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_12
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 1148
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d2991761de6155d0800000000000000
+      internalID: -3075555224860388647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_13
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 1144
+        width: 33
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1e4eaeef7cf24840800000000000000
+      internalID: 5207001745589161499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_14
+      rect:
+        serializedVersion: 2
+        x: 1097
+        y: 1114
+        width: 60
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68382420324d04c50800000000000000
+      internalID: 6647546296825709446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_15
+      rect:
+        serializedVersion: 2
+        x: 346
+        y: 580
+        width: 282
+        height: 566
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2b80af9c947253e0800000000000000
+      internalID: -2066461062967817430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_16
+      rect:
+        serializedVersion: 2
+        x: 1210
+        y: 1106
+        width: 15
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08845f22f8b9f36a0800000000000000
+      internalID: -6467279500811614080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 347
+        height: 873
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33932498be64dc370800000000000000
+      internalID: 8344403662021474611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_18
+      rect:
+        serializedVersion: 2
+        x: 882
+        y: 842
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dd70097978884d30800000000000000
+      internalID: 4415929489939267033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_19
+      rect:
+        serializedVersion: 2
+        x: 898
+        y: 805
+        width: 38
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d0e2faf947649980800000000000000
+      internalID: -8533081826519752493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_20
+      rect:
+        serializedVersion: 2
+        x: 943
+        y: 833
+        width: 301
+        height: 272
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 149fe54abfcb1a6e0800000000000000
+      internalID: -1827972184755209919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_21
+      rect:
+        serializedVersion: 2
+        x: 951
+        y: 837
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb2d7dc13d3d045a0800000000000000
+      internalID: -6538993755266493761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_22
+      rect:
+        serializedVersion: 2
+        x: 975
+        y: 489
+        width: 262
+        height: 347
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8946685d0de9dcc00800000000000000
+      internalID: 922568118453560472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_23
+      rect:
+        serializedVersion: 2
+        x: 987
+        y: 861
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c31a54994f391690800000000000000
+      internalID: -7630998508348501048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_24
+      rect:
+        serializedVersion: 2
+        x: 997
+        y: 865
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5abe2c9f0e6a6920800000000000000
+      internalID: 2984318716410247775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_25
+      rect:
+        serializedVersion: 2
+        x: 1001
+        y: 826
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a8ed9a30986860f0800000000000000
+      internalID: -1123533138360932188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_26
+      rect:
+        serializedVersion: 2
+        x: 1025
+        y: 831
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f50187de120a7970800000000000000
+      internalID: 8753311157235811824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_27
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 802
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a12f9143ede0e73c0800000000000000
+      internalID: -4360031041728417254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_28
+      rect:
+        serializedVersion: 2
+        x: 938
+        y: 809
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7eeac67b9b7381d20800000000000000
+      internalID: 3249408401933643495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_29
+      rect:
+        serializedVersion: 2
+        x: 625
+        y: 515
+        width: 351
+        height: 281
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d403707b5a1d16f0800000000000000
+      internalID: -712384186023738153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_30
+      rect:
+        serializedVersion: 2
+        x: 965
+        y: 710
+        width: 19
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bc3388ee622e9370800000000000000
+      internalID: 8331134220424658097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_31
+      rect:
+        serializedVersion: 2
+        x: 965
+        y: 690
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83d5e8c9ee74e6fa0800000000000000
+      internalID: -5805623779479626440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_32
+      rect:
+        serializedVersion: 2
+        x: 346
+        y: 586
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4acd347b5125bd2f0800000000000000
+      internalID: -947073043408888668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_33
+      rect:
+        serializedVersion: 2
+        x: 303
+        y: 0
+        width: 329
+        height: 581
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e081690fc069631a0800000000000000
+      internalID: -6830106802540636146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_34
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 552
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ccdfa3659b013fd0800000000000000
+      internalID: -2364095593142297407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_35
+      rect:
+        serializedVersion: 2
+        x: 721
+        y: 554
+        width: 14
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9bbc0b3b6e43eca0800000000000000
+      internalID: -5988856857013470308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_36
+      rect:
+        serializedVersion: 2
+        x: 930
+        y: 562
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fabc9ae36c0fc6f60800000000000000
+      internalID: 8029056969940257711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_37
+      rect:
+        serializedVersion: 2
+        x: 878
+        y: 528
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64f643c0930d2a670800000000000000
+      internalID: 8548623986139098950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_38
+      rect:
+        serializedVersion: 2
+        x: 609
+        y: 487
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc77bafa338141890800000000000000
+      internalID: -7488333670140643379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_39
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 0
+        width: 319
+        height: 511
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57acc35788d02e8d0800000000000000
+      internalID: -2818675537046877579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_40
+      rect:
+        serializedVersion: 2
+        x: 954
+        y: 499
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb7ff47829e427360800000000000000
+      internalID: 7165876348342237115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_41
+      rect:
+        serializedVersion: 2
+        x: 952
+        y: 393
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec3b89d945ec8f010800000000000000
+      internalID: 1222954161647694798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_42
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 274
+        width: 280
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50ac66252d4eff810800000000000000
+      internalID: 1801409967948220933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_43
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 330
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dc363cac6b89a0f0800000000000000
+      internalID: -1105198934680781610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_44
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 295
+        width: 34
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a34226980961a35e0800000000000000
+      internalID: -1929204680338824134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_45
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 256
+        width: 5
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9825e7a32e68c0000800000000000000
+      internalID: 3526005922615945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_46
+      rect:
+        serializedVersion: 2
+        x: 942
+        y: 276
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d424eff8aab4315b0800000000000000
+      internalID: -5398888332354764211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_47
+      rect:
+        serializedVersion: 2
+        x: 954
+        y: 274
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f93121de08f51f70800000000000000
+      internalID: 9157498159849617913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_48
+      rect:
+        serializedVersion: 2
+        x: 956
+        y: 0
+        width: 296
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af4568a666a130cd0800000000000000
+      internalID: -2593199933259098886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_49
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 176
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9560f7cc2f090e700800000000000000
+      internalID: 567612925536044633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_50
+      rect:
+        serializedVersion: 2
+        x: 629
+        y: 110
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa01151236c90d8d0800000000000000
+      internalID: -2823585016786644822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_51
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 0
+        width: 17
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22957a4054fd92410800000000000000
+      internalID: 1452937842327509282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_52
+      rect:
+        serializedVersion: 2
+        x: 179
+        y: 0
+        width: 31
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 240c74aedd8a3ac80800000000000000
+      internalID: -8312614816123994046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kingdom-sheet_53
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 18
+        width: 30
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dffe559e34cbef20800000000000000
+      internalID: 3453069312382664657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      kingdom-sheet_0: -3221368476359668609
+      kingdom-sheet_1: -4775910801109007173
+      kingdom-sheet_10: 8074322837059534856
+      kingdom-sheet_11: 5201599660346922834
+      kingdom-sheet_12: -3075555224860388647
+      kingdom-sheet_13: 5207001745589161499
+      kingdom-sheet_14: 6647546296825709446
+      kingdom-sheet_15: -2066461062967817430
+      kingdom-sheet_16: -6467279500811614080
+      kingdom-sheet_17: 8344403662021474611
+      kingdom-sheet_18: 4415929489939267033
+      kingdom-sheet_19: -8533081826519752493
+      kingdom-sheet_2: 5621810222662677213
+      kingdom-sheet_20: -1827972184755209919
+      kingdom-sheet_21: -6538993755266493761
+      kingdom-sheet_22: 922568118453560472
+      kingdom-sheet_23: -7630998508348501048
+      kingdom-sheet_24: 2984318716410247775
+      kingdom-sheet_25: -1123533138360932188
+      kingdom-sheet_26: 8753311157235811824
+      kingdom-sheet_27: -4360031041728417254
+      kingdom-sheet_28: 3249408401933643495
+      kingdom-sheet_29: -712384186023738153
+      kingdom-sheet_3: -7175106164531005857
+      kingdom-sheet_30: 8331134220424658097
+      kingdom-sheet_31: -5805623779479626440
+      kingdom-sheet_32: -947073043408888668
+      kingdom-sheet_33: -6830106802540636146
+      kingdom-sheet_34: -2364095593142297407
+      kingdom-sheet_35: -5988856857013470308
+      kingdom-sheet_36: 8029056969940257711
+      kingdom-sheet_37: 8548623986139098950
+      kingdom-sheet_38: -7488333670140643379
+      kingdom-sheet_39: -2818675537046877579
+      kingdom-sheet_4: -874858919580522983
+      kingdom-sheet_40: 7165876348342237115
+      kingdom-sheet_41: 1222954161647694798
+      kingdom-sheet_42: 1801409967948220933
+      kingdom-sheet_43: -1105198934680781610
+      kingdom-sheet_44: -1929204680338824134
+      kingdom-sheet_45: 3526005922615945
+      kingdom-sheet_46: -5398888332354764211
+      kingdom-sheet_47: 9157498159849617913
+      kingdom-sheet_48: -2593199933259098886
+      kingdom-sheet_49: 567612925536044633
+      kingdom-sheet_5: -1399144199091308113
+      kingdom-sheet_50: -2823585016786644822
+      kingdom-sheet_51: 1452937842327509282
+      kingdom-sheet_52: -8312614816123994046
+      kingdom-sheet_53: 3453069312382664657
+      kingdom-sheet_6: -7377973218881222800
+      kingdom-sheet_7: -4154294381524263455
+      kingdom-sheet_8: 4314077191280746252
+      kingdom-sheet_9: -6957607598656420399
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -7,18 +7,24 @@ namespace Game.Fortifications.Domain.Definitions
     {
         public static WallDefinition Default { get; } = new WallDefinition(0.52f, 0.5f, 0.4f);
 
+        public int GateHealth { get; }
+        public float GateAttackInterval { get; }
         public float Width { get; }
         public float Height { get; }
         public float JunctionRadius { get; }
         public float JunctionClearance { get; }
 
-        public WallDefinition(float width, float height, float junctionRadius, float junctionClearance = 0.01875f)
+        public WallDefinition(float width, float height, float junctionRadius, float junctionClearance = 0.01875f, int gateHealth = 100, float gateAttackInterval = 1)
         {
             if (!Positive(width) || !Positive(height) || !Positive(junctionRadius) || !Positive(junctionClearance) || junctionRadius <= width * 0.5f)
             {
                 throw new ArgumentException("墙宽、墙高必须为有限正数，连接底座半径必须大于墙半宽。");
             }
 
+            if (gateHealth <= 0 || !Positive(gateAttackInterval))
+                throw new ArgumentException("城门生命与受击间隔必须为正数。");
+            GateHealth = gateHealth;
+            GateAttackInterval = gateAttackInterval;
             Width = width;
             Height = height;
             JunctionRadius = junctionRadius;

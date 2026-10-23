@@ -31,7 +31,8 @@ namespace Game.Maps.Domain.Mappings
             return new WallNetworkSnapshot(
                 layout.wallNodes.Select(node => new WallNodeSnapshot(node.id, new MapPoint(node.x, node.y))),
                 layout.wallEdges.Select(edge => new WallEdgeSnapshot(edge.id, edge.from, edge.to,
-                    edge.hasGate && edge.gate != null ? new WallGateSnapshot(edge.gate.position, edge.gate.width, edge.gate.openingWidth, edge.gate.isOpen) : null)));
+                    edge.gates?.Select(gate => gate == null ? null : new WallGateSnapshot(gate.id, gate.startTile, gate.widthTiles, gate.openingTiles, gate.isOpen, gate.isDestroyed)))),
+                layout.cellWidth, layout.cellHeight);
         }
 
         public static void Write(WallNetworkSnapshot network, MapLayout target)
@@ -39,12 +40,12 @@ namespace Game.Maps.Domain.Mappings
             target.wallNodes = network.Nodes.Select(node => new WallNode { id = node.Id, x = node.Position.X, y = node.Position.Y }).ToList();
             target.wallEdges = network.Edges.Select(edge => new WallEdge
             {
-                id = edge.Id, from = edge.From, to = edge.To, hasGate = edge.HasGate,
-                gate = edge.Gate == null ? new WallGate() : new WallGate
+                id = edge.Id, from = edge.From, to = edge.To,
+                gates = edge.Gates.Select(gate => new WallGate
                 {
-                    position = edge.Gate.Position, width = edge.Gate.Width,
-                    openingWidth = edge.Gate.OpeningWidth, isOpen = edge.Gate.IsOpen
-                }
+                    id = gate.Id, startTile = gate.StartTile, widthTiles = gate.WidthTiles,
+                    openingTiles = gate.OpeningTiles, isOpen = gate.IsOpen, isDestroyed = gate.IsDestroyed
+                }).ToList()
             }).ToList();
         }
     }

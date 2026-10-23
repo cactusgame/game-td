@@ -1,4 +1,5 @@
 using Game.Construction.Application.Sessions;
+using Game.Fortifications.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using Game.Battle.Application.Sessions;
@@ -27,9 +28,13 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         private MapConstructionState _placements;
         private bool _disposed;
         private bool _faulted;
+        private GatePassageSession _gates;
+        private GridMap _enemyNavigation;
+        public int GateViewVersion => _gates?.ViewVersion ?? 0;
+        public int GetGateHealth(string id) => _gates.Health(id);
 
-        public MapLayout Snapshot => _placements?.Snapshot;
-        public GridMap Navigation => _placements?.Navigation;
+        public MapLayout Snapshot => _placements == null ? null : _gates.Project(_placements.Snapshot);
+        public GridMap Navigation => _enemyNavigation;
         public int MapVersion => _placements?.Version ?? 0;
         public int Generation { get; private set; }
         public double SimulationTime => _battle?.ElapsedTime ?? 0;
@@ -56,10 +61,14 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             var placements = new MapConstructionState(_initialMap, _catalog);
             var simulation = _createSimulation();
             BattleSession battle;
+            var gates = new GatePassageSession(_catalog);
+            GridMap enemyNavigation;
             try
             {
                 battle = new BattleSession(new PreparedDefinitionSource(definition), simulation, _input);
                 battle.Restart();
+                enemyNavigation = gates.Navigation(placements.Snapshot, false);
+                simulation.UpdateNavigationMap(enemyNavigation, definition.Navigation, gates.Navigation(placements.Snapshot, true));
             }
             catch
             {
@@ -70,6 +79,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             _simulation = simulation;
             _battle = battle;
             _placements = placements;
+            _gates = gates;
+            _enemyNavigation = enemyNavigation;
             _faulted = false;
             Generation++;
             previousSimulation?.Dispose();
@@ -78,7 +89,13 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public void Advance(float deltaTime)
         {
             RequireActive();
+            double before = SimulationTime;
             _battle.Advance(deltaTime);
+            int spatialVersion = _gates.SpatialVersion;
+            _gates.Update(_simulation, _placements.Snapshot, Definition, Units, SimulationTime, SimulationTime > before);
+            // 自动开门仅改变表现；只有破门改变敌方通行，不逐帧重建导航图。
+            if (spatialVersion != _gates.SpatialVersion)
+                _enemyNavigation = _gates.Navigation(_placements.Snapshot, false);
         }
 
         public bool TryBuild(string definitionId, int x, int y, out string reason)
@@ -102,11 +119,26 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             return TryPublish(candidate, out reason);
         }
 
-        public bool TrySetGateOpen(string edgeId, bool isOpen, out string reason)
+        /// <summary>运行建设入口；只有空间同步并提交后才向调用方返回新门 ID。</summary>
+        public bool TryPlaceGate(string edgeId, int startTile, int widthTiles, int openingTiles, bool isOpen,
+            out string gateId, out string reason)
+        {
+            RequireActive();
+            gateId = null;
+            string candidateId = MapLayout.NewId();
+            var gate = new WallGateSnapshot(candidateId, startTile, widthTiles, openingTiles, isOpen);
+            var candidate = _placements.CreateCandidate();
+            if (!candidate.TryPlaceGate(edgeId, gate, UnitsRemainClear, out reason) || !TryPublish(candidate, out reason))
+                return false;
+            gateId = candidateId;
+            return true;
+        }
+
+        public bool TrySetGateOpen(string gateId, bool isOpen, out string reason)
         {
             RequireActive();
             var candidate = _placements.CreateCandidate();
-            if (!candidate.TrySetGateOpen(edgeId, isOpen, UnitsRemainClear, out reason))
+            if (!candidate.TrySetGateOpen(gateId, isOpen, UnitsRemainClear, out reason))
                 return false;
             if (candidate.Version == _placements.Version)
                 return true;
@@ -126,15 +158,16 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
 
         private bool TryPublish(MapConstructionState candidate, out string reason)
         {
+            var enemyNavigation = _gates.Navigation(candidate.Snapshot, false);
             try
             {
-                _simulation.UpdateNavigationMap(candidate.Navigation, Definition.Navigation);
+                _simulation.UpdateNavigationMap(enemyNavigation, Definition.Navigation, _gates.Navigation(candidate.Snapshot, true));
             }
             catch (Exception updateError)
             {
                 try
                 {
-                    _simulation.UpdateNavigationMap(_placements.Navigation, Definition.Navigation);
+                    _simulation.UpdateNavigationMap(_enemyNavigation, Definition.Navigation, _gates.Navigation(_placements.Snapshot, true));
                 }
                 catch (Exception rollbackError)
                 {
@@ -146,6 +179,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 return false;
             }
             _placements = candidate;
+            _enemyNavigation = enemyNavigation;
             reason = null;
             return true;
         }

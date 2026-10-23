@@ -20,8 +20,8 @@ namespace Game.Tools.MapAuthoring.Tests
             var map = new MapLayout();
             map.wallNodes.Add(new WallNode { id = "a", x = -5, y = 0 });
             map.wallNodes.Add(new WallNode { id = "b", x = 5, y = 0 });
-            map.wallEdges.Add(new WallEdge { id = "ab", from = "a", to = "b", hasGate = true,
-                gate = new WallGate { isOpen = true } });
+            map.wallEdges.Add(new WallEdge { id = "ab", from = "a", to = "b",
+                gates = new System.Collections.Generic.List<WallGate> { new WallGate { id = "gate-a", startTile = 3, isOpen = true } } });
             return map;
         }
 
@@ -33,14 +33,14 @@ namespace Game.Tools.MapAuthoring.Tests
             var runtime = new MapConstructionState(new MapDefinition(source, catalog), catalog);
             var navigation = runtime.Navigation;
             string before = MapJson.WriteDocument(runtime.Snapshot);
-            Assert.That(runtime.TrySetGateOpen("ab", false, _ => false, out _), Is.False);
+            Assert.That(runtime.TrySetGateOpen("gate-a", false, _ => false, out _), Is.False);
             Assert.That(runtime.Version, Is.Zero);
             Assert.That(runtime.Navigation, Is.SameAs(navigation));
             Assert.That(MapJson.WriteDocument(runtime.Snapshot), Is.EqualTo(before));
 
-            Assert.That(runtime.TrySetGateOpen("ab", false, _ => true, out _), Is.True);
-            Assert.That(runtime.Snapshot.wallEdges[0].gate.isOpen, Is.False);
-            Assert.That(source.wallEdges[0].gate.isOpen, Is.True);
+            Assert.That(runtime.TrySetGateOpen("gate-a", false, _ => true, out _), Is.True);
+            Assert.That(runtime.Snapshot.wallEdges[0].gates[0].isOpen, Is.False);
+            Assert.That(source.wallEdges[0].gates[0].isOpen, Is.True);
             var exported = runtime.Snapshot;
             exported.wallEdges.Clear();
             Assert.That(runtime.Snapshot.wallEdges.Count, Is.EqualTo(1));

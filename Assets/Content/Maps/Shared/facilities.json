@@ -40,6 +40,46 @@
       "height": 2,
       "blocksMovement": true,
       "blocksShots": true
+    },
+    {
+      "id": "house",
+      "name": "民居",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "church",
+      "name": "教堂",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "market",
+      "name": "集市",
+      "width": 2,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "well",
+      "name": "水井",
+      "width": 1,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true
+    },
+    {
+      "id": "rubble",
+      "name": "瓦砾",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true
     }
   ],
   "wall": {

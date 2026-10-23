@@ -1,4 +1,8 @@
 using Game.Fortifications.Unity.Views;
+using System.Collections.Generic;
+using Game.Maps.Domain.Mappings;
+using Game.Fortifications.Domain.Definitions;
+using Game.Fortifications.Domain.ValueObjects;
 using Game.Maps.Unity.Assets;
 using Game.MapEngine.Domain;
 using Game.Maps.Domain;
@@ -11,6 +15,26 @@ namespace Game.Maps.Unity.Views
     public sealed class MapWorldView : MonoBehaviour
     {
         private GameObject _root;
+        private readonly Dictionary<string, GameObject[]> _gateVariants = new Dictionary<string, GameObject[]>();
+
+        /// <summary>仅切换城门的预生成表现，不创建 Mesh、材质或重建地图。</summary>
+        public void SynchronizeGates(MapLayout layout)
+        {
+            foreach (var edge in layout.wallEdges)
+            {
+                foreach (var gate in edge.gates)
+                {
+                    if (!_gateVariants.TryGetValue(gate.id, out var variants))
+                        continue;
+                    int active = gate.isDestroyed ? 2 : gate.isOpen ? 1 : 0;
+                    for (int i = 0; i < variants.Length; i++)
+                        if (variants[i].activeSelf != (i == active))
+                            variants[i].SetActive(i == active);
+                }
+            }
+        }
+
+        /// <summary>仅地图布置或美术改变时重建静态地图，并预生成各座门的三种状态。</summary>
         public void Rebuild(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
         {
             if (_root != null)
@@ -18,6 +42,7 @@ namespace Game.Maps.Unity.Views
                 _root.SetActive(false);
                 Destroy(_root);
             }
+            _gateVariants.Clear();
             _root = new GameObject("Map state view");
             _root.transform.SetParent(transform, false);
             var wallMaterials = _root.AddComponent<WallMaterialLibrary>();
@@ -30,12 +55,49 @@ namespace Game.Maps.Unity.Views
                 {
                     var cell = geometry.CellAt(i);
                     var center = geometry.CellCenter(cell);
-                    AddSprite("Ground", visuals.Terrain(layout.terrain[i])?.ground, center.X, center.Y, layout.cellWidth, layout.cellHeight, -3000, false);
+                    AddSprite("Ground", visuals.Terrain(layout.GroundAt(i))?.ground, center.X, center.Y, layout.cellWidth, layout.cellHeight, -3000, false);
                 }
             }
+            var network = MapWallSnapshotMapper.Read(layout);
+            var appearance = new WallDefinition(catalog.Wall.Width * visuals.wallWidthScale,
+                catalog.Wall.Height * visuals.wallHeightScale,
+                Mathf.Max(catalog.Wall.JunctionRadius, catalog.Wall.Width * visuals.wallWidthScale * 0.6f), catalog.Wall.JunctionClearance);
+            foreach (var edge in network.Edges)
+            {
+                foreach (var gate in edge.Gates)
+                {
+                    var variants = new GameObject[3];
+                    _gateVariants.Add(gate.Id, variants);
+                    for (int state = 0; state < variants.Length; state++)
+                    {
+                        var group = new GameObject($"Gate {gate.Id} state {state}");
+                        group.transform.SetParent(_root.transform, false);
+                        variants[state] = group;
+                        // 校验使用所属快照内的同一门对象；独立复制门会被合法地判为重复 ID。
+                        var stateLayout = layout.Copy();
+                        var stateGate = stateLayout.wallEdges.Find(item => item.id == edge.Id).gates.Find(item => item.id == gate.Id);
+                        stateGate.isOpen = state == 1;
+                        stateGate.isDestroyed = state == 2;
+                        var stateNetwork = MapWallSnapshotMapper.Read(stateLayout);
+                        var stateEdge = stateNetwork.FindEdge(edge.Id);
+                        var snapshot = System.Linq.Enumerable.First(stateEdge.Gates, item => item.Id == gate.Id);
+                        int index = 0;
+                        foreach (var entry in GatePresentation.Build(stateNetwork, stateEdge, snapshot, appearance, visuals.WallStyle))
+                        {
+                            var part = new GameObject(entry.Id);
+                            part.transform.SetParent(group.transform, false);
+                            part.AddComponent<WallMeshView>().Build(entry, Sort(entry.GroundY), wallMaterials.Require(entry.Wall.Mesh.Sprite.texture));
+                            part.transform.position += Vector3.back * (++index * 0.00001f);
+                        }
+                    }
+                }
+            }
+            SynchronizeGates(layout);
             int depthIndex = 0;
             foreach (var entry in MapSceneSprites.Build(layout, visuals, catalog))
             {
+                if (_gateVariants.ContainsKey(entry.Id))
+                    continue;
                 GameObject go;
                 if (entry.Wall != null)
                 {

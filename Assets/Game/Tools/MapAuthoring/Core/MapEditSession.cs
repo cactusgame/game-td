@@ -7,6 +7,54 @@ namespace Game.Tools.MapAuthoring
     /// <summary>编辑文档和历史的唯一拥有者。一笔笔刷或一次拖动形成一次历史记录。</summary>
     public sealed class MapEditSession
     {
+        /// <summary>编辑器在候选副本上替换完整占地，通过空间校验后由调用者提交历史；玩家建造仍使用严格空间规则。</summary>
+        public static bool TryReplaceFacility(MapLayout layout, MapContentCatalog catalog, InitialFacility facility, out MapLayout result, out string reason)
+        {
+            result = layout.Copy();
+            var definition = catalog.Find(facility.definitionId);
+            if (definition == null)
+                return MapSpatialRules.CanPlaceFacility(layout, catalog, facility, out reason);
+            result.facilities.RemoveAll(item =>
+            {
+                var other = catalog.Find(item.definitionId);
+                return item.id != facility.id && other != null && item.x < facility.x + definition.width &&
+                    item.x + other.width > facility.x && item.y < facility.y + definition.height && item.y + other.height > facility.y;
+            });
+            for (int y = facility.y; y < facility.y + definition.height; y++)
+            {
+                for (int x = facility.x; x < facility.x + definition.width; x++)
+                {
+                    if (!result.Geometry.Contains(new Game.MapEngine.Domain.GridCell(x, y)))
+                        continue;
+                    int index = y * result.columns + x;
+                    if (MapLayout.IsTerrainObstacle(result.terrain[index]))
+                        result.terrain[index] = result.GroundAt(index);
+                }
+            }
+            if (!MapSpatialRules.CanPlaceFacility(result, catalog, facility, out reason))
+                return false;
+            result.facilities.RemoveAll(item => item.id == facility.id);
+            result.facilities.Add(facility.Copy());
+            return true;
+        }
+        public static void Paint(MapLayout layout, MapContentCatalog catalog, int index, Game.MapEngine.Domain.TerrainKind kind)
+        {
+            if (!MapLayout.IsTerrainObstacle(kind))
+            {
+                layout.PaintGround(index, kind);
+                return;
+            }
+            int x = index % layout.columns;
+            int y = index / layout.columns;
+            layout.facilities.RemoveAll(item =>
+            {
+                var definition = catalog.Find(item.definitionId);
+                return definition != null && x >= item.x && x < item.x + definition.width && y >= item.y && y < item.y + definition.height;
+            });
+            layout.PaintGround(index, layout.GroundAt(index));
+            layout.terrain[index] = kind;
+        }
+
         [Serializable]
         public sealed class Revision
         {

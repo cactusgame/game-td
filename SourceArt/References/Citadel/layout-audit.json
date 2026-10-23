@@ -1,0 +1,369 @@
+{
+  "reference": "SourceArt/References/Citadel/reference.png",
+  "referenceWidth": 1936,
+  "referenceHeight": 1080,
+  "pixelsPerWorldUnit": 20,
+  "map": "Assets/Content/Maps/Styles/PixelKingdom/reference-citadel.map.json",
+  "originX": -48.5,
+  "originY": -27.0,
+  "render": "Docs/Validation/reference-citadel.png",
+  "nodes": [
+    {
+      "id": "outer-nw",
+      "footPixelX": 330.0,
+      "footPixelY": 130.0
+    },
+    {
+      "id": "outer-ne",
+      "footPixelX": 1590.0,
+      "footPixelY": 130.0
+    },
+    {
+      "id": "outer-west-shoulder",
+      "footPixelX": 330.0,
+      "footPixelY": 270.0
+    },
+    {
+      "id": "outer-west-step",
+      "footPixelX": 210.0,
+      "footPixelY": 270.0
+    },
+    {
+      "id": "outer-west-breach",
+      "footPixelX": 210.0,
+      "footPixelY": 570.0
+    },
+    {
+      "id": "outer-sw",
+      "footPixelX": 490.0,
+      "footPixelY": 850.0
+    },
+    {
+      "id": "barbican-nw",
+      "footPixelX": 810.0,
+      "footPixelY": 850.0
+    },
+    {
+      "id": "barbican-ne",
+      "footPixelX": 1230.0,
+      "footPixelY": 850.0
+    },
+    {
+      "id": "outer-se",
+      "footPixelX": 1710.0,
+      "footPixelY": 850.0
+    },
+    {
+      "id": "outer-east-breach-low",
+      "footPixelX": 1710.0,
+      "footPixelY": 590.0
+    },
+    {
+      "id": "outer-east-breach-high",
+      "footPixelX": 1710.0,
+      "footPixelY": 410.0
+    },
+    {
+      "id": "outer-east-step",
+      "footPixelX": 1710.0,
+      "footPixelY": 270.0
+    },
+    {
+      "id": "outer-east-shoulder",
+      "footPixelX": 1590.0,
+      "footPixelY": 270.0
+    },
+    {
+      "id": "barbican-sw",
+      "footPixelX": 810.0,
+      "footPixelY": 970.0
+    },
+    {
+      "id": "barbican-se",
+      "footPixelX": 1230.0,
+      "footPixelY": 970.0
+    },
+    {
+      "id": "inner-nw",
+      "footPixelX": 550.0,
+      "footPixelY": 310.0
+    },
+    {
+      "id": "inner-ne",
+      "footPixelX": 1390.0,
+      "footPixelY": 310.0
+    },
+    {
+      "id": "inner-sw",
+      "footPixelX": 550.0,
+      "footPixelY": 670.0
+    },
+    {
+      "id": "inner-se",
+      "footPixelX": 1390.0,
+      "footPixelY": 670.0
+    },
+    {
+      "id": "keep-nw",
+      "footPixelX": 830.0,
+      "footPixelY": 390.0
+    },
+    {
+      "id": "keep-ne",
+      "footPixelX": 1110.0,
+      "footPixelY": 390.0
+    },
+    {
+      "id": "keep-sw",
+      "footPixelX": 830.0,
+      "footPixelY": 530.0
+    },
+    {
+      "id": "keep-se",
+      "footPixelX": 1110.0,
+      "footPixelY": 530.0
+    }
+  ],
+  "facilities": [
+    {
+      "id": "keep",
+      "definitionId": "hall",
+      "cellX": 47,
+      "cellY": 30,
+      "nominalFootPixelX": 960,
+      "nominalFootPixelY": 470.0
+    },
+    {
+      "id": "north-west-house",
+      "definitionId": "house",
+      "cellX": 23,
+      "cellY": 42,
+      "nominalFootPixelX": 480,
+      "nominalFootPixelY": 230.0
+    },
+    {
+      "id": "north-church",
+      "definitionId": "church",
+      "cellX": 32,
+      "cellY": 44,
+      "nominalFootPixelX": 660,
+      "nominalFootPixelY": 190.0
+    },
+    {
+      "id": "north-east-house",
+      "definitionId": "house",
+      "cellX": 64,
+      "cellY": 43,
+      "nominalFootPixelX": 1300,
+      "nominalFootPixelY": 210.0
+    },
+    {
+      "id": "north-well",
+      "definitionId": "well",
+      "cellX": 58,
+      "cellY": 44,
+      "nominalFootPixelX": 1180,
+      "nominalFootPixelY": 190.0
+    },
+    {
+      "id": "west-church",
+      "definitionId": "church",
+      "cellX": 19,
+      "cellY": 33,
+      "nominalFootPixelX": 400,
+      "nominalFootPixelY": 410.0
+    },
+    {
+      "id": "west-field",
+      "definitionId": "farm",
+      "cellX": 22,
+      "cellY": 36,
+      "nominalFootPixelX": 460,
+      "nominalFootPixelY": 350.0
+    },
+    {
+      "id": "west-market",
+      "definitionId": "market",
+      "cellX": 20,
+      "cellY": 29,
+      "nominalFootPixelX": 420,
+      "nominalFootPixelY": 490.0
+    },
+    {
+      "id": "west-cottage",
+      "definitionId": "house",
+      "cellX": 17,
+      "cellY": 24,
+      "nominalFootPixelX": 360,
+      "nominalFootPixelY": 590.0
+    },
+    {
+      "id": "inner-nw-house",
+      "definitionId": "church",
+      "cellX": 34,
+      "cellY": 33,
+      "nominalFootPixelX": 700,
+      "nominalFootPixelY": 410.0
+    },
+    {
+      "id": "inner-sw-house",
+      "definitionId": "church",
+      "cellX": 33,
+      "cellY": 25,
+      "nominalFootPixelX": 680,
+      "nominalFootPixelY": 570.0
+    },
+    {
+      "id": "inner-ne-house",
+      "definitionId": "church",
+      "cellX": 62,
+      "cellY": 33,
+      "nominalFootPixelX": 1260,
+      "nominalFootPixelY": 410.0
+    },
+    {
+      "id": "inner-se-house",
+      "definitionId": "house",
+      "cellX": 60,
+      "cellY": 26,
+      "nominalFootPixelX": 1220,
+      "nominalFootPixelY": 550.0
+    },
+    {
+      "id": "east-church",
+      "definitionId": "church",
+      "cellX": 73,
+      "cellY": 38,
+      "nominalFootPixelX": 1480,
+      "nominalFootPixelY": 310.0
+    },
+    {
+      "id": "east-house",
+      "definitionId": "house",
+      "cellX": 74,
+      "cellY": 32,
+      "nominalFootPixelX": 1500,
+      "nominalFootPixelY": 430.0
+    },
+    {
+      "id": "east-market",
+      "definitionId": "market",
+      "cellX": 74,
+      "cellY": 29,
+      "nominalFootPixelX": 1500,
+      "nominalFootPixelY": 490.0
+    },
+    {
+      "id": "east-well",
+      "definitionId": "well",
+      "cellX": 76,
+      "cellY": 25,
+      "nominalFootPixelX": 1540,
+      "nominalFootPixelY": 570.0
+    },
+    {
+      "id": "east-foundry",
+      "definitionId": "foundry",
+      "cellX": 75,
+      "cellY": 21,
+      "nominalFootPixelX": 1520,
+      "nominalFootPixelY": 650.0
+    },
+    {
+      "id": "south-west-foundry",
+      "definitionId": "foundry",
+      "cellX": 32,
+      "cellY": 15,
+      "nominalFootPixelX": 660,
+      "nominalFootPixelY": 770.0
+    },
+    {
+      "id": "south-east-house",
+      "definitionId": "church",
+      "cellX": 63,
+      "cellY": 15,
+      "nominalFootPixelX": 1280,
+      "nominalFootPixelY": 770.0
+    },
+    {
+      "id": "south-east-field",
+      "definitionId": "farm",
+      "cellX": 74,
+      "cellY": 15,
+      "nominalFootPixelX": 1500,
+      "nominalFootPixelY": 770.0
+    },
+    {
+      "id": "south-east-cottage",
+      "definitionId": "house",
+      "cellX": 78,
+      "cellY": 16,
+      "nominalFootPixelX": 1580,
+      "nominalFootPixelY": 750.0
+    },
+    {
+      "id": "west-rubble-1",
+      "definitionId": "rubble",
+      "cellX": 10,
+      "cellY": 23,
+      "nominalFootPixelX": 220,
+      "nominalFootPixelY": 610.0
+    },
+    {
+      "id": "west-rubble-2",
+      "definitionId": "rubble",
+      "cellX": 13,
+      "cellY": 21,
+      "nominalFootPixelX": 280,
+      "nominalFootPixelY": 650.0
+    },
+    {
+      "id": "west-rubble-3",
+      "definitionId": "rubble",
+      "cellX": 16,
+      "cellY": 18,
+      "nominalFootPixelX": 340,
+      "nominalFootPixelY": 710.0
+    },
+    {
+      "id": "west-rubble-4",
+      "definitionId": "rubble",
+      "cellX": 18,
+      "cellY": 16,
+      "nominalFootPixelX": 380,
+      "nominalFootPixelY": 750.0
+    },
+    {
+      "id": "west-rubble-5",
+      "definitionId": "rubble",
+      "cellX": 21,
+      "cellY": 13,
+      "nominalFootPixelX": 440,
+      "nominalFootPixelY": 810.0
+    },
+    {
+      "id": "east-rubble-1",
+      "definitionId": "rubble",
+      "cellX": 85,
+      "cellY": 30,
+      "nominalFootPixelX": 1720,
+      "nominalFootPixelY": 470.0
+    },
+    {
+      "id": "east-rubble-2",
+      "definitionId": "rubble",
+      "cellX": 86,
+      "cellY": 28,
+      "nominalFootPixelX": 1740,
+      "nominalFootPixelY": 510.0
+    },
+    {
+      "id": "east-rubble-3",
+      "definitionId": "rubble",
+      "cellX": 85,
+      "cellY": 26,
+      "nominalFootPixelX": 1720,
+      "nominalFootPixelY": 550.0
+    }
+  ]
+}

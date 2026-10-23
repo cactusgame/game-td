@@ -27,6 +27,15 @@ namespace Game.Maps.Unity.Assets
         public TerrainVisual[] terrain;
         public FacilityVisual[] facilities;
         public Sprite wall;
+        public Sprite wallJunction;
+        public float wallHeightScale = 1;
+        public float wallWidthScale = 1;
+        public float wallJunctionWidth = 1.8f;
+        [Tooltip("敌台表现高度；0 表示沿用图片宽高比。与宽度独立，避免缩窄平台时把台身同时压矮。") ]
+        public float wallJunctionHeight;
+        public float keepWidthScale = 1;
+        public float keepHeightScale = 1;
+        public float facilityWidthScale = 1.2f;
         [Tooltip("墙身在原 Sprite 内的归一化区域；排除透明留白和重复端柱，不修改原图片。")]
         public Rect wallBodyRegion = new Rect(0.32f, 0.06f, 0.65f, 0.4f);
         public TextAsset facilityRules;
@@ -43,6 +52,8 @@ namespace Game.Maps.Unity.Assets
         [Tooltip("独立的墙顶铺地素材；与墙面分别取样，不把墙面立面压扁作为走道。")]
         public Sprite wallWalkway;
         public Sprite gateClosed;
+        [Tooltip("程序化铁栅的表面材质；为空时使用纯色金属，避免把石砖纹理画到铁条上。")]
+        public Sprite gateMetal;
         public Sprite gateOpen;
         [Tooltip("城门素材底部透明留白占高度比例；两态共用地面脚底锚点。")]
         public float gateFootInset = 0.025f;
@@ -58,7 +69,9 @@ namespace Game.Maps.Unity.Assets
                 var style = wallDimensions ?? new WallVisualStyle();
                 var masonry = wallMasonry != null ? wallMasonry : WallBodySprite;
                 var paving = wallWalkway != null ? wallWalkway : masonry;
-                return style.WithMaterials(masonry, paving, gateSideInset);
+                var resolved = style.WithMaterials(masonry, paving, gateSideInset);
+                resolved.Iron = gateMetal != null ? gateMetal : GateMetalSprite;
+                return resolved;
             }
         }
 
@@ -74,6 +87,21 @@ namespace Game.Maps.Unity.Assets
             return Terrain(kind)?.obstacle;
         }
         [NonSerialized] private Sprite _wallBody;
+        [NonSerialized] private Sprite _gateMetal;
+
+        private Sprite GateMetalSprite
+        {
+            get
+            {
+                if (_gateMetal == null)
+                {
+                    _gateMetal = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f, 1);
+                    _gateMetal.name = "Procedural gate metal";
+                    _gateMetal.hideFlags = HideFlags.HideAndDontSave;
+                }
+                return _gateMetal;
+            }
+        }
         [NonSerialized] private Sprite _wallBodySource;
         [NonSerialized] private Rect _wallBodySourceRegion;
 
@@ -105,7 +133,18 @@ namespace Game.Maps.Unity.Assets
             }
         }
 
-        private void OnDisable() => ReleaseWallBody();
+        private void OnDisable()
+        {
+            ReleaseWallBody();
+            if (_gateMetal != null)
+            {
+                if (Application.isPlaying)
+                    Destroy(_gateMetal);
+                else
+                    DestroyImmediate(_gateMetal);
+                _gateMetal = null;
+            }
+        }
 
         private void ReleaseWallBody()
         {
@@ -119,7 +158,30 @@ namespace Game.Maps.Unity.Assets
         }
 
         public TerrainVisual Terrain(TerrainKind kind) => Array.Find(terrain, item => item.kind == kind);
-        public Sprite Facility(string id) => Array.Find(facilities, item => item.definitionId == id)?.sprite;
+        public Sprite Facility(string id)
+        {
+            var sprite = Array.Find(facilities, item => item.definitionId == id)?.sprite;
+            if (sprite != null)
+                return sprite;
+            // 旧套装缺少新增村落类型时，以已有同类建筑表现，保证切回后仍可辨认。
+            string fallback;
+            switch (id)
+            {
+                case "rubble": return rockVariants != null && rockVariants.Length > 0 ? rockVariants[0] : Terrain(TerrainKind.Rock)?.obstacle;
+                case "house": fallback = "hall"; break;
+                case "church": fallback = "mage"; break;
+                case "market": case "well": fallback = "farm"; break;
+                default: return null;
+            }
+            return Array.Find(facilities, item => item.definitionId == fallback)?.sprite;
+        }
 
     }
 }
+
+
+
+
+
+
+

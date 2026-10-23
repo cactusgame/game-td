@@ -41,6 +41,18 @@ namespace Game.Maps.Domain
                     issues.Add(new MapIssue("未知地形类型", cell.X, cell.Y));
                 }
             }
+            if (layout.groundTerrain != null && layout.groundTerrain.Length > 0)
+            {
+                if (layout.groundTerrain.Length != geometry.CellCount)
+                    issues.Add(new MapIssue("障碍下方地表数量与地图尺寸不匹配"));
+                else
+                    for (int i = 0; i < layout.groundTerrain.Length; i++)
+                        if (!Enum.IsDefined(typeof(TerrainKind), layout.groundTerrain[i]) || MapLayout.IsTerrainObstacle(layout.groundTerrain[i]))
+                        {
+                            var cell = geometry.CellAt(i);
+                            issues.Add(new MapIssue("障碍下方地表类型无效", cell.X, cell.Y));
+                        }
+            }
             var ids = new HashSet<string>();
             bool malformed = false;
             foreach (var item in layout.facilities)
@@ -51,6 +63,17 @@ namespace Game.Maps.Domain
                 malformed |= !CheckId(item?.id, ids, issues);
             foreach (var item in layout.wallEdges)
                 malformed |= !CheckId(item?.id, ids, issues);
+            foreach (var edge in layout.wallEdges)
+            {
+                if (edge?.gates == null)
+                {
+                    issues.Add(new MapIssue("城门集合缺失", objectId: edge?.id));
+                    malformed = true;
+                    continue;
+                }
+                foreach (var gate in edge.gates)
+                    malformed |= !CheckId(gate?.id, ids, issues);
+            }
             if (malformed)
                 return issues;
 
@@ -75,8 +98,11 @@ namespace Game.Maps.Domain
                     continue;
                 }
                 string key = string.CompareOrdinal(edge.from, edge.to) < 0 ? edge.from + "/" + edge.to : edge.to + "/" + edge.from;
-                if (!WallGateRules.Validate(layout, edge, out var gateReason))
-                    issues.Add(new MapIssue(gateReason, objectId: edge.id));
+                foreach (var gate in edge.gates)
+                {
+                    if (!WallGateRules.ValidateGate(layout, edge, gate, out var gateReason, catalog.Wall))
+                        issues.Add(new MapIssue(gateReason, objectId: gate.id));
+                }
                 if (!connections.Add(key))
                     issues.Add(new MapIssue("两个墙节点之间存在重复墙边", objectId: edge.id));
                 float length = SegmentGeometry.DistanceToSegment(b.x, b.y, a.x, a.y, a.x, a.y);

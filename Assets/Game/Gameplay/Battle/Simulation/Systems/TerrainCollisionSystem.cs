@@ -15,29 +15,36 @@ namespace Game.Battle.Simulation.Systems
     public partial class TerrainCollisionSystem : SystemBase
     {
         private GridMap _map;
-        public void Configure(GridMap map) => _map = map;
+        private GridMap _friendlyMap;
+        /// <summary>在步间同步阵营碰撞图；己方门洞永远通行，敌方只有破门后通行。</summary>
+        public void Configure(GridMap map, GridMap friendlyMap = null)
+        {
+            _map = map;
+            _friendlyMap = friendlyMap ?? map;
+        }
 
         protected override void OnUpdate()
         {
             if (_map == null)
                 return;
-            foreach (var (ground, motion) in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>>())
+            foreach (var (ground, motion, identity) in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRO<UnitIdentity>>())
             {
+                var map = identity.ValueRO.Kind == Game.Battle.Domain.ValueObjects.UnitKind.Hero ? _friendlyMap : _map;
                 float2 position = ground.ValueRO.Previous;
                 float2 delta = ground.ValueRO.Position - position;
-                int steps = math.max(1, (int)math.ceil(math.length(delta) / (math.min(_map.CellWidth, _map.CellHeight) * 0.2f)));
+                int steps = math.max(1, (int)math.ceil(math.length(delta) / (math.min(map.CellWidth, map.CellHeight) * 0.2f)));
                 float2 increment = delta / steps;
                 for (int i = 0; i < steps; i++)
                 {
                     float2 next = position + increment;
-                    if (_map.CanOccupy(next.x, next.y, motion.ValueRO.Radius))
+                    if (map.CanOccupy(next.x, next.y, motion.ValueRO.Radius))
                     {
                         position = next;
                         continue;
                     }
-                    if (_map.CanOccupy(next.x, position.y, motion.ValueRO.Radius))
+                    if (map.CanOccupy(next.x, position.y, motion.ValueRO.Radius))
                         position.x = next.x;
-                    if (_map.CanOccupy(position.x, next.y, motion.ValueRO.Radius))
+                    if (map.CanOccupy(position.x, next.y, motion.ValueRO.Radius))
                         position.y = next.y;
                 }
                 ground.ValueRW.Position = position;

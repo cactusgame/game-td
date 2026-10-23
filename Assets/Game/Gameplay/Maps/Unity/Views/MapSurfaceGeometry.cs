@@ -89,7 +89,7 @@ namespace Game.Maps.Unity.Views
         {
             x = Mathf.Clamp(x, 0, layout.columns - 1);
             y = Mathf.Clamp(y, 0, layout.rows - 1);
-            var kind = layout.terrain[y * layout.columns + x];
+            var kind = layout.GroundAt(y * layout.columns + x);
             if (water)
                 return kind == TerrainKind.Water ? 1 : 0;
             return kind == TerrainKind.Dirt ? 1.12f : kind == TerrainKind.Road ? 1 : 0;

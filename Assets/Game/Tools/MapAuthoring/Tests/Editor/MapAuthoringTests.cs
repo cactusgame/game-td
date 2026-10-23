@@ -33,6 +33,29 @@ namespace Game.Tools.MapAuthoring.Tests
         }
 
         [Test]
+        public void EditorReplacementIsAtomicUndoableAndRuntimeStillRejectsOccupancy()
+        {
+            var map = Map();
+            map.facilities.Add(new InitialFacility { id = "old", definitionId = "tower", x = 2, y = 2 });
+            var session = new MapEditSession(map);
+            var replacement = new InitialFacility { id = "new", definitionId = "hall", x = 2, y = 2 };
+            Assert.That(MapEditSession.TryReplaceFacility(map, Catalog(), replacement, out var next, out _), Is.True);
+            Assert.That(map.facilities.Single().id, Is.EqualTo("old"));
+            session.Commit(next);
+            Assert.That(session.Document.facilities.Single().id, Is.EqualTo("new"));
+            session.Undo();
+            Assert.That(session.Document.facilities.Single().id, Is.EqualTo("old"));
+            session.Redo();
+            var runtime = new MapConstructionState(new MapDefinition(session.Document, Catalog()), Catalog());
+            Assert.That(runtime.TryBuild("tower", 3, 3, _ => true, out _), Is.False);
+            Assert.That(runtime.Version, Is.Zero);
+            Assert.That(runtime.Snapshot.facilities.Single().id, Is.EqualTo("new"));
+            map.terrain[3 * map.columns + 3] = TerrainKind.Water;
+            Assert.That(MapEditSession.TryReplaceFacility(map, Catalog(), replacement, out _, out _), Is.False);
+            Assert.That(map.facilities.Single().id, Is.EqualTo("old"));
+        }
+
+        [Test]
         public void HistoryTracksWholeOperationSavedRevisionAndBranchingAcrossReload()
         {
             var session = new MapEditSession(Map(), true);

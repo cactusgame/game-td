@@ -161,6 +161,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 var controller = new GameObject("Map playground").AddComponent<MapPlayController>();
                 controller.mapJson = map;
                 controller.visuals = visuals;
+                controller.artCatalogs = MapArtSelection.All().ToArray();
                 controller.battleJson = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Combat/Prototype/battle.json");
                 controller.mapCamera = camera;
                 controller.heroSprite = AssetDatabase.LoadAllAssetsAtPath("Assets/Content/Units/Heroes/Knight/Sprites/knight.png").OfType<Sprite>().FirstOrDefault();
@@ -180,14 +181,14 @@ namespace Game.Tools.MapAuthoring.Editor
             }
         }
 
-        public static void StartPlaytest(string json)
+        public static void StartPlaytest(string json, MapVisualCatalog selectedVisuals = null)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new InvalidOperationException("试玩已在运行，请先退出。");
             Directory.CreateDirectory("Assets/Generated/MapPlaytest");
             File.WriteAllText(PreviewPath, json);
             AssetDatabase.Refresh();
-            var visuals = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(MapEditorWindow.VisualPath);
+            var visuals = selectedVisuals != null ? selectedVisuals : MapArtSelection.Current;
             var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelPath);
             CreateScene(PreviewScene, AssetDatabase.LoadAssetAtPath<TextAsset>(PreviewPath), visuals, panel);
             SessionState.SetString("MapAuthoring.PreviousPlayScene", AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
@@ -197,3 +198,5 @@ namespace Game.Tools.MapAuthoring.Editor
         }
     }
 }
+
+
