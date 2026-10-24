@@ -18,6 +18,7 @@
     "goblins": 600,
     "runners": 400
   },
+  "soldierSelectionRadius": 2.0,
   "hero": {
     "id": "hero.alien",
     "maxHealth": 100,
@@ -29,7 +30,23 @@
     "attackInterval": 1.0,
     "attackRange": 0.0,
     "targetMainCastle": false,
-    "canAttackGates": false
+    "canAttackGates": false,
+    "skills": [
+      {
+        "id": "skill.alien_burst",
+        "enabled": true,
+        "radius": 4.0,
+        "damage": 30,
+        "cooldown": 3.0
+      },
+      {
+        "id": "skill.alien_burst_heavy",
+        "enabled": true,
+        "radius": 6.0,
+        "damage": 60,
+        "cooldown": 8.0
+      }
+    ]
   },
   "goblin": {
     "id": "enemy.skeleton",
@@ -83,5 +100,5 @@
     "targetMainCastle": false,
     "canAttackGates": false
   },
-  "contentVersion": "0f29de672523f452"
+  "contentVersion": "b415d384563ebaf6"
 }

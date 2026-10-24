@@ -30,8 +30,15 @@ namespace Game.Battle.Tests
         public void GeneratedCombatAndConstructionContentLoadsIntoItsOwningDomains()
         {
             var combat = JsonCombatContentSource.Parse(File.ReadAllText(Root + "combat-content.json"));
-            Assert.That(combat.Attacks["attack.tower"].Damage, Is.EqualTo(25));
-            Assert.That(combat.Skills["skill.alien_burst"].Enabled, Is.False);
+            // 策划可调整塔伤害；集成测试检查能力身份及语义，不锁死平衡数值。
+            Assert.That(combat.Attacks["attack.tower"].Mode, Is.EqualTo(AttackMode.Direct));
+            Assert.That(combat.Skills["skill.alien_burst"].Enabled, Is.True);
+            var battle = JsonBattleDefinitionSource.Parse(File.ReadAllText(Root + "battle.json"));
+            Assert.That(battle.Hero.Skills.Count, Is.EqualTo(2));
+            var skill = combat.Skills[battle.Hero.Skills[0].Id];
+            Assert.That(battle.Hero.Skills[0].Radius, Is.EqualTo(combat.Attacks[skill.AttackId].Range));
+            Assert.That(battle.Hero.Skills[0].Damage, Is.EqualTo(combat.Attacks[skill.AttackId].Damage));
+            Assert.That(battle.Hero.Skills[0].Cooldown, Is.EqualTo(skill.Cooldown));
             Assert.That(combat.Effects["effect.slow"].Magnitude, Is.EqualTo(0.2f));
             var construction = JsonConstructionContentSource.Parse(File.ReadAllText(Root + "construction-content.json"));
             Assert.That(construction.Buildings["hall"].CanDemolish, Is.False);

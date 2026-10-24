@@ -35,9 +35,12 @@ namespace Game.Battle.Domain.Definitions
         public GridMap NavigationMap { get; }
         public MapPoint HeroSpawn { get; }
         public IReadOnlyList<MapPoint> EnemySpawns { get; }
+        public float SoldierSelectionRadius { get; }
 
-        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null, IReadOnlyList<UnitDefinition> soldiers = null)
+        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null, IReadOnlyList<UnitDefinition> soldiers = null, float soldierSelectionRadius = 4)
         {
+            UnitDefinition.RequirePositive(soldierSelectionRadius, nameof(soldierSelectionRadius));
+            SoldierSelectionRadius = soldierSelectionRadius;
             Hero = hero ?? throw new ArgumentNullException(nameof(hero));
             Goblin = goblin ?? throw new ArgumentNullException(nameof(goblin));
             Runner = runner ?? throw new ArgumentNullException(nameof(runner));

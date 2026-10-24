@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Game.Battle.Simulation.Systems
 {
-    /// <summary>单位与战斗领域的士兵意图：优先交战，否则寻路跟随存活英雄；敌人近身时停步反击。</summary>
+    /// <summary>士兵优先交战，默认返回兵营驻守点；保留可选的英雄跟随行为。</summary>
     [DisableAutoCreation]
     [UpdateAfter(typeof(MonsterNavigationSystem))]
     [UpdateBefore(typeof(MovementSystem))]
@@ -15,6 +15,8 @@ namespace Game.Battle.Simulation.Systems
         private GridMap _map;
         private GridPathfinder _pathfinder;
         private readonly List<GridCell> _cells = new List<GridCell>();
+        // 会话组装选项，默认驻守；不由动画或 UI 修改导航状态。
+        public bool FollowHero { get; set; }
         public void Configure(GridMap map)
         {
             _map = map;
@@ -28,16 +30,27 @@ namespace Game.Battle.Simulation.Systems
             var heroGround = SystemAPI.GetComponent<GroundTransform>(hero);
             var heroMotion = SystemAPI.GetComponent<UnitMotion>(hero);
             bool heroAlive = SystemAPI.GetComponent<Vitals>(hero).Health > 0;
-            foreach (var (ground, health, motion, profile, navigation, path) in
+            foreach (var (ground, health, motion, profile, soldier, navigation, path) in
                 SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>,
-                    RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>().WithAll<SoldierState>())
+                    RefRO<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>())
             {
                 if (health.ValueRO.Health <= 0) continue;
                 navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
-                // 战斗优先于跟随；英雄死亡时原地警戒，不向尸体或旧营地继续移动。
+                // 战斗优先；跟随模式的英雄死亡时原地警戒，驻守模式不受英雄位置与生死影响。
                 float followDistance = heroMotion.Radius + motion.ValueRO.Radius + 0.6f;
+                bool selected = soldier.ValueRO.IsSelected;
+                bool followsHero = selected || (FollowHero && !soldier.ValueRO.HasPlayerOrder);
+                float2 target = selected ? heroGround.Position + soldier.ValueRO.FollowOffset :
+                    followsHero ? heroGround.Position : soldier.ValueRO.Rally;
+                float stopDistance = selected ? 0.15f : followsHero ? followDistance : 0.08f;
+                // 跟随点随英雄更新；贴墙时偏移点可能进入障碍，改为接近英雄本身。
+                if (selected && !_map.CanOccupy(target.x, target.y, motion.ValueRO.Radius))
+                {
+                    target = heroGround.Position;
+                    stopDistance = followDistance;
+                }
                 if (HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange) ||
-                    !heroAlive || math.distancesq(ground.ValueRO.Position, heroGround.Position) <= followDistance * followDistance)
+                    (followsHero && !heroAlive) || math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
                 {
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
@@ -47,7 +60,6 @@ namespace Game.Battle.Simulation.Systems
                 path.Clear();
                 navigation.ValueRW.WaypointIndex = 0;
                 navigation.ValueRW.NextRepathTime = now + 0.25;
-                float2 target = heroGround.Position;
                 if (_map.TryWorldToCell(ground.ValueRO.Position.x, ground.ValueRO.Position.y, out var start) &&
                     _map.TryWorldToCell(target.x, target.y, out var goal) && _pathfinder.TryFindPath(start, goal, _cells))
                 {

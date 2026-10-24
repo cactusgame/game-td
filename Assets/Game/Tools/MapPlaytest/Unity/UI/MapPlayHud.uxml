@@ -11,10 +11,13 @@
       <ui:Button name="upgrade-barracks" text="升级兵营" />
       <ui:Button name="remove" text="Remove building / wall" />
       <ui:Button name="gate" text="Open / close gate" />
+      <ui:Button name="deployment-mode" text="部署瞬移：关" />
       <ui:Button name="restart" text="Restart from map" />
       <ui:Button name="exit" text="Exit playtest" />
     </ui:VisualElement>
     <ui:Label name="status" text="Loading map..." />
     <ui:Label name="barracks-status" text="" />
+    <ui:Label text="空格：短按技能1 / 长按技能2；R：附近选中跟随 / 再点原地待命，长按边走边选或驻扎；1/2/3：全部/近战/远程，短按一人、长按全体加入跟随。" />
+    <ui:Label name="player-status" text="" />
   </ui:VisualElement>
 </ui:UXML>

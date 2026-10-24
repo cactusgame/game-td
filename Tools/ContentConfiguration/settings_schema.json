@@ -1,6 +1,7 @@
 {
   "battle.seed": "number",
   "battle.fixedStep": "number",
+  "battle.soldierSelectionRadius": "number",
   "battle.arena.width": "number",
   "battle.arena.height": "number",
   "battle.navigation.cellSize": "number",

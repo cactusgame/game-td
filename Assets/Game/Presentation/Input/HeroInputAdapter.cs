@@ -7,8 +7,11 @@ using UnityEngine.InputSystem;
 namespace Game.Presentation.Input
 {
     /// <summary>把键盘、手柄和触控摇杆统一成移动意图；不直接修改 ECS 或画面 Transform。</summary>
-    public sealed class HeroInputAdapter : IHeroInput, IDisposable
+    public sealed class HeroInputAdapter : IHeroInput, IPlayerOperationInput, IDisposable
     {
+        private readonly KeyboardPlayerOperations _operations = new KeyboardPlayerOperations();
+        public void ReadOperations(System.Collections.Generic.List<PlayerOperation> destination) => _operations.Read(destination);
+        public void ResetOperations() => _operations.Reset();
         private readonly InputAction _move;
         private readonly VirtualJoystick _joystick;
         public HeroInputAdapter(VirtualJoystick joystick)

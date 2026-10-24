@@ -225,6 +225,8 @@ def build_documents(tables):
             target = target.setdefault(part, {})
         target[parts[-1]] = value
     battle = documents['battle']
+    if battle['soldierSelectionRadius'] <= 0:
+        fail(by['全局参数']['battle.soldierSelectionRadius'], '士兵选择半径必须大于0')
     for slot, key in [('Hero', 'hero'), ('Goblin', 'goblin'), ('Runner', 'runner'), ('Soldier', 'soldier'), ('Archer', 'archer')]:
         if slot not in slots:
             continue
@@ -234,6 +236,19 @@ def build_documents(tables):
         battle[key] = {k: record[k] for k in ('id', 'maxHealth', 'defense', 'speed', 'radius', 'visualHeight')}
         battle[key].update(attack=attack['damage'], attackInterval=attack['interval'], attackRange=attack['range'],
                            targetMainCastle=rule['target'] == 'MainCastle', canAttackGates=rule['canAttackGates'])
+        if slot == 'Hero':
+            battle[key]['skills'] = []
+            for skill_id in record['skillIds'].split(';'):
+                if not skill_id.strip():
+                    continue
+                skill = skills[skill_id.strip()]
+                area = attacks[skill['attackId']]
+                if area['mode'] != 'Direct' or area['range'] <= 0 or skill['effectIds'] or area['effectIds']:
+                    fail(skill, '英雄主动技能当前只支持无附加效果的Direct范围减血，范围必须大于0')
+                battle[key]['skills'].append(dict(id=skill['id'], enabled=skill['enabled'], radius=area['range'],
+                                                  damage=area['damage'], cooldown=skill['cooldown']))
+            if len(battle[key]['skills']) > 2:
+                fail(record, '英雄最多配置两个主动技能，依次对应空格短按和长按')
     documents['presentation']['Units'] = [{'UnitKind': slot, 'ResourceId': record['animationResourceId']} for slot, record in slots.items()]
     facilities = []
     for record in buildings.values():

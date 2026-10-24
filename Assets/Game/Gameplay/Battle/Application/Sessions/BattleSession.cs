@@ -23,6 +23,8 @@ namespace Game.Battle.Application.Sessions
         private readonly ReadOnlyCollection<UnitSnapshot> _readOnlyUnits;
         // 尚未消费的模拟时间。画面帧与模拟步不一一对应：一帧可以执行零步或多步。
         private float _accumulator;
+        private readonly List<Game.Battle.Contracts.Commands.PlayerOperation> _pendingOperations = new List<Game.Battle.Contracts.Commands.PlayerOperation>();
+        public bool InstantDeployment { get; set; }
         public BattleDefinition Definition { get; private set; }
 
         // 每次重启递增，视图用它区分两局中重复使用的单位 ID，并重建显示对象。
@@ -55,6 +57,8 @@ namespace Game.Battle.Application.Sessions
             Definition = definition;
             Generation++;
             _accumulator = 0;
+            _pendingOperations.Clear();
+            (_input as IPlayerOperationInput)?.ResetOperations();
             LastSimulationMs = 0;
             Refresh();
         }
@@ -75,11 +79,15 @@ namespace Game.Battle.Application.Sessions
             _accumulator += Math.Min(Math.Max(deltaTime, 0), Definition.FixedStep * MaxStepsPerFrame);
             // 一次读取本画面帧的输入，本帧的所有模拟补步使用同一份移动意图。
             var intent = _input.Read();
+            (_input as IPlayerOperationInput)?.ReadOperations(_pendingOperations);
             int steps = 0;
             while (_accumulator >= Definition.FixedStep && steps < MaxStepsPerFrame)
             {
                 // 接口调用会进入 EcsBattleSimulation.Step，再由系统组调度移动与接触处理。
                 beforeStep?.Invoke();
+                if (_simulation is IPlayerOperations controls)
+                    foreach (var operation in _pendingOperations) controls.Execute(operation, InstantDeployment);
+                _pendingOperations.Clear();
                 _simulation.Step(Definition.FixedStep, intent);
                 _accumulator -= Definition.FixedStep;
                 steps++;

@@ -27,7 +27,7 @@ namespace Game.Infrastructure.Configuration
             var soldiers = new List<UnitDefinition>();
             if (data.soldier != null) soldiers.Add(data.soldier.Build(UnitKind.Soldier));
             if (data.archer != null) soldiers.Add(data.archer.Build(UnitKind.Archer));
-            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed), soldiers: soldiers);
+            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed), soldiers: soldiers, soldierSelectionRadius: data.soldierSelectionRadius);
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
@@ -37,6 +37,7 @@ namespace Game.Infrastructure.Configuration
             public int schemaVersion;
             public uint seed;
             public float fixedStep;
+            public float soldierSelectionRadius;
             public ArenaJson arena;
             public SpawnJson spawn;
             public UnitJson hero, goblin, runner, soldier, archer;
@@ -69,6 +70,7 @@ namespace Game.Infrastructure.Configuration
         [Serializable]
         private sealed class UnitJson
         {
+            public AreaSkillJson[] skills;
             public string id;
             public float attackInterval = 1;
             public float attackRange = 0.15f;
@@ -76,7 +78,23 @@ namespace Game.Infrastructure.Configuration
             public bool canAttackGates = true;
             public int maxHealth, attack, defense;
             public float speed, radius, visualHeight;
-            public UnitDefinition Build(UnitKind kind) => new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight, id, attackInterval, attackRange, targetMainCastle, canAttackGates);
+            public UnitDefinition Build(UnitKind kind)
+            {
+                var abilities = new List<HeroAreaSkillDefinition>();
+                if (skills != null)
+                    foreach (var skill in skills)
+                        abilities.Add(new HeroAreaSkillDefinition(skill.id, skill.enabled, skill.radius, skill.damage, skill.cooldown));
+                if (abilities.Count > 2) throw new FormatException("Hero supports two active skill slots.");
+                return new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight, id, attackInterval, attackRange, targetMainCastle, canAttackGates, abilities);
+            }
+        }
+        [Serializable]
+        private sealed class AreaSkillJson
+        {
+            public string id;
+            public bool enabled;
+            public float radius, cooldown;
+            public int damage;
         }
     }
 }

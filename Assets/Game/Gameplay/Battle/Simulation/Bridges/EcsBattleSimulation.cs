@@ -19,7 +19,7 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed class EcsBattleSimulation : IDefenseBattleSimulation
+    public sealed partial class EcsBattleSimulation : IDefenseBattleSimulation, IPlayerOperations
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
         private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
@@ -40,7 +40,12 @@ namespace Game.Battle.Simulation.Bridges
         public double ElapsedTime { get; private set; }
 
         public int ContactCount => _world.EntityManager.GetComponentData<ContactStatistics>(_settings).Count;
-        public EcsBattleSimulation()
+        public EcsBattleSimulation() : this(false)
+        {
+        }
+
+        /// <summary>默认兵营驻守；跟随能力保留为显式的会话组装选项。</summary>
+        public EcsBattleSimulation(bool soldiersFollowHero)
         {
             // World 是实体、组件数据和系统的独立运行环境，不等于 Scene；字符串只是调试名称。
             // 此自建 World 不自动接入 PlayerLoop，只由应用层调用 Step 驱动。
@@ -53,6 +58,7 @@ namespace Game.Battle.Simulation.Bridges
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
             _soldierNavigation = _world.GetOrCreateSystemManaged<SoldierNavigationSystem>();
+            _soldierNavigation.FollowHero = soldiersFollowHero;
             _group.AddSystemToUpdateList(_soldierNavigation);
             _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<SoldierCombatSystem>());
             _separation = _world.GetOrCreateSystemManaged<MonsterSeparationSystem>();
@@ -99,6 +105,7 @@ namespace Game.Battle.Simulation.Bridges
             em.DestroyEntity(_units);
             _unitEntities.Clear();
             ElapsedTime = 0;
+            ResetPlayerControls();
             var center = new float2(definition.NavigationMap.OriginX + definition.Width * 0.5f, definition.NavigationMap.OriginY + definition.Height * 0.5f);
             em.SetComponentData(_settings, new BattleSettings{HalfSize = new float2(definition.Width, definition.Height) * 0.5f, Center = center});
             em.SetComponentData(_settings, new ContactStatistics());
@@ -327,6 +334,7 @@ namespace Game.Battle.Simulation.Bridges
             var pathfinder = new Game.MapEngine.Domain.GridPathfinder(map);
             var cells = new List<Game.MapEngine.Domain.GridCell>();
             map.TryWorldToCell(exit.X, exit.Y, out var start);
+            float2 destination = default;
             bool found = false;
             for (int ring = 0; ring <= 4 && !found; ring++)
             {
@@ -337,6 +345,7 @@ namespace Game.Battle.Simulation.Bridges
                     float2 candidate = new float2(rally.X, rally.Y) + new float2(math.cos(angle), math.sin(angle)) * ring * 0.5f;
                     if (!map.CanOccupy(candidate.x, candidate.y, definition.Radius) ||
                         !map.TryWorldToCell(candidate.x, candidate.y, out var goal) || !pathfinder.TryFindPath(start, goal, cells)) continue;
+                    destination = candidate;
                     found = true;
                     break;
                 }
@@ -345,7 +354,7 @@ namespace Game.Battle.Simulation.Bridges
             unitId = _nextId++;
             Spawn(unitId, definition, new float2(exit.X, exit.Y), (uint)(unitId % (uint.MaxValue - 1)) + 1);
             var entity = _unitEntities[unitId];
-            em.AddComponent<SoldierState>(entity);
+            em.AddComponentData(entity, new SoldierState { Rally = destination });
             em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
             return true;
         }
@@ -387,6 +396,7 @@ namespace Game.Battle.Simulation.Bridges
             // 真正进入系统更新：移动 OnUpdate 调度 Job，接触 OnUpdate 在相关数据读取前完成必要依赖。
             // 系统调用顺序与 Job 完成顺序是两个概念，不能仅凭 UpdateAfter 认为后台计算已结束。
             _group.Update();
+            UpdateMovingSelection();
         }
 
         public void CopyUnits(List<UnitSnapshot> destination)
@@ -406,7 +416,12 @@ namespace Game.Battle.Simulation.Bridges
             using var vitals = _units.ToComponentDataArray<Vitals>(Allocator.Temp);
             // 三次复制之间没有结构性变更，按同一查询顺序对应单位；再转为不含 ECS 引用的业务快照。
             for (int i = 0; i < identities.Length; i++)
-                destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime));
+            {
+                bool selected = _unitEntities.TryGetValue(identities[i].Id, out var entity) &&
+                    _world.EntityManager.HasComponent<SoldierState>(entity) &&
+                    _world.EntityManager.GetComponentData<SoldierState>(entity).IsSelected;
+                destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected));
+            }
         }
 
         // World 持有原生资源与系统状态，必须显式释放；由 VContainer 作用域管理服务清理。

@@ -11,7 +11,7 @@
       "radius": 0.42,
       "visualHeight": 0.95,
       "attackId": "attack.alien",
-      "skillIds": "",
+      "skillIds": "skill.alien_burst;skill.alien_burst_heavy",
       "behaviorId": "",
       "animationResourceId": "alien-actions"
     },
@@ -104,7 +104,7 @@
       "id": "attack.tower",
       "name": "箭楼直伤",
       "mode": "Direct",
-      "damage": 25,
+      "damage": 5,
       "interval": 1.0,
       "range": 5.0,
       "effectIds": ""
@@ -126,16 +126,42 @@
       "interval": 1.2,
       "range": 4.5,
       "effectIds": ""
+    },
+    {
+      "id": "attack.hero_burst",
+      "name": "英雄震击范围伤害",
+      "mode": "Direct",
+      "damage": 30,
+      "interval": 1.0,
+      "range": 4.0,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.hero_burst_heavy",
+      "name": "英雄强震击范围伤害",
+      "mode": "Direct",
+      "damage": 60,
+      "interval": 1.0,
+      "range": 6.0,
+      "effectIds": ""
     }
   ],
   "skills": [
     {
       "id": "skill.alien_burst",
-      "name": "Alien爆发/设计示例",
-      "enabled": false,
-      "cooldown": 12.0,
-      "attackId": "attack.alien",
-      "effectIds": "effect.slow"
+      "name": "英雄震击",
+      "enabled": true,
+      "cooldown": 3.0,
+      "attackId": "attack.hero_burst",
+      "effectIds": ""
+    },
+    {
+      "id": "skill.alien_burst_heavy",
+      "name": "英雄强震击",
+      "enabled": true,
+      "cooldown": 8.0,
+      "attackId": "attack.hero_burst_heavy",
+      "effectIds": ""
     }
   ],
   "effects": [
@@ -162,5 +188,5 @@
       "canAttackGates": false
     }
   ],
-  "contentVersion": "0f29de672523f452"
+  "contentVersion": "b415d384563ebaf6"
 }

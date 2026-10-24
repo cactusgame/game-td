@@ -55,6 +55,16 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public int Generation { get; private set; }
         public double SimulationTime => _battle?.ElapsedTime ?? 0;
         public int HeroHealth => _battle?.HeroHealth ?? 0;
+        public bool IsDeploymentMode { get; private set; }
+        public PlayerControlSnapshot PlayerControls => (_simulation as IPlayerOperations)?.PlayerControls ?? default;
+        public void SetDeploymentMode(bool enabled)
+        {
+            RequireActive();
+            IsDeploymentMode = enabled;
+            _battle.InstantDeployment = enabled;
+            (_input as IPlayerOperationInput)?.ResetOperations();
+            (_simulation as IPlayerOperations)?.Execute(Game.Battle.Contracts.Commands.PlayerOperation.Cancel);
+        }
         public BattleDefinition Definition => _battle?.Definition;
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
 
@@ -116,6 +126,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             var previousSimulation = _simulation;
             _simulation = simulation;
             _battle = battle;
+            IsDeploymentMode = false;
             _placements = placements;
             _gates = gates;
             _enemyNavigation = enemyNavigation;

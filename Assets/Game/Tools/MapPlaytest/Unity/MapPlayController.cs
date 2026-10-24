@@ -43,6 +43,8 @@ namespace Game.Tools.MapPlaytest.Unity
         private float _feedbackUntil;
         private Label _status;
         private Label _barracksStatus;
+        private Label _playerStatus;
+        private SoldierSelectionView _selectionView;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -70,6 +72,7 @@ namespace Game.Tools.MapPlaytest.Unity
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize();
+                _selectionView = gameObject.AddComponent<SoldierSelectionView>();
                 if (hud != null)
                 {
                     var root = hud.rootVisualElement;
@@ -84,6 +87,14 @@ namespace Game.Tools.MapPlaytest.Unity
                     }
                     _status = root.Q<Label>("status");
                     _barracksStatus = root.Q<Label>("barracks-status");
+                    _playerStatus = root.Q<Label>("player-status");
+                    var deployment = root.Q<Button>("deployment-mode");
+                    if (deployment != null)
+                        deployment.clicked += () =>
+                        {
+                            _session.SetDeploymentMode(!_session.IsDeploymentMode);
+                            deployment.text = _session.IsDeploymentMode ? "部署瞬移：开" : "部署瞬移：关";
+                        };
                     root.Q<Button>("melee-barracks").text = $"近战兵营（{construction.Buildings["barracks.melee"].BuildCost}金）";
                     root.Q<Button>("ranged-barracks").text = $"远程兵营（{construction.Buildings["barracks.ranged"].BuildCost}金）";
                     root.Q<Button>("inspect").clicked += () => _tool = "Inspect";
@@ -125,7 +136,10 @@ namespace Game.Tools.MapPlaytest.Unity
         public void Restart()
         {
             _session.Restart();
+            var deployment = hud?.rootVisualElement.Q<Button>("deployment-mode");
+            if (deployment != null) deployment.text = "部署瞬移：关";
             _unitView.Clear();
+            _selectionView.Clear();
             RefreshMapView();
             var layout = _session.Snapshot;
             _cameraView.SetMap(new Rect(layout.originX, layout.originY,
@@ -181,6 +195,12 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
+            var controls = _session.PlayerControls;
+            _selectionView.Synchronize(_session.Units, controls, _session.Outcome == "Running");
+            if (_playerStatus != null)
+            {
+                _playerStatus.text = $"已选 {controls.SelectedCount} 人{(controls.IsSelectingWhileMoving ? "（边走边选）" : "")}  技能1 CD {controls.SkillOneRemaining:F1}s  技能2 CD {controls.SkillTwoRemaining:F1}s  呼叫：{(_session.IsDeploymentMode ? "部署瞬移" : "战斗寻路")}";
+            }
             if (_gateViewVersion != _session.GateViewVersion)
             {
                 _gateViewVersion = _session.GateViewVersion;

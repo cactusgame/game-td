@@ -35,7 +35,7 @@ namespace Game.Tools.MapPlaytest.Application.Adapters
             // 怪物由对局波次在固定步边界生成，初始化不提前生成。
             return new BattleDefinition(baseRules.Hero, baseRules.Goblin, baseRules.Runner, 0, 0,
                 layout.columns * layout.cellWidth, layout.rows * layout.cellHeight, baseRules.FixedStep, baseRules.Seed,
-                baseRules.Navigation, _map.CreateNavigationMap(_catalog), new MapPoint(hero.x, hero.y), enemies, baseRules.Soldiers);
+                baseRules.Navigation, _map.CreateNavigationMap(_catalog), new MapPoint(hero.x, hero.y), enemies, baseRules.Soldiers, baseRules.SoldierSelectionRadius);
         }
     }
 }

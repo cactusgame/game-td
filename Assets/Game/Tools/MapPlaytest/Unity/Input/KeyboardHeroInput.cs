@@ -5,12 +5,15 @@ using UnityEngine.InputSystem;
 namespace Game.Tools.MapPlaytest.Unity.Input
 {
     /// <summary>键盘只产生移动意图，不写入单位位置。</summary>
-    public sealed class KeyboardHeroInput : IHeroInput
+    public sealed class KeyboardHeroInput : IHeroInput, IPlayerOperationInput
     {
+        private readonly Game.Presentation.Input.KeyboardPlayerOperations _operations = new Game.Presentation.Input.KeyboardPlayerOperations();
+        public void ReadOperations(System.Collections.Generic.List<PlayerOperation> destination) => _operations.Read(destination);
+        public void ResetOperations() => _operations.Reset();
         public MoveIntent Read()
         {
             var keys = Keyboard.current;
-            if (keys == null)
+            if (keys == null || !UnityEngine.Application.isFocused)
                 return new MoveIntent(0, 0);
             float x = (keys.dKey.isPressed || keys.rightArrowKey.isPressed ? 1 : 0) - (keys.aKey.isPressed || keys.leftArrowKey.isPressed ? 1 : 0);
             float y = (keys.wKey.isPressed || keys.upArrowKey.isPressed ? 1 : 0) - (keys.sKey.isPressed || keys.downArrowKey.isPressed ? 1 : 0);

@@ -12,7 +12,8 @@ namespace Game.Battle.Contracts.ReadModels
         public readonly float X, Y, FacingX;
         public readonly int Health, MaxHealth;
         public readonly float LastHitTime, LastAttackTime;
-        public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100)
+        public readonly bool IsSelected;
+        public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false)
         {
             Id = id;
             Kind = kind;
@@ -23,6 +24,7 @@ namespace Game.Battle.Contracts.ReadModels
             MaxHealth = maxHealth;
             LastHitTime = lastHitTime;
             LastAttackTime = lastAttackTime;
+            IsSelected = isSelected;
         }
     }
 }

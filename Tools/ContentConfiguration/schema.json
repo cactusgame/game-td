@@ -111,7 +111,7 @@
     },
     {
       "key": "enabled",
-      "label": "启用/当前执行尚未接入",
+      "label": "启用",
       "type": "bool"
     },
     {

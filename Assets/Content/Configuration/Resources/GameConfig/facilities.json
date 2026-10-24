@@ -4,9 +4,9 @@
     "width": 0.52,
     "height": 0.5,
     "junctionRadius": 0.4,
-    "gateHealth": 1000,
+    "gateHealth": 100,
     "gateAttackInterval": 1.0,
-    "wallHealth": 3000
+    "wallHealth": 30000
   },
   "facilities": [
     {
@@ -17,7 +17,7 @@
       "blocksMovement": true,
       "blocksShots": true,
       "maxHealth": 150,
-      "attack": 25,
+      "attack": 5,
       "attackRange": 5.0,
       "attackInterval": 1.0
     },
@@ -154,5 +154,5 @@
       "attackInterval": 1
     }
   ],
-  "contentVersion": "0f29de672523f452"
+  "contentVersion": "b415d384563ebaf6"
 }

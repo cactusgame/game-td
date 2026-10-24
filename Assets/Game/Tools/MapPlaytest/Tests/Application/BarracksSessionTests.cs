@@ -158,12 +158,32 @@ namespace Game.Tools.MapPlaytest.Tests
 
         [TestCase(UnitKind.Soldier)]
         [TestCase(UnitKind.Archer)]
+        public void DefaultSoldierGuardsRallyEvenWhenHeroMovesAway(UnitKind kind)
+        {
+            var rules = Rules();
+            var definition = new BattleDefinition(rules.Hero, rules.Goblin, rules.Runner, 0, 0, 30, 20, 0.02f, 1,
+                heroSpawn: new MapPoint(-4, 0), soldiers: rules.Soldiers);
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(definition);
+            Assert.That(simulation.TrySpawnSoldier(kind, new MapPoint(2, 0), new MapPoint(4, 0), out var id), Is.True);
+            for (int i = 0; i < 150; i++) simulation.Step(0.02f, default);
+            var units = new List<UnitSnapshot>();
+            simulation.CopyUnits(units);
+            Assert.That(units.Single(u => u.Id == id).X, Is.EqualTo(4).Within(0.1f));
+            for (int i = 0; i < 100; i++) simulation.Step(0.02f, new MoveIntent(-1, 0));
+            simulation.CopyUnits(units);
+            Assert.That(units.Single(u => u.Kind == UnitKind.Hero).X, Is.LessThan(-8));
+            Assert.That(units.Single(u => u.Id == id).X, Is.EqualTo(4).Within(0.1f), "默认驻守不受英雄移动影响");
+        }
+
+        [TestCase(UnitKind.Soldier)]
+        [TestCase(UnitKind.Archer)]
         public void RealEcsSoldierTracksMovingHeroAndWaitsNearby(UnitKind kind)
         {
             var rules = Rules();
             var definition = new BattleDefinition(rules.Hero, rules.Goblin, rules.Runner, 0, 0, 30, 20, 0.02f, 1,
                 heroSpawn: new MapPoint(4, 0), soldiers: rules.Soldiers);
-            using var simulation = new EcsBattleSimulation();
+            using var simulation = new EcsBattleSimulation(soldiersFollowHero: true);
             simulation.Reset(definition);
             Assert.That(simulation.TrySpawnSoldier(kind, new MapPoint(-3, 0), new MapPoint(-5, 0), out var id), Is.True);
             var units = new List<UnitSnapshot>();
@@ -185,14 +205,18 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(followed.LastAttackTime, Is.EqualTo(-100), "跟随不产生攻击事实");
         }
 
-        [TestCase(UnitKind.Soldier)]
-        [TestCase(UnitKind.Archer)]
-        public void RealEcsSoldierFollowsHeroAndAttacksOnlyEnemiesInRange(UnitKind kind)
+        [TestCase(UnitKind.Soldier, false)]
+        [TestCase(UnitKind.Archer, false)]
+        [TestCase(UnitKind.Soldier, true)]
+        [TestCase(UnitKind.Archer, true)]
+        public void RealEcsSoldierAttacksInRangeAndResumesItsAssignedBehavior(UnitKind kind, bool followHero)
         {
             var rules = Rules();
-            var definition = new BattleDefinition(rules.Hero, rules.Goblin, rules.Runner, 0, 0, 24, 16, 0.02f, 1,
+            // 固定低威胁敌人，验证战斗结束后的行为，不依赖产品表中的敌我强弱平衡。
+            var enemyDefinition = new UnitDefinition(UnitKind.Goblin, 12, 0, 0, 1.25f, 0.4f, 1);
+            var definition = new BattleDefinition(rules.Hero, enemyDefinition, rules.Runner, 0, 0, 24, 16, 0.02f, 1,
                 heroSpawn: new MapPoint(7, 0), soldiers: rules.Soldiers);
-            using var simulation = new EcsBattleSimulation();
+            using var simulation = new EcsBattleSimulation(soldiersFollowHero: followHero);
             simulation.Reset(definition);
             Assert.That(simulation.TrySpawnSoldier(kind, new MapPoint(2, 0), new MapPoint(4, 0), out var id), Is.True);
             var units = new List<UnitSnapshot>();
@@ -212,7 +236,7 @@ namespace Game.Tools.MapPlaytest.Tests
                 if (soldier.LastAttackTime < 0) continue;
                 float distance = (float)Math.Sqrt(Math.Pow(soldier.X - enemy.X, 2) + Math.Pow(soldier.Y - enemy.Y, 2));
                 Assert.That(distance, Is.LessThanOrEqualTo(definition.GetUnit(kind).AttackRange + definition.GetUnit(kind).Radius + rules.Goblin.Radius + 0.05f));
-                Assert.That(enemy.Health, Is.LessThan(rules.Goblin.MaxHealth));
+                Assert.That(enemy.Health, Is.LessThan(enemyDefinition.MaxHealth));
                 if (kind == UnitKind.Archer)
                     Assert.That(soldier.X, Is.EqualTo(previousX).Within(0.001f), "射程内有敌人时停步战斗");
                 attacked = true;
@@ -231,7 +255,10 @@ namespace Game.Tools.MapPlaytest.Tests
             for (int i = 0; i < 100; i++) simulation.Step(0.02f, default);
             simulation.CopyUnits(units);
             Assert.That(units.Single(u => u.Id == id).Health, Is.GreaterThan(0));
-            Assert.That(units.Single(u => u.Id == id).X, Is.GreaterThan(combatX + 0.5f), "战斗结束后恢复跟随英雄");
+            if (followHero)
+                Assert.That(units.Single(u => u.Id == id).X, Is.GreaterThan(combatX + 0.5f), "战斗结束后恢复跟随英雄");
+            else
+                Assert.That(units.Single(u => u.Id == id).X, Is.EqualTo(4).Within(0.1f), "战斗结束后返回驻守点");
         }
 
         [Test]

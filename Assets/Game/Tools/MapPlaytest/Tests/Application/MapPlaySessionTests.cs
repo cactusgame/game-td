@@ -36,6 +36,21 @@ namespace Game.Tools.MapPlaytest.Tests
 
         private static BattleDefinition Rules() => JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
 
+        [Test]
+        public void ConfiguredSelectionRadius_ReachesMapSessionAndCircleSnapshot()
+        {
+            string json = File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json");
+            json = System.Text.RegularExpressions.Regex.Replace(json,
+                "\"soldierSelectionRadius\"\\s*:\\s*[0-9.]+", "\"soldierSelectionRadius\": 6.5");
+            var rules = JsonBattleDefinitionSource.Parse(json);
+            var catalog = Catalog();
+            using var session = new MapPlaySession(new MapDefinition(Source(), catalog), catalog, rules,
+                new Input(), () => new EcsBattleSimulation());
+            session.Restart();
+            Assert.That(session.Definition.SoldierSelectionRadius, Is.EqualTo(6.5f));
+            Assert.That(session.PlayerControls.SelectionRadius, Is.EqualTo(6.5f));
+        }
+
         private static MapPlaySession Session(Func<ISpatialBattleSimulation> create, MapLayout source = null, IHeroInput input = null)
         {
             var catalog = Catalog();
