@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Battle.Contracts.Ports;
 using Game.Battle.Domain.Definitions;
 using Game.Battle.Domain.ValueObjects;
@@ -23,7 +24,10 @@ namespace Game.Infrastructure.Configuration
             var data = JsonUtility.FromJson<BattleJson>(json);
             if (data == null || data.schemaVersion != 1 || data.arena == null || data.hero == null || data.goblin == null || data.runner == null || data.spawn == null || data.navigation == null)
                 throw new FormatException("Battle JSON must use schemaVersion 1 and contain arena, hero, goblin, runner, spawn and navigation.");
-            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed));
+            var soldiers = new List<UnitDefinition>();
+            if (data.soldier != null) soldiers.Add(data.soldier.Build(UnitKind.Soldier));
+            if (data.archer != null) soldiers.Add(data.archer.Build(UnitKind.Archer));
+            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed), soldiers: soldiers);
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
@@ -35,7 +39,7 @@ namespace Game.Infrastructure.Configuration
             public float fixedStep;
             public ArenaJson arena;
             public SpawnJson spawn;
-            public UnitJson hero, goblin, runner;
+            public UnitJson hero, goblin, runner, soldier, archer;
             public NavigationJson navigation;
         }
 

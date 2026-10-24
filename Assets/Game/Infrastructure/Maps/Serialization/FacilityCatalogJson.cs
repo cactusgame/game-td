@@ -14,7 +14,11 @@ namespace Game.Infrastructure.Maps.Serialization
             var data = JsonUtility.FromJson<CatalogDocument>(json);
             if (data == null || data.schemaVersion != 1 || data.facilities == null)
                 throw new FormatException("Invalid map facility catalog.");
-            var wall = data.wall == null ? WallDefinition.Default : new WallDefinition(data.wall.width, data.wall.height, data.wall.junctionRadius, gateHealth: data.wall.gateHealth, gateAttackInterval: data.wall.gateAttackInterval);
+            var wall = data.wall == null ? WallDefinition.Default : new WallDefinition(
+                data.wall.width, data.wall.height, data.wall.junctionRadius,
+                gateHealth: data.wall.gateHealth,
+                gateAttackInterval: data.wall.gateAttackInterval,
+                wallHealth: data.wall.wallHealth);
             return new MapContentCatalog(data.facilities, wall);
         }
 
@@ -25,6 +29,7 @@ namespace Game.Infrastructure.Maps.Serialization
             public float height;
             public float junctionRadius;
             public int gateHealth = 100;
+            public int wallHealth = 300;
             public float gateAttackInterval = 1;
         }
 

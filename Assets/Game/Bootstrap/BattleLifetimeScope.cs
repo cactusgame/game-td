@@ -46,6 +46,9 @@ namespace Game.Bootstrap
 
         protected override void Configure(IContainerBuilder builder)
         {
+            // 原型与地图试玩共用已制作的单位资源目录，新增士兵无需逐个修改旧场景引用。
+            var units = Resources.Load<Game.Battle.Unity.Assets.UnitVisualCatalog>("UnitVisualCatalog");
+            if (units != null) _battleView.ConfigureAnimations(units.Animations);
             // 将契约绑定到具体实现。BattleSession 只依赖三个接口，不依赖 JSON、输入设备或 ECS API。
             builder.RegisterInstance<IBattleDefinitionSource>(new JsonBattleDefinitionSource(_definition));
             builder.Register<HeroInputAdapter>(_ => new HeroInputAdapter(_joystick), Lifetime.Scoped).As<IHeroInput>();

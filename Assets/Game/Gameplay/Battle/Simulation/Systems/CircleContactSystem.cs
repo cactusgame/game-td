@@ -31,7 +31,7 @@ namespace Game.Battle.Simulation.Systems
             // Query 要求同时具有四种组件，再用 WithAll 额外要求 MonsterTag。
             // RefRO/ValueRO 只读；RefRW/ValueRW 可直接修改 ECS 数据，不需要另行 SetComponent。
             // 此 foreach 在主线程遍历；源代码生成器缓存查询并在遍历前完成必要的数据依赖。
-            foreach (var(ground, motion, vitals, contact)in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<HeroContact>>().WithAll<MonsterTag>())
+            foreach (var(ground, motion, vitals, contact)in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<HeroContact>>().WithAll<MonsterTag>())
             {
                 if (vitals.ValueRO.Health <= 0)
                     continue;
@@ -49,6 +49,9 @@ namespace Game.Battle.Simulation.Systems
                 // 攻击事件独立于实际伤害：被防御抵消时也需要挥击动作。
                 heroVitals.LastAttackTime = now;
                 vitals.ValueRW.LastAttackTime = now;
+                float facing = heroGround.Position.x - ground.ValueRO.Position.x;
+                if (math.abs(facing) > 0.0001f)
+                    ground.ValueRW.FacingX = math.sign(facing);
                 // Domain 只计算伤害数值，当前系统决定何时计算并更新组件。
                 // 双方根据接触处理前的属性互相攻击，即使怪物本次被击杀，仍结算它的这次攻击。
                 int damage = ContactRules.Damage(heroVitals.Attack, vitals.ValueRO.Defense);

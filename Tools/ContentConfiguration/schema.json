@@ -42,7 +42,7 @@
     },
     {
       "key": "attackId",
-      "label": "普通攻击ID",
+      "label": "攻击规则ID/非动画",
       "type": "str"
     },
     {
@@ -56,8 +56,8 @@
       "type": "str"
     },
     {
-      "key": "animationId",
-      "label": "动画绑定ID",
+      "key": "animationResourceId",
+      "label": "动画素材名/整套动作",
       "type": "str"
     }
   ],
@@ -184,18 +184,6 @@
       "type": "bool"
     }
   ],
-  "动画绑定": [
-    {
-      "key": "id",
-      "label": "绑定ID",
-      "type": "str"
-    },
-    {
-      "key": "resourceId",
-      "label": "已制作动画资源ID",
-      "type": "str"
-    }
-  ],
   "建筑": [
     {
       "key": "id",
@@ -308,6 +296,11 @@
       "key": "rangeBonus",
       "label": "射程增量",
       "type": "number"
+    },
+    {
+      "key": "capacityBonus",
+      "label": "兵营编制人数增量",
+      "type": "int"
     }
   ],
   "全局参数": [
@@ -325,6 +318,38 @@
       "key": "type",
       "label": "数据类型/勿改",
       "type": "str"
+    },
+    {
+      "key": "description",
+      "label": "说明",
+      "type": "str"
+    }
+  ],
+  "兵营": [
+    {
+      "key": "id",
+      "label": "建筑ID",
+      "type": "str"
+    },
+    {
+      "key": "unitId",
+      "label": "训练单位ID",
+      "type": "str"
+    },
+    {
+      "key": "capacity",
+      "label": "1级编制人数",
+      "type": "int"
+    },
+    {
+      "key": "retrainSeconds",
+      "label": "阵亡补兵冷却/秒",
+      "type": "number"
+    },
+    {
+      "key": "rallyDistance",
+      "label": "营门外驻守距离/地面单位",
+      "type": "number"
     }
   ]
 }

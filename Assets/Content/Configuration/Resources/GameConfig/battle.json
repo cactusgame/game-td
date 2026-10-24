@@ -20,12 +20,12 @@
   },
   "hero": {
     "id": "hero.alien",
-    "maxHealth": 120000,
+    "maxHealth": 100,
     "defense": 3,
     "speed": 4.5,
     "radius": 0.42,
-    "visualHeight": 1.65,
-    "attack": 150,
+    "visualHeight": 0.95,
+    "attack": 20,
     "attackInterval": 1.0,
     "attackRange": 0.0,
     "targetMainCastle": false,
@@ -33,7 +33,7 @@
   },
   "goblin": {
     "id": "enemy.skeleton",
-    "maxHealth": 25,
+    "maxHealth": 60,
     "defense": 2,
     "speed": 1.25,
     "radius": 0.4,
@@ -57,5 +57,31 @@
     "targetMainCastle": true,
     "canAttackGates": true
   },
-  "contentVersion": "38f1f4714f301d88"
+  "soldier": {
+    "id": "ally.soldier",
+    "maxHealth": 60,
+    "defense": 2,
+    "speed": 2.2,
+    "radius": 0.3,
+    "visualHeight": 0.95,
+    "attack": 8,
+    "attackInterval": 1.0,
+    "attackRange": 0.35,
+    "targetMainCastle": false,
+    "canAttackGates": false
+  },
+  "archer": {
+    "id": "ally.archer",
+    "maxHealth": 10,
+    "defense": 0,
+    "speed": 2.4,
+    "radius": 0.28,
+    "visualHeight": 1.0,
+    "attack": 6,
+    "attackInterval": 1.2,
+    "attackRange": 4.5,
+    "targetMainCastle": false,
+    "canAttackGates": false
+  },
+  "contentVersion": "0f29de672523f452"
 }

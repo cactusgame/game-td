@@ -11,6 +11,9 @@ using Game.Battle.Domain.Definitions;
 using Game.Maps.Domain;
 using Game.MapEngine.Domain;
 using Game.Tools.MapPlaytest.Application.Adapters;
+using Game.Construction.Domain.Aggregates.BarracksRoster;
+using Game.Economy.Domain.Aggregates.ResourceAccount;
+using Game.Tools.MapPlaytest.Application.ReadModels;
 
 namespace Game.Tools.MapPlaytest.Application.Sessions
 {
@@ -38,6 +41,10 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         private bool _disposed;
         private bool _faulted;
         private GatePassageSession _gates;
+        private readonly Dictionary<string, BarracksRoster> _barracks = new Dictionary<string, BarracksRoster>();
+        private readonly int _initialGold;
+        private ResourceAccount _account;
+        public int Gold => _account?.Gold ?? 0;
         private GridMap _enemyNavigation;
         public int GateViewVersion => _gates?.ViewVersion ?? 0;
         public int GetGateHealth(string id) => _gates.Health(id);
@@ -52,9 +59,11 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
 
         public MapPlaySession(MapDefinition initialMap, MapContentCatalog catalog, BattleDefinition rules,
-            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null)
+            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null, int initialGold = 1000)
         {
             _construction = construction;
+            if (initialGold < 0) throw new ArgumentOutOfRangeException(nameof(initialGold));
+            _initialGold = initialGold;
             _encounterDefinition = encounterDefinition ?? new DefenseEncounterDefinition();
             _initialMap = initialMap ?? throw new ArgumentNullException(nameof(initialMap));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
@@ -69,6 +78,15 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 throw new ObjectDisposedException(nameof(MapPlaySession));
             // 验证、创建并初始化候选会话后再替换旧局。任何候选初始化失败均释放候选 World。
             var definition = new MapBattleDefinitionSource(_initialMap, _catalog, _rules).Load();
+            if (_construction != null)
+            {
+                foreach (var training in _construction.Barracks.Values)
+                {
+                    bool found = false;
+                    foreach (var soldier in definition.Soldiers) found |= soldier.Id == training.UnitId;
+                    if (!found) throw new InvalidOperationException("兵营引用了未加载的士兵：" + training.UnitId);
+                }
+            }
             var placements = new MapConstructionState(_initialMap, _catalog);
             var simulation = _createSimulation();
             var encounter = new DefenseEncounter(_encounterDefinition);
@@ -107,6 +125,10 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             _structures.AddRange(structures);
             Generation++;
             previousSimulation?.Dispose();
+            _account = new ResourceAccount(_initialGold);
+            _barracks.Clear();
+            UpdateBarracks();
+            _battle.RefreshSnapshot();
         }
 
         public void Advance(float deltaTime)
@@ -121,6 +143,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 SpawnDueWave();
                 UpdateGates(true);
                 ReadStructures();
+                UpdateBarracks();
                 _encounter.Evaluate(_structures.Exists(item => item.IsMainCastle && item.Health <= 0), _battle.AliveMonsters);
                 return _encounter.IsRunning;
             });
@@ -131,7 +154,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         private void UpdateGates(bool applyDamage)
         {
             int spatialVersion = _gates.SpatialVersion;
-            _gates.Update(_simulation, _placements.Snapshot, Definition, Units, SimulationTime, applyDamage);
+            _gates.Update((IDefenseBattleSimulation)_simulation, _placements.Snapshot, Definition, Units, SimulationTime, applyDamage);
             // 自动开门仅改变表现；只有破门改变敌方通行，不逐帧重建导航图。
             if (spatialVersion != _gates.SpatialVersion)
                 _enemyNavigation = _gates.Navigation(_placements.Snapshot, false);
@@ -143,9 +166,134 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             if (!CanChangeConstruction(out reason))
                 return false;
             var candidate = _placements.CreateCandidate();
+            int cost = _construction != null && _construction.Barracks.ContainsKey(definitionId)
+                ? _construction.Buildings[definitionId].BuildCost : 0;
+            if (!_account.CanSpend(cost))
+            {
+                reason = "金币不足";
+                return false;
+            }
             if (!candidate.TryBuild(definitionId, x, y, UnitsRemainClear, out reason))
                 return false;
-            return TryPublish(candidate, out reason);
+            if (!TryPublish(candidate, out reason)) return false;
+            _account.TrySpend(cost);
+            UpdateBarracks();
+            _battle.RefreshSnapshot();
+            return true;
+        }
+
+        public int BarracksCapacity(string instanceId) => _barracks.TryGetValue(instanceId, out var roster) ? roster.Capacity : 0;
+        public int BarracksLevel(string instanceId) => _barracks.TryGetValue(instanceId, out var roster) ? roster.Level : 0;
+
+        public IReadOnlyList<BarracksStatus> GetBarracksStatuses()
+        {
+            var aliveIds = new HashSet<ulong>();
+            foreach (var unit in Units)
+                if (unit.Health > 0) aliveIds.Add(unit.Id);
+            var result = new List<BarracksStatus>();
+            foreach (var roster in _barracks.Values)
+            {
+                int alive = 0, training = 0, waiting = 0;
+                double nextReady = double.PositiveInfinity;
+                for (int i = 0; i < roster.Capacity; i++)
+                {
+                    if (aliveIds.Contains(roster.UnitAt(i))) alive++;
+                    else if (roster.IsReady(i, SimulationTime)) waiting++;
+                    else if (roster.RemainingTraining(i, SimulationTime) > 0)
+                    {
+                        training++;
+                        nextReady = Math.Min(nextReady, roster.RemainingTraining(i, SimulationTime));
+                    }
+                }
+                bool destroyed = _structures.Exists(s => s.Id == roster.Id && s.Health <= 0);
+                result.Add(new BarracksStatus(roster.Id, roster.BuildingId, roster.Level, roster.Capacity,
+                    alive, training, waiting, destroyed, training > 0 ? nextReady : 0));
+            }
+            return result.AsReadOnly();
+        }
+
+        public bool TryUpgradeBarracks(string instanceId, out string reason)
+        {
+            RequireActive();
+            if (!CanChangeConstruction(out reason)) return false;
+            if (_construction == null || !_barracks.TryGetValue(instanceId, out var roster))
+            {
+                reason = "该建筑不是兵营";
+                return false;
+            }
+            if (!_placements.Snapshot.facilities.Exists(building => building.id == instanceId))
+            {
+                reason = "兵营已被拆除";
+                return false;
+            }
+            ReadStructures();
+            if (_structures.Exists(s => s.Id == instanceId && s.Health <= 0))
+            {
+                reason = "兵营已被摧毁";
+                return false;
+            }
+            foreach (var upgrade in _construction.Upgrades.Values)
+            {
+                if (!roster.CanUpgrade(upgrade)) continue;
+                if (!_account.CanSpend(upgrade.Cost))
+                {
+                    reason = "金币不足";
+                    return false;
+                }
+                // 兵营容量升级即时提交；新增槽位需要训练冷却，不重置已有士兵或补兵进度。
+                roster.Upgrade(upgrade, SimulationTime, _construction.Barracks[roster.BuildingId].RetrainSeconds);
+                _account.TrySpend(upgrade.Cost);
+                reason = null;
+                return true;
+            }
+            reason = "兵营已满级";
+            return false;
+        }
+
+        /// <summary>对局协调建设编制与战斗部署。阵亡由战斗快照确认，每个槽位只启动一次补兵。</summary>
+        private void UpdateBarracks()
+        {
+            if (_construction == null) return;
+            var layout = _placements.Snapshot;
+            var retained = new HashSet<string>();
+            var alive = new HashSet<ulong>();
+            foreach (var unit in Units)
+                if (unit.Health > 0) alive.Add(unit.Id);
+            var defense = (IDefenseBattleSimulation)_simulation;
+            foreach (var building in layout.facilities)
+            {
+                if (!_construction.Barracks.TryGetValue(building.definitionId, out var rule)) continue;
+                retained.Add(building.id);
+                if (!_barracks.TryGetValue(building.id, out var roster))
+                {
+                    roster = new BarracksRoster(building.id, building.definitionId, rule.Capacity);
+                    _barracks.Add(building.id, roster);
+                }
+                if (_structures.Exists(s => s.Id == building.id && s.Health <= 0)) continue;
+                UnitDefinition soldier = null;
+                foreach (var unit in Definition.Soldiers)
+                    if (unit.Id == rule.UnitId) soldier = unit;
+                if (soldier == null) throw new InvalidOperationException("兵营引用了未加载的士兵：" + rule.UnitId);
+                var size = _catalog.Find(building.definitionId);
+                float centerX = layout.originX + (building.x + size.width * 0.5f) * layout.cellWidth;
+                float frontY = layout.originY + building.y * layout.cellHeight;
+                var exit = new MapPoint(centerX, frontY - soldier.Radius - 0.08f);
+                for (int i = 0; i < roster.Capacity; i++)
+                {
+                    if (roster.UnitAt(i) != 0 && !alive.Contains(roster.UnitAt(i)))
+                        roster.ObserveDeath(i, SimulationTime, rule.RetrainSeconds);
+                    if (!roster.IsReady(i, SimulationTime)) continue;
+                    float spacing = soldier.Radius * 2 + Definition.Navigation.SeparationGap + 0.1f;
+                    var rally = new MapPoint(centerX + ((i % 4) - 1.5f) * spacing,
+                        frontY - rule.RallyDistance - (i / 4) * spacing);
+                    if (defense.TrySpawnSoldier(soldier.Kind, exit, rally, out ulong unitId))
+                        roster.Assign(i, unitId);
+                }
+            }
+            var removed = new List<string>();
+            foreach (var id in _barracks.Keys)
+                if (!retained.Contains(id)) removed.Add(id);
+            foreach (var id in removed) _barracks.Remove(id);
         }
 
         public bool TryRemove(float x, float y, out string reason)

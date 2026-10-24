@@ -40,7 +40,15 @@
     {
       "UnitKind": "Runner",
       "ResourceId": "fallen-actions"
+    },
+    {
+      "UnitKind": "Soldier",
+      "ResourceId": "soldier-actions"
+    },
+    {
+      "UnitKind": "Archer",
+      "ResourceId": "archer-actions"
     }
   ],
-  "contentVersion": "38f1f4714f301d88"
+  "contentVersion": "0f29de672523f452"
 }

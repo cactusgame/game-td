@@ -5444,6 +5444,18 @@
             "definitionId": "rubble",
             "x": 85,
             "y": 26
+        },
+        {
+            "id": "plaza-melee-barracks",
+            "definitionId": "barracks.melee",
+            "x": 45,
+            "y": 24
+        },
+        {
+            "id": "plaza-ranged-barracks",
+            "definitionId": "barracks.ranged",
+            "x": 49,
+            "y": 24
         }
     ],
     "wallNodes": [

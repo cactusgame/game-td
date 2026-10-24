@@ -101,21 +101,30 @@ namespace Game.Presentation.Views
             if (moving)
                 _walkPhase += deltaTime * 12;
             // 起伏只作用于 Sprite 子对象，逻辑地面位置和碰撞圆不会上下跳动。
-            float bob = _animations == null && moving ? Mathf.Abs(Mathf.Sin(_walkPhase)) * 0.045f : 0;
+            bool staticWalk = _animations == null || _animations.Require(UnitAction.Walk).FrameCount == 1;
+            float bob = staticWalk && moving ? Mathf.Abs(Mathf.Sin(_walkPhase)) * 0.045f : 0;
             _root.transform.position = new Vector3(position.x, position.y, 0);
             _body.transform.localPosition = new Vector3(0, bob, 0);
             _body.flipX = (state.FacingX < 0) != (_animations?.FacesLeft ?? false);
             if (_animations != null)
             {
-                double hitAge = simulationTime - state.LastHitTime;
                 double attackAge = simulationTime - state.LastAttackTime;
-                // 同次接触同时挥击和受伤：先播完整挥击，再接受伤反馈，避免某一类动作永久被遮蔽。
-                double hurtDelay = state.LastAttackTime == state.LastHitTime ? AttackDuration : 0;
+                // 挥击过程中受伤，保留反馈到挥击结束；不只处理两个事件恰好同一时刻的情况。
+                double hurtStart = state.LastHitTime;
+                double attackEnd = state.LastAttackTime + AttackDuration;
+                if (state.LastHitTime <= attackEnd && state.LastHitTime + HurtDuration >= state.LastAttackTime)
+                    hurtStart = System.Math.Max(hurtStart, attackEnd);
+                double hurtAge = simulationTime - hurtStart;
                 Sprite frame;
                 if (attackAge >= 0 && attackAge < AttackDuration)
                     frame = _animations.Require(UnitAction.Attack).Frame(attackAge);
-                else if (hitAge >= hurtDelay && hitAge < hurtDelay + HurtDuration)
-                    frame = _animations.Require(UnitAction.Hurt).Frame(hitAge - hurtDelay);
+                else if (hurtAge >= 0 && hurtAge < HurtDuration)
+                {
+                    frame = _animations.Require(UnitAction.Hurt).Frame(hurtAge);
+                    // 部分怪物素材只有一帧受击姿势。仅移动图像形成短促后仰，地面位置和碰撞不变。
+                    float recoil = -Mathf.Sign(state.FacingX) * 0.06f * Mathf.Sin((float)(hurtAge / HurtDuration) * Mathf.PI);
+                    _body.transform.localPosition = new Vector3(recoil, bob, 0);
+                }
                 else
                     frame = _animations.Require(moving ? UnitAction.Walk : UnitAction.Idle).Frame(simulationTime - _loopStart);
                 if (frame != null)
@@ -150,6 +159,12 @@ namespace Game.Presentation.Views
             {
                 _body.transform.localScale = Vector3.one * (_height / (death.Frame(0).bounds.size.y * _animations.DeathBodyHeightFraction));
                 _body.sprite = death.Frame(age);
+                if (_animations.UseFallbackDeath)
+                {
+                    float progress = Mathf.Clamp01((float)(age / death.Duration));
+                    _body.transform.localRotation = Quaternion.Euler(0, 0, 85 * progress * (state.FacingX < 0 ? 1 : -1));
+                    _body.transform.localPosition = new Vector3(0, -0.08f * progress, 0);
+                }
             }
 
             // 使用模拟时钟，暂停冻结倒地/停留计时；每次渲染不会重置死亡开始时刻。

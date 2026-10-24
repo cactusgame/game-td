@@ -39,8 +39,10 @@ namespace Game.Tools.MapPlaytest.Unity
         private MapPlayCamera _cameraView;
         private MapContentCatalog _catalog;
         private string _tool = "Inspect";
+        private string _buildDefinitionId = "tower";
         private float _feedbackUntil;
         private Label _status;
+        private Label _barracksStatus;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -63,7 +65,8 @@ namespace Game.Tools.MapPlaytest.Unity
                 if (encounterAsset == null)
                     throw new InvalidOperationException("缺少防守关卡配置 DefenseEncounter.json");
                 var encounter = JsonDefenseEncounterSource.Parse(encounterAsset.text);
-                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter, construction);
+                int initialGold = JsonEconomySource.InitialGold(Resources.Load<TextAsset>("GameConfig/economy").text);
+                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter, construction, initialGold);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize();
@@ -80,8 +83,14 @@ namespace Game.Tools.MapPlaytest.Unity
                         root.Add(picker);
                     }
                     _status = root.Q<Label>("status");
+                    _barracksStatus = root.Q<Label>("barracks-status");
+                    root.Q<Button>("melee-barracks").text = $"近战兵营（{construction.Buildings["barracks.melee"].BuildCost}金）";
+                    root.Q<Button>("ranged-barracks").text = $"远程兵营（{construction.Buildings["barracks.ranged"].BuildCost}金）";
                     root.Q<Button>("inspect").clicked += () => _tool = "Inspect";
-                    root.Q<Button>("build").clicked += () => _tool = "Build";
+                    root.Q<Button>("build").clicked += () => { _tool = "Build"; _buildDefinitionId = "tower"; };
+                    root.Q<Button>("melee-barracks").clicked += () => { _tool = "Build"; _buildDefinitionId = "barracks.melee"; };
+                    root.Q<Button>("ranged-barracks").clicked += () => { _tool = "Build"; _buildDefinitionId = "barracks.ranged"; };
+                    root.Q<Button>("upgrade-barracks").clicked += () => _tool = "Upgrade";
                     root.Q<Button>("remove").clicked += () => _tool = "Remove";
                     root.Q<Button>("gate").clicked += () => _tool = "Gate";
                     root.Q<Button>("restart").clicked += Restart;
@@ -165,6 +174,10 @@ namespace Game.Tools.MapPlaytest.Unity
                     TryRemove(point.x, point.y);
                 else if (_tool == "Gate")
                     TryToggleGate(point.x, point.y);
+                else if (_tool == "Upgrade")
+                    TryUpgradeBarracks(point.x, point.y);
+                else if (_tool == "Inspect")
+                    InspectBuilding(point.x, point.y);
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
@@ -175,7 +188,34 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             _unitView.Synchronize(_session.Units, _session.Definition, _session.SimulationTime, Time.deltaTime, _session.Outcome != "Running");
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)
-                _status.text = $"{OutcomeText()} | Waves {_session.SpawnedWaves}/2 | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} | {_session.SimulationTime:F1}s | map revision {_session.MapVersion} | Hero {_session.HeroHealth} HP";
+                _status.text = $"{OutcomeText()} | Gold {_session.Gold} | Waves {_session.SpawnedWaves}/2 | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} {_buildDefinitionId} | {_session.SimulationTime:F1}s | Hero {_session.HeroHealth} HP";
+            if (_barracksStatus != null && Time.frameCount % 6 == 0)
+            {
+                var lines = new System.Collections.Generic.List<string>();
+                foreach (var barracks in _session.GetBarracksStatuses())
+                {
+                    string state = barracks.IsDestroyed ? "已毁，停止补兵" :
+                        barracks.Training > 0 ? $"训练{barracks.Training}人（{barracks.NextReadySeconds:F1}秒）" :
+                        barracks.WaitingAtExit > 0 ? $"待出营{barracks.WaitingAtExit}人，请保持营门通畅" : "编制已满";
+                    lines.Add($"{_catalog.Find(barracks.BuildingId).name} Lv{barracks.Level}：士兵 {barracks.Alive}/{barracks.Capacity}，{state}");
+                }
+                _barracksStatus.text = lines.Count > 0 ? string.Join("   |   ", lines) : "地图尚无兵营，请选择近战兵营或远程兵营建造。";
+            }
+        }
+
+        private void InspectBuilding(float x, float y)
+        {
+            var map = _session.Snapshot;
+            if (_status == null || !map.Geometry.TryWorldToCell(x, y, out var cell)) return;
+            foreach (var building in map.facilities)
+            {
+                var definition = _catalog.Find(building.definitionId);
+                if (cell.X < building.x || cell.X >= building.x + definition.width || cell.Y < building.y || cell.Y >= building.y + definition.height) continue;
+                bool isBarracks = _session.BarracksCapacity(building.id) > 0;
+                _status.text = isBarracks ? definition.name + "：编制和训练进度见下方兵营状态。" : definition.name + "：该建筑不训练士兵。";
+                _feedbackUntil = Time.unscaledTime + 3;
+                break;
+            }
         }
 
         private string OutcomeText() => _session.Outcome == "Victory" ? "Victory" : _session.Outcome == "Defeat" ? "Defeat" : "Defending";
@@ -183,7 +223,7 @@ namespace Game.Tools.MapPlaytest.Unity
         {
             int count = 0;
             foreach (var unit in _session.Units)
-                if (unit.Kind != Game.Battle.Domain.ValueObjects.UnitKind.Hero && unit.Health > 0)
+                if (Game.Battle.Domain.ValueObjects.UnitKinds.IsEnemy(unit.Kind) && unit.Health > 0)
                     count++;
             return count;
         }
@@ -196,9 +236,11 @@ namespace Game.Tools.MapPlaytest.Unity
             return health;
         }
 
-        public bool TryBuild(int x, int y)
+        public bool TryBuild(int x, int y) => TryBuild(_buildDefinitionId, x, y);
+
+        public bool TryBuild(string definitionId, int x, int y)
         {
-            if (!_session.TryBuild("tower", x, y, out var reason))
+            if (!_session.TryBuild(definitionId, x, y, out var reason))
             {
                 if (_status != null)
                 {
@@ -217,6 +259,22 @@ namespace Game.Tools.MapPlaytest.Unity
                 return false;
             RefreshMapView();
             return true;
+        }
+
+        public bool TryUpgradeBarracks(float x, float y)
+        {
+            var map = _session.Snapshot;
+            if (!map.Geometry.TryWorldToCell(x, y, out var cell)) return false;
+            foreach (var building in map.facilities)
+            {
+                var size = _catalog.Find(building.definitionId);
+                if (cell.X < building.x || cell.X >= building.x + size.width || cell.Y < building.y || cell.Y >= building.y + size.height) continue;
+                bool success = _session.TryUpgradeBarracks(building.id, out string reason);
+                _status.text = success ? $"兵营升级成功：{_session.BarracksLevel(building.id)}级，编制{_session.BarracksCapacity(building.id)}人。新增士兵正在训练。" : reason;
+                _feedbackUntil = Time.unscaledTime + 3;
+                return success;
+            }
+            return false;
         }
 
         public bool TryToggleGate(float x, float y)

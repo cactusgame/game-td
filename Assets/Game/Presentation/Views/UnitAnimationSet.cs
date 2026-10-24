@@ -14,6 +14,8 @@ namespace Game.Presentation.Views
         public float BodyHeightFraction;
         public float DeathBodyHeightFraction;
         public bool FacesLeft;
+        [Tooltip("原始素材缺少倒地帧时，由表现补充倾倒收尾，不改变战斗死亡判定。")]
+        public bool UseFallbackDeath;
 
         [Header("Required actions")]
         public UnitActionSettings Idle;

@@ -64,6 +64,13 @@ namespace Game.Tools.MapPlaytest.Tests
                 session.Advance(0.02f);
                 var enemies = session.Units.Where(unit => unit.Kind != UnitKind.Hero && unit.Health > 0).ToArray();
                 int health = session.GetGateHealth("door");
+                if (health < initialHealth && !damaged)
+                {
+                    Assert.That(enemies.Any(enemy => System.Math.Abs(enemy.LastAttackTime - session.SimulationTime) < 0.0001), Is.True,
+                        "破门伤害必须在同一步发布可播放的攻击时点");
+                    Assert.That(enemies.Where(enemy => System.Math.Abs(enemy.LastAttackTime - session.SimulationTime) < 0.0001)
+                        .All(enemy => enemy.FacingX < 0), Is.True, "攻击时应朝向城门");
+                }
                 if (health > 0)
                     Assert.That(enemies.All(enemy => enemy.X > 2.5f), Is.True);
                 damaged |= health < initialHealth;
@@ -103,9 +110,11 @@ namespace Game.Tools.MapPlaytest.Tests
             units.Add(new UnitSnapshot(2, UnitKind.Goblin, 0.5f, 2.5f, 1, 100, 100, 0));
             gates.Update(simulation, map, rules, units, 1, true);
             Assert.That(gates.Health("gate-main"), Is.LessThan(health));
+            Assert.That(simulation.Attacks, Is.EqualTo(new ulong[] { 2 }));
             int afterHit = gates.Health("gate-main");
             gates.Update(simulation, map, rules, units, 1, true);
             Assert.That(gates.Health("gate-main"), Is.EqualTo(afterHit));
+            Assert.That(simulation.Attacks.Count, Is.EqualTo(1), "冷却期不能每步重启动作");
             for (int i = 2; i < 2000 && gates.Health("gate-main") > 0; i++)
                 gates.Update(simulation, map, rules, units, i * 10, true);
             Assert.That(gates.Health("gate-main"), Is.Zero);
@@ -113,6 +122,28 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(gates.Project(map.Copy()).wallEdges[0].gates[0].isDestroyed, Is.True);
             Assert.That(new GatePassageSession(Catalog()).Health("gate-main"), Is.EqualTo(health));
             Assert.That(map.wallEdges[0].gates[0].isDestroyed, Is.False);
+            int attackCount = simulation.Attacks.Count;
+            gates.Update(simulation, map, rules, units, 30000, true);
+            Assert.That(simulation.Attacks.Count, Is.EqualTo(attackCount), "门毁后不再挥击");
+        }
+
+        [Test]
+        public void FailedGateDestructionDoesNotPublishAttackOrLoseItsCooldown()
+        {
+            var catalog = new MapContentCatalog(Array.Empty<FacilityDefinition>(),
+                new Game.Fortifications.Domain.Definitions.WallDefinition(0.52f, 0.5f, 0.4f, gateHealth: 1));
+            var gates = new GatePassageSession(catalog);
+            var simulation = new Simulation();
+            var rules = Rules();
+            simulation.Reset(rules);
+            var units = new[] { new UnitSnapshot(2, UnitKind.Goblin, 0.5f, 2.5f, 1, 100, 100, -100) };
+            simulation.FailNextUpdate = true;
+            Assert.Throws<InvalidOperationException>(() => gates.Update(simulation, GateMap(), rules, units, 1, true));
+            Assert.That(gates.Health("gate-main"), Is.EqualTo(1));
+            Assert.That(simulation.Attacks, Is.Empty);
+            gates.Update(simulation, GateMap(), rules, units, 1, true);
+            Assert.That(gates.Health("gate-main"), Is.Zero);
+            Assert.That(simulation.Attacks, Is.EqualTo(new ulong[] { 2 }));
         }
 
         [Test]
@@ -215,6 +246,91 @@ namespace Game.Tools.MapPlaytest.Tests
                 Assert.That(session.Units.First(unit => unit.Kind == UnitKind.Hero).Y, Is.GreaterThan(3.5f));
             }
             Assert.That(World.All.Count, Is.EqualTo(worlds));
+        }
+
+        [TestCase(UnitKind.Soldier, false, false)]
+        [TestCase(UnitKind.Soldier, false, true)]
+        [TestCase(UnitKind.Soldier, true, false)]
+        [TestCase(UnitKind.Soldier, true, true)]
+        [TestCase(UnitKind.Archer, false, false)]
+        [TestCase(UnitKind.Archer, false, true)]
+        [TestCase(UnitKind.Archer, true, false)]
+        [TestCase(UnitKind.Archer, true, true)]
+        public void FriendlySoldierCrossesIntactGateInEitherDirectionWithoutStoppingOrDamagingIt(UnitKind kind, bool vertical, bool reverse)
+        {
+            var map = Source();
+            map.wallNodes.Add(new WallNode { id = "a", x = vertical ? 2.5f : -6.5f, y = vertical ? -6.5f : 2.5f });
+            map.wallNodes.Add(new WallNode { id = "b", x = vertical ? 2.5f : 6.5f, y = vertical ? 6.5f : 2.5f });
+            map.wallEdges.Add(new WallEdge { id = "wall", from = "a", to = "b",
+                gates = new List<WallGate> { new WallGate { id = "door", startTile = 5, isOpen = false } } });
+            var hero = map.markers.Find(marker => marker.kind == MarkerKind.HeroSpawn);
+            float heroAxis = reverse ? -1.5f : 6.5f;
+            hero.x = vertical ? heroAxis : 0.5f;
+            hero.y = vertical ? 0.5f : heroAxis;
+            var catalog = Catalog();
+            var definition = new Game.Tools.MapPlaytest.Application.Adapters.MapBattleDefinitionSource(
+                new MapDefinition(map, catalog), catalog, Rules()).Load();
+            var gates = new GatePassageSession(catalog);
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(definition);
+            gates.Synchronize(simulation, map, definition);
+            var before = new MapPoint(0.5f, 0.5f);
+            var after = vertical ? new MapPoint(4.5f, 0.5f) : new MapPoint(0.5f, 4.5f);
+            var exit = reverse ? after : before;
+            var rally = reverse ? before : after;
+            Assert.That(simulation.TrySpawnSoldier(kind, exit, rally, out ulong id), Is.True);
+            var units = new List<UnitSnapshot>();
+            bool openedForSoldier = false;
+            float previous = vertical ? exit.X : exit.Y;
+            for (int i = 0; i < 140; i++)
+            {
+                simulation.Step(0.02f, default);
+                simulation.CopyUnits(units);
+                gates.Update(simulation, map, definition, units, simulation.ElapsedTime, true);
+                openedForSoldier |= gates.Project(map.Copy()).wallEdges[0].gates[0].isOpen;
+                var soldier = units.Single(u => u.Id == id);
+                float current = vertical ? soldier.X : soldier.Y;
+                float goal = vertical ? rally.X : rally.Y;
+                float step = definition.GetUnit(kind).Speed * 0.02f;
+                if ((reverse ? previous - goal : goal - previous) > step + 0.08f)
+                    Assert.That(Math.Abs(current - previous), Is.EqualTo(step).Within(0.001f), "我方士兵过门不能等待铁栅动画或使用敌方碰撞");
+                previous = current;
+            }
+            var final = units.Single(u => u.Id == id);
+            float finalAxis = vertical ? final.X : final.Y;
+            Assert.That(reverse ? finalAxis < 1 : finalAxis > 4, Is.True, "跟随英雄穿过门洞，到达城门另一侧");
+            Assert.That(openedForSoldier, Is.True);
+            Assert.That(gates.Health("door"), Is.EqualTo(catalog.Wall.GateHealth));
+            Assert.That(gates.SpatialVersion, Is.Zero, "己方通行不需要破门或反复重建空间");
+            Assert.That(final.LastAttackTime, Is.EqualTo(-100));
+            var enemyMap = gates.Navigation(map, false);
+            var gateCenter = vertical ? new MapPoint(2.5f, 0.5f) : new MapPoint(0.5f, 2.5f);
+            Assert.That(enemyMap.TryWorldToCell(gateCenter.X, gateCenter.Y, out var doorCell), Is.True);
+            Assert.That(gates.Navigation(map, true).IsWalkable(doorCell), Is.True);
+            Assert.That(enemyMap.IsWalkable(doorCell), Is.False,
+                "放行己方不能同时给敌方开放完整城门");
+        }
+
+        [TestCase(UnitKind.Hero)]
+        [TestCase(UnitKind.Soldier)]
+        [TestCase(UnitKind.Archer)]
+        public void AllFriendlyUnitsUseTheSameAutomaticGateOpeningRule(UnitKind kind)
+        {
+            var map = GateMap();
+            var gates = new GatePassageSession(Catalog());
+            var simulation = new Simulation();
+            var rules = Rules();
+            simulation.Reset(rules);
+            var stats = rules.GetUnit(kind);
+            float threshold = Catalog().Wall.Width * 0.5f + stats.Radius + stats.Speed * rules.FixedStep + 0.5f;
+            var near = new[] { new UnitSnapshot(99, kind, 0.5f, 2.5f - threshold + 0.01f, 1, 100, 100, -100) };
+            gates.Update(simulation, map, rules, near, 0, true);
+            Assert.That(gates.Project(map.Copy()).wallEdges[0].gates[0].isOpen, Is.True);
+            var far = new[] { new UnitSnapshot(99, kind, 0.5f, 2.5f - threshold - 0.01f, 1, 100, 100, -100) };
+            gates.Update(simulation, map, rules, far, 0, true);
+            Assert.That(gates.Project(map.Copy()).wallEdges[0].gates[0].isOpen, Is.False);
+            Assert.That(simulation.Attacks, Is.Empty);
+            Assert.That(gates.Health("gate-main"), Is.EqualTo(Catalog().Wall.GateHealth));
         }
 
         [Test]
@@ -412,6 +528,9 @@ namespace Game.Tools.MapPlaytest.Tests
             public bool FailReset;
             public int DisposeCount;
             public int UpdateCount;
+            public readonly List<ulong> Attacks = new List<ulong>();
+            public void RecordExternalAttack(ulong attackerId, MapPoint target) => Attacks.Add(attackerId);
+            public bool TrySpawnSoldier(UnitKind kind, MapPoint exit, MapPoint rally, out ulong unitId) { unitId = 0; return false; }
 
             public void Reset(BattleDefinition definition)
             {

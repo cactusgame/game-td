@@ -47,14 +47,15 @@ def read_workbook(path):
                     if kind == 's':
                         value = shared[int(value)]
                     elif kind == 'inlineStr':
-                        value = ''.join(cell.find('x:is', NS).itertext())
+                        inline = cell.find('x:is', NS)
+                        value = ''.join(inline.itertext()) if inline is not None else ''
                     elif kind == 'b':
                         value = value == '1'
                     elif kind == 'e':
                         raise ConfigurationError(f'{name}!{address}: Excel错误值 {value}')
                     cells[column] = value
                 rows[int(row.attrib['r'])] = cells
-            headers = rows.get(2, {})
+            headers = {column: value for column, value in rows.get(2, {}).items() if value != ''}
             if len(set(headers.values())) != len(headers):
                 raise ConfigurationError(f'{name}: 字段名重复')
             columns = {str(v): k for k, v in headers.items()}
@@ -128,7 +129,7 @@ def clean(record):
 def build_documents(tables):
     by = {name: ids(rows) for name, rows in tables.items()}
     attacks, skills, effects = by['攻击'], by['技能'], by['效果']
-    behavior, animation, buildings, upgrades = by['怪物行为'], by['动画绑定'], by['建筑'], by['升级分支']
+    behavior, buildings, upgrades = by['怪物行为'], by['建筑'], by['升级分支']
     for record in attacks.values():
         if record['mode'] not in ('Contact', 'Melee', 'Direct') or record['interval'] <= 0:
             fail(record, '攻击模式无效或攻击间隔必须大于0')
@@ -147,23 +148,22 @@ def build_documents(tables):
         if record['target'] not in ('MainCastle', 'Hero'):
             fail(record, '目标策略必须为MainCastle或Hero')
     resources = {p.stem for p in (ROOT / 'Assets/Content/Units').rglob('*-actions.asset')}
-    for record in animation.values():
-        if record['resourceId'] not in resources:
-            fail(record, f'动画资源不存在: {record["resourceId"]}')
     slots = {}
     for record in by['单位'].values():
+        if record['animationResourceId'] not in resources:
+            fail(record, f'动画资源不存在: {record["animationResourceId"]}')
         if record['slot']:
-            if record['slot'] not in ('Hero', 'Goblin', 'Runner') or record['slot'] in slots:
-                fail(record, '运行槽位应为Hero/Goblin/Runner且不能重复；新增储备单位可留空')
+            if record['slot'] not in ('Hero', 'Goblin', 'Runner', 'Soldier', 'Archer') or record['slot'] in slots:
+                fail(record, '运行槽位应为Hero/Goblin/Runner/Soldier/Archer且不能重复；储备单位可留空')
             slots[record['slot']] = record
         for key in ('maxHealth', 'speed', 'radius', 'visualHeight'):
             if record[key] <= 0:
                 fail(record, key + '必须大于0')
-        for field, catalog in [('attackId', attacks), ('skillIds', skills), ('behaviorId', behavior), ('animationId', animation)]:
+        for field, catalog in [('attackId', attacks), ('skillIds', skills), ('behaviorId', behavior)]:
             refs(record, field, catalog, field == 'skillIds')
-        if not record['attackId'] or not record['animationId'] or ((record['slot'] in ('Goblin', 'Runner') or record['id'].startswith('enemy.')) and not record['behaviorId']):
+        if not record['attackId'] or ((record['slot'] in ('Goblin', 'Runner') or record['id'].startswith('enemy.')) and not record['behaviorId']):
             fail(record, '单位必须绑定攻击、动画，怪物还必须绑定行为')
-    if set(slots) != {'Hero', 'Goblin', 'Runner'}:
+    if not {'Hero', 'Goblin', 'Runner'}.issubset(slots):
         raise ConfigurationError('单位表必须保留全部三个运行槽位')
     for record in buildings.values():
         refs(record, 'attackId', attacks)
@@ -181,10 +181,29 @@ def build_documents(tables):
             if current['id'] in seen or current['buildingId'] != record['buildingId']:
                 fail(record, '升级前置存在循环或跨建筑引用')
             seen.add(current['id'])
+    for record in by['兵营'].values():
+        refs(record, 'id', buildings)
+        refs(record, 'unitId', by['单位'])
+        if by['单位'][record['unitId']]['slot'] not in ('Soldier', 'Archer'):
+            fail(record, '兵营只能引用已选择Soldier或Archer槽位的己方士兵')
+        if not 0 < record['capacity'] <= 100 or min(record['retrainSeconds'], record['rallyDistance']) <= 0:
+            fail(record, '兵营人数必须为1至100，补兵冷却和驻守距离必须为正数')
+        for upgrade in upgrades.values():
+            if upgrade['buildingId'] != record['id']:
+                continue
+            if upgrade['capacityBonus'] <= 0 or upgrade['seconds'] != 0 or any(upgrade[k] for k in ('maxHealthBonus', 'attackBonus', 'rangeBonus')):
+                fail(upgrade, '本版兵营升级支持即时扩编，人数增量必须为正，其他属性增量和升级时间请设0')
+            total = record['capacity'] + upgrade['capacityBonus']
+            parent = upgrade
+            while parent['prerequisiteId']:
+                parent = upgrades[parent['prerequisiteId']]
+                total += parent['capacityBonus']
+            if total > 100:
+                fail(upgrade, '升级后兵营编制不得超过100')
     expected = json.loads(Path(__file__).with_name('settings_schema.json').read_text(encoding='utf-8'))
     if set(by['全局参数']) != set(expected):
         raise ConfigurationError('全局参数缺失或增加了不支持的键，请保留原键名')
-    documents = {name: {'schemaVersion': version} for name, version in [('battle', 1), ('presentation', 3), ('facilities', 1), ('DefenseEncounter', 1), ('MapPlayCamera', 1)]}
+    documents = {name: {'schemaVersion': version} for name, version in [('battle', 1), ('presentation', 3), ('facilities', 1), ('DefenseEncounter', 1), ('MapPlayCamera', 1), ('economy', 1)]}
     for record in tables['全局参数']:
         value = record['value']
         try:
@@ -206,14 +225,16 @@ def build_documents(tables):
             target = target.setdefault(part, {})
         target[parts[-1]] = value
     battle = documents['battle']
-    for slot, key in [('Hero', 'hero'), ('Goblin', 'goblin'), ('Runner', 'runner')]:
+    for slot, key in [('Hero', 'hero'), ('Goblin', 'goblin'), ('Runner', 'runner'), ('Soldier', 'soldier'), ('Archer', 'archer')]:
+        if slot not in slots:
+            continue
         record = slots[slot]
         attack = attacks[record['attackId']]
         rule = behavior.get(record['behaviorId'], {'target': 'Hero', 'canAttackGates': False})
         battle[key] = {k: record[k] for k in ('id', 'maxHealth', 'defense', 'speed', 'radius', 'visualHeight')}
         battle[key].update(attack=attack['damage'], attackInterval=attack['interval'], attackRange=attack['range'],
                            targetMainCastle=rule['target'] == 'MainCastle', canAttackGates=rule['canAttackGates'])
-    documents['presentation']['Units'] = [{'UnitKind': slot, 'ResourceId': animation[record['animationId']]['resourceId']} for slot, record in slots.items()]
+    documents['presentation']['Units'] = [{'UnitKind': slot, 'ResourceId': record['animationResourceId']} for slot, record in slots.items()]
     facilities = []
     for record in buildings.values():
         attack = attacks.get(record['attackId'], {'damage': 0, 'range': 0, 'interval': 1})
@@ -221,8 +242,12 @@ def build_documents(tables):
         item.update(attack=attack['damage'], attackRange=attack['range'], attackInterval=attack['interval'])
         facilities.append(item)
     documents['facilities']['facilities'] = facilities
-    documents['combat-content'] = {'schemaVersion': 1, **{key: [clean(r) for r in tables[sheet]] for key, sheet in [('units', '单位'), ('attacks', '攻击'), ('skills', '技能'), ('effects', '效果'), ('behaviors', '怪物行为'), ('animations', '动画绑定')]}}
-    documents['construction-content'] = {'schemaVersion': 1, 'buildings': [clean(r) for r in tables['建筑']], 'upgrades': [clean(r) for r in tables['升级分支']]}
+    documents['combat-content'] = {'schemaVersion': 1, **{key: [clean(r) for r in tables[sheet]] for key, sheet in [('units', '单位'), ('attacks', '攻击'), ('skills', '技能'), ('effects', '效果'), ('behaviors', '怪物行为')]}}
+    documents['construction-content'] = {'schemaVersion': 1, 'buildings': [clean(r) for r in tables['建筑']], 'upgrades': [clean(r) for r in tables['升级分支']], 'barracks': [clean(r) for r in tables['兵营']]}
+    gold = documents['economy']['initialGold']
+    if gold != int(gold) or not 0 <= gold <= 2147483647:
+        raise ConfigurationError('本局初始金币必须为非负32位整数')
+    documents['economy']['initialGold'] = int(gold)
     nav = battle['navigation']
     if nav['loseTargetRadius'] < nav['detectionRadius'] or min(nav['cellSize'], nav['repathSeconds'], nav['separationSpeed']) <= 0:
         raise ConfigurationError('全局导航参数无效')
@@ -245,11 +270,12 @@ def build_documents(tables):
     if encounter['waveInterval'] <= 0:
         raise ConfigurationError('波次间隔必须大于0')
     wall = documents['facilities']['wall']
-    if min(wall['width'], wall['height'], wall['junctionRadius'], wall['gateAttackInterval'], wall['gateHealth']) <= 0 or wall['junctionRadius'] <= wall['width'] * 0.5:
-        raise ConfigurationError('城墙尺寸、门生命或攻击间隔无效')
-    if wall['gateHealth'] != int(wall['gateHealth']):
-        raise ConfigurationError('门生命必须为整数')
-    wall['gateHealth'] = int(wall['gateHealth'])
+    if min(wall['width'], wall['height'], wall['junctionRadius'], wall['gateAttackInterval']) <= 0 or wall['junctionRadius'] <= wall['width'] * 0.5:
+        raise ConfigurationError('城墙尺寸或城门受击间隔无效')
+    for key in ('wallHealth', 'gateHealth'):
+        if wall[key] <= 0 or wall[key] != int(wall[key]):
+            fail(by['全局参数']['facilities.wall.' + key], '城墙和城门生命必须为正整数')
+        wall[key] = int(wall[key])
     for color in ('GroundLight', 'GroundDark', 'BorderColor'):
         if any(v > 1 for v in documents['presentation']['Map'][color].values()):
             raise ConfigurationError('表现颜色分量必须为0至1')

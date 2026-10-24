@@ -10,6 +10,7 @@ namespace Game.Presentation.Views
         public float BodyHeightFraction { get; }
         public float DeathBodyHeightFraction { get; }
         public bool FacesLeft { get; }
+        public bool UseFallbackDeath { get; }
 
         public UnitAnimationPlayer(UnitAnimationSet resources)
         {
@@ -20,6 +21,7 @@ namespace Game.Presentation.Views
             BodyHeightFraction = resources.BodyHeightFraction;
             DeathBodyHeightFraction = resources.DeathBodyHeightFraction;
             FacesLeft = resources.FacesLeft;
+            UseFallbackDeath = resources.UseFallbackDeath;
             foreach (UnitAction action in Enum.GetValues(typeof(UnitAction)))
             {
                 var sequence = resources.GetSequence(action);

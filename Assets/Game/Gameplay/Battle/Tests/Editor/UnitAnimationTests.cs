@@ -10,6 +10,8 @@ namespace Game.Battle.Tests
     public sealed class UnitAnimationTests
     {
         [TestCase("Heroes/Alien/alien", UnitKind.Hero)]
+        [TestCase("Allies/Soldier/soldier", UnitKind.Soldier)]
+        [TestCase("Allies/Archer/archer", UnitKind.Archer)]
         [TestCase("Enemies/Skeleton/skeleton", UnitKind.Goblin)]
         [TestCase("Enemies/Fallen/fallen", UnitKind.Runner)]
         [TestCase("Enemies/Goblin/Sprites/goblin", UnitKind.Goblin)]
@@ -22,7 +24,7 @@ namespace Game.Battle.Tests
             authored.Death.Fps = 4;
             var player = new UnitAnimationPlayer(authored);
             var death = player.Require(UnitAction.Death);
-            Assert.That(death.FrameCount, Is.GreaterThanOrEqualTo(4));
+            Assert.That(death.FrameCount, Is.GreaterThanOrEqualTo(authored.UseFallbackDeath ? 1 : 4));
             var settings = new UnitDeathSettings();
             // 使用不同于默认值的时长，验证播放和移除确实读取统一配置。
             settings.CorpseHoldSeconds = 2;
@@ -70,6 +72,10 @@ namespace Game.Battle.Tests
         }
 
         [TestCase("Heroes/Alien/alien")]
+        [TestCase("Allies/Soldier/soldier")]
+        [TestCase("Allies/Archer/archer")]
+        [TestCase("Enemies/Skeleton/skeleton")]
+        [TestCase("Enemies/Fallen/fallen")]
         [TestCase("Enemies/Goblin/Sprites/goblin")]
         [TestCase("Enemies/Runner/Sprites/runner")]
         public void ImportedFramesPlayAttackThenHurtAndReturnToLocomotion(string path)
@@ -101,6 +107,44 @@ namespace Game.Battle.Tests
                 view.Render(State(x: 1, hp: 0), 3, 0.1f);
                 Assert.That(root.transform.GetChild(0).gameObject.activeSelf, Is.True);
                 Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(0)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [TestCase("Heroes/Alien/alien")]
+        [TestCase("Enemies/Skeleton/skeleton")]
+        [TestCase("Enemies/Fallen/fallen")]
+        public void HurtDuringAttackIsPlayedAfterSwingAndDeathInterruptsBoth(string path)
+        {
+            var set = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>("Assets/Content/Units/" + path + "-actions.asset");
+            var player = new UnitAnimationPlayer(set);
+            var attack = player.Require(UnitAction.Attack);
+            var hurt = player.Require(UnitAction.Hurt);
+            var root = new GameObject("Combat reaction test");
+            try
+            {
+                var sprite = player.Require(UnitAction.Idle).Frame(0);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f,
+                    Color.white, player, new UnitDeathSettings { CorpseHoldSeconds = 1.5f });
+                var unit = root.transform.GetChild(0);
+                var body = unit.Find("Sprite").GetComponent<SpriteRenderer>();
+                // 受击并非与攻击同一时刻，且原始受击窗口在挥击结束前已过期。
+                var state = new UnitSnapshot(2, UnitKind.Goblin, 3, 4, -1, 10, 20, 1.02f, 1);
+                view.Render(state, 1.03, 0.03f);
+                Assert.That(body.sprite, Is.EqualTo(attack.Frame(0.03)));
+                double hurtTime = 1 + attack.Duration + hurt.Duration * 0.5;
+                view.Render(state, hurtTime, 0.02f);
+                Assert.That(body.sprite, Is.EqualTo(hurt.Frame(hurt.Duration * 0.5)));
+                Assert.That(body.transform.localPosition.x, Is.GreaterThan(0), "受击后仰只影响图像");
+                Assert.That(unit.position, Is.EqualTo(new Vector3(3, 4, 0)));
+                var dead = new UnitSnapshot(2, UnitKind.Goblin, 3, 4, -1, 0, 20, (float)hurtTime, (float)hurtTime);
+                view.Render(dead, hurtTime, 0);
+                Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(0)));
+                Assert.That(body.transform.localPosition, Is.EqualTo(Vector3.zero));
+                Assert.That(view.IsReadyForRemoval, Is.False);
             }
             finally
             {

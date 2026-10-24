@@ -41,5 +41,7 @@
   "MapPlayCamera.schemaVersion": "number",
   "MapPlayCamera.visibleHeight": "number",
   "MapPlayCamera.edgeMargin": "number",
-  "MapPlayCamera.topEdgeMargin": "number"
+  "MapPlayCamera.topEdgeMargin": "number",
+  "facilities.wall.wallHealth": "number",
+  "economy.initialGold": "number"
 }

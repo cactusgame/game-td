@@ -18,12 +18,13 @@ namespace Game.Fortifications.Domain.Aggregates.GateDefense
             return copy;
         }
         /// <summary>应用层确认接触后，以模拟时钟结算单个攻击者的伤害。</summary>
-        public void ReceiveAttack(ulong id, int damage, double now, float interval)
+        public bool ReceiveAttack(ulong id, int damage, double now, float interval)
         {
             if (IsDestroyed || damage <= 0 || (_nextAttacks.TryGetValue(id, out var next) && now < next))
-                return;
+                return false;
             Health = Math.Max(0, Health - damage);
             _nextAttacks[id] = now + interval;
+            return true;
         }
     }
 }

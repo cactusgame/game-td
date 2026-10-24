@@ -52,7 +52,7 @@ namespace Game.Battle.Unity.Views
                     var stats = definition.GetUnit(unit.Kind);
                     var player = _players[unit.Kind];
                     view = new UnitView(_parent, player.Require(UnitAction.Idle).Frame(0), _catalog.White, _catalog.Circle,
-                        stats.VisualHeight, stats.Radius, unit.Kind == UnitKind.Hero ? Color.cyan : Color.red, player, _settings.Death, _depth, "Default");
+                        stats.VisualHeight, stats.Radius, UnitKinds.IsEnemy(unit.Kind) ? Color.red : Color.cyan, player, _settings.Death, _depth, "Default");
                     _views.Add(unit.Id, view);
                 }
                 view.Render(unit, _time, deltaTime);

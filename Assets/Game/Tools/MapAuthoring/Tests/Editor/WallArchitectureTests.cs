@@ -15,6 +15,24 @@ namespace Game.Tools.MapAuthoring.Tests
 {
     public sealed class WallArchitectureTests
     {
+        [Test]
+        public void FortificationHealth_LoadsIndependentlyFromItsSpatialDimensions()
+        {
+            var catalog = FacilityCatalogJson.Read("{\"schemaVersion\":1,\"facilities\":[],\"wall\":{\"width\":0.52,\"height\":0.5,\"junctionRadius\":0.4,\"wallHealth\":750,\"gateHealth\":120}}");
+            Assert.That(catalog.Wall.WallHealth, Is.EqualTo(750));
+            Assert.That(catalog.Wall.GateHealth, Is.EqualTo(120));
+            Assert.That(catalog.Wall.Width, Is.EqualTo(0.52f));
+        }
+
+        [TestCase(0, 100)]
+        [TestCase(300, 0)]
+        [TestCase(-1, 100)]
+        public void FortificationHealth_MustBePositive(int wallHealth, int gateHealth)
+        {
+            Assert.Throws<ArgumentException>(() => new WallDefinition(
+                0.52f, 0.5f, 0.4f, gateHealth: gateHealth, wallHealth: wallHealth));
+        }
+
         private static MapLayout Map()
         {
             var map = new MapLayout();

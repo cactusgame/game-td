@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Game.Construction.Domain.Definitions;
+using Game.Battle.Domain.Definitions;
 using Game.Infrastructure.Configuration;
 using NUnit.Framework;
 
@@ -9,6 +10,22 @@ namespace Game.Battle.Tests
     public sealed class GeneratedConfigurationTests
     {
         private const string Root = "Assets/Content/Configuration/Resources/GameConfig/";
+        [TestCase("Contact", AttackMode.Contact)]
+        [TestCase("Melee", AttackMode.Melee)]
+        [TestCase("Direct", AttackMode.Direct)]
+        public void AttackModesLoadAsDomainEnum(string name, AttackMode expected)
+        {
+            Assert.That(new AttackDefinition("test", name, 1, 1, 0, "").Mode, Is.EqualTo(expected));
+        }
+
+        [TestCase("contact")]
+        [TestCase("Ranged")]
+        [TestCase("0")]
+        [TestCase("999")]
+        public void UnknownOrNumericAttackModesAreRejected(string mode)
+        {
+            Assert.Throws<ArgumentException>(() => new AttackDefinition("test", mode, 1, 1, 0, ""));
+        }
         [Test]
         public void GeneratedCombatAndConstructionContentLoadsIntoItsOwningDomains()
         {

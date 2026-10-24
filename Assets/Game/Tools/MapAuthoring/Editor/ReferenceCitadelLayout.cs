@@ -24,6 +24,9 @@ namespace Game.Tools.MapAuthoring.Editor
             BuildInnerWalls(map);
             BuildKeep(map);
             PlaceVillage(map);
+            // 广场两侧预置真实兵营类型，不能仅放置外观相似的民居或教堂。
+            map.facilities.Add(new InitialFacility { id = "plaza-melee-barracks", definitionId = "barracks.melee", x = 45, y = 24 });
+            map.facilities.Add(new InitialFacility { id = "plaza-ranged-barracks", definitionId = "barracks.ranged", x = 49, y = 24 });
             PlantTrees(map);
             map.markers.Add(new MapMarker { id = "hero", name = "主堡南广场", kind = MarkerKind.HeroSpawn, x = -0.5f, y = -3 });
             map.markers.Add(new MapMarker { id = "west", name = "西侧破口外", kind = MarkerKind.EnemyEntry, x = -45.5f, y = -4 });

@@ -5,21 +5,21 @@
       "id": "hero.alien",
       "name": "Alien",
       "slot": "Hero",
-      "maxHealth": 120000,
+      "maxHealth": 100,
       "defense": 3,
       "speed": 4.5,
       "radius": 0.42,
-      "visualHeight": 1.65,
+      "visualHeight": 0.95,
       "attackId": "attack.alien",
       "skillIds": "",
       "behaviorId": "",
-      "animationId": "visual.alien"
+      "animationResourceId": "alien-actions"
     },
     {
       "id": "enemy.skeleton",
       "name": "骷髅兵",
       "slot": "Goblin",
-      "maxHealth": 25,
+      "maxHealth": 60,
       "defense": 2,
       "speed": 1.25,
       "radius": 0.4,
@@ -27,7 +27,7 @@
       "attackId": "attack.skeleton",
       "skillIds": "",
       "behaviorId": "behavior.siege",
-      "animationId": "visual.skeleton"
+      "animationResourceId": "skeleton-actions"
     },
     {
       "id": "enemy.fallen",
@@ -41,7 +41,35 @@
       "attackId": "attack.fallen",
       "skillIds": "",
       "behaviorId": "behavior.siege",
-      "animationId": "visual.fallen"
+      "animationResourceId": "fallen-actions"
+    },
+    {
+      "id": "ally.soldier",
+      "name": "近战兵",
+      "slot": "Soldier",
+      "maxHealth": 60,
+      "defense": 2,
+      "speed": 2.2,
+      "radius": 0.3,
+      "visualHeight": 0.95,
+      "attackId": "attack.soldier",
+      "skillIds": "",
+      "behaviorId": "",
+      "animationResourceId": "soldier-actions"
+    },
+    {
+      "id": "ally.archer",
+      "name": "弓箭手",
+      "slot": "Archer",
+      "maxHealth": 10,
+      "defense": 0,
+      "speed": 2.4,
+      "radius": 0.28,
+      "visualHeight": 1.0,
+      "attackId": "attack.archer",
+      "skillIds": "",
+      "behaviorId": "",
+      "animationResourceId": "archer-actions"
     }
   ],
   "attacks": [
@@ -49,7 +77,7 @@
       "id": "attack.alien",
       "name": "Alien接触攻击",
       "mode": "Contact",
-      "damage": 150,
+      "damage": 20,
       "interval": 1.0,
       "range": 0.0,
       "effectIds": ""
@@ -79,6 +107,24 @@
       "damage": 25,
       "interval": 1.0,
       "range": 5.0,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.soldier",
+      "name": "近战兵挥砍",
+      "mode": "Melee",
+      "damage": 8,
+      "interval": 1.0,
+      "range": 0.35,
+      "effectIds": ""
+    },
+    {
+      "id": "attack.archer",
+      "name": "远程射手直伤",
+      "mode": "Direct",
+      "damage": 6,
+      "interval": 1.2,
+      "range": 4.5,
       "effectIds": ""
     }
   ],
@@ -116,19 +162,5 @@
       "canAttackGates": false
     }
   ],
-  "animations": [
-    {
-      "id": "visual.alien",
-      "resourceId": "alien-actions"
-    },
-    {
-      "id": "visual.skeleton",
-      "resourceId": "skeleton-actions"
-    },
-    {
-      "id": "visual.fallen",
-      "resourceId": "fallen-actions"
-    }
-  ],
-  "contentVersion": "38f1f4714f301d88"
+  "contentVersion": "0f29de672523f452"
 }

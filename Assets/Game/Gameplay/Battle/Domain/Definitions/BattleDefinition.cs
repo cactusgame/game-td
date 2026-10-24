@@ -14,6 +14,7 @@ namespace Game.Battle.Domain.Definitions
         public UnitDefinition Goblin { get; }
 
         public UnitDefinition Runner { get; }
+        public IReadOnlyList<UnitDefinition> Soldiers { get; }
 
         public int GoblinCount { get; }
 
@@ -35,11 +36,20 @@ namespace Game.Battle.Domain.Definitions
         public MapPoint HeroSpawn { get; }
         public IReadOnlyList<MapPoint> EnemySpawns { get; }
 
-        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null)
+        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null, IReadOnlyList<UnitDefinition> soldiers = null)
         {
             Hero = hero ?? throw new ArgumentNullException(nameof(hero));
             Goblin = goblin ?? throw new ArgumentNullException(nameof(goblin));
             Runner = runner ?? throw new ArgumentNullException(nameof(runner));
+            var soldierCopy = new List<UnitDefinition>();
+            var kinds = new HashSet<UnitKind>();
+            foreach (var soldier in soldiers ?? Array.Empty<UnitDefinition>())
+            {
+                if (!UnitKinds.IsSoldier(soldier.Kind) || !kinds.Add(soldier.Kind))
+                    throw new ArgumentException("Soldier definitions require unique soldier kinds.");
+                soldierCopy.Add(soldier);
+            }
+            Soldiers = new ReadOnlyCollection<UnitDefinition>(soldierCopy);
             if (hero.Kind != UnitKind.Hero || goblin.Kind != UnitKind.Goblin || runner.Kind != UnitKind.Runner)
                 throw new ArgumentException("Unit definitions do not match their roles.");
             if (goblinCount < 0 || runnerCount < 0 || (long)goblinCount + runnerCount > 100000)
@@ -99,6 +109,9 @@ namespace Game.Battle.Domain.Definitions
                 case UnitKind.Runner:
                     return Runner;
                 default:
+                    foreach (var soldier in Soldiers)
+                        if (soldier.Kind == kind)
+                            return soldier;
                     throw new ArgumentOutOfRangeException(nameof(kind), "Unknown unit kind.");
             }
         }

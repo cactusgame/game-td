@@ -29,7 +29,7 @@ namespace Game.Battle.Simulation.Systems
                 return;
             foreach (var (ground, motion, identity) in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRO<UnitIdentity>>())
             {
-                var map = identity.ValueRO.Kind == Game.Battle.Domain.ValueObjects.UnitKind.Hero ? _friendlyMap : _map;
+                var map = Game.Battle.Domain.ValueObjects.UnitKinds.IsFriendly(identity.ValueRO.Kind) ? _friendlyMap : _map;
                 float2 position = ground.ValueRO.Previous;
                 float2 delta = ground.ValueRO.Position - position;
                 int steps = math.max(1, (int)math.ceil(math.length(delta) / (math.min(map.CellWidth, map.CellHeight) * 0.2f)));

@@ -29,7 +29,7 @@ namespace Game.Battle.Domain.Definitions
 
         public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true)
         {
-            if (kind != UnitKind.Hero && kind != UnitKind.Goblin && kind != UnitKind.Runner)
+            if (!Enum.IsDefined(typeof(UnitKind), kind))
             {
                 throw new ArgumentOutOfRangeException(nameof(kind), "Unknown unit kind.");
             }

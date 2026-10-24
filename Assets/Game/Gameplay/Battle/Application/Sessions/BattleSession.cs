@@ -110,7 +110,7 @@ namespace Game.Battle.Application.Sessions
                 {
                     HeroHealth = unit.Health;
                 }
-                else if (unit.Health > 0)
+                else if (UnitKinds.IsEnemy(unit.Kind) && unit.Health > 0)
                 {
                     AliveMonsters++;
                 }

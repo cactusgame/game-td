@@ -9,7 +9,8 @@
     "Game.Encounter.Domain",
     "Game.Construction.Application",
     "Game.Fortifications.Domain",
-    "Game.Construction.Domain"
+    "Game.Construction.Domain",
+    "Game.Economy.Domain"
   ],
   "noEngineReferences": true
 }

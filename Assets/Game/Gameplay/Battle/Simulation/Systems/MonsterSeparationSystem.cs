@@ -22,7 +22,12 @@ namespace Game.Battle.Simulation.Systems
 
         protected override void OnCreate()
         {
-            _monsters = GetEntityQuery(typeof(MonsterTag), typeof(UnitIdentity), typeof(GroundTransform), typeof(UnitMotion), typeof(Vitals));
+            // 同一套地面分离覆盖敌人与士兵。英雄保持原来的玩家输入移动语义。
+            _monsters = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new ComponentType[] { typeof(UnitIdentity), typeof(GroundTransform), typeof(UnitMotion), typeof(Vitals) },
+                Any = new ComponentType[] { typeof(MonsterTag), typeof(SoldierState) }
+            });
         }
 
         public void Configure(float gap, float correctionSpeed)
@@ -50,7 +55,7 @@ namespace Game.Battle.Simulation.Systems
             using var neighbors = new NativeParallelMultiHashMap<int2, int>(entities.Length, Allocator.TempJob);
             for (int i = 0; i < entities.Length; i++)
             {
-                if (health[i].Health > 0)
+                if (health[i].Health > 0 && identities[i].Kind != Game.Battle.Domain.ValueObjects.UnitKind.Hero)
                     neighbors.Add((int2)math.floor(positions[i].Position / cellSize), i);
             }
             new SeparateJob

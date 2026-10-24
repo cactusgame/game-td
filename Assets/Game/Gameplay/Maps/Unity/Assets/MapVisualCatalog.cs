@@ -169,6 +169,8 @@ namespace Game.Maps.Unity.Assets
             {
                 case "rubble": return rockVariants != null && rockVariants.Length > 0 ? rockVariants[0] : Terrain(TerrainKind.Rock)?.obstacle;
                 case "house": fallback = "hall"; break;
+                case "barracks.melee": return Facility("house");
+                case "barracks.ranged": fallback = "mage"; break;
                 case "church": fallback = "mage"; break;
                 case "market": case "well": fallback = "farm"; break;
                 default: return null;

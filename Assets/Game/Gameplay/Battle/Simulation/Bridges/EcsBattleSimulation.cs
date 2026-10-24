@@ -22,6 +22,7 @@ namespace Game.Battle.Simulation.Bridges
     public sealed class EcsBattleSimulation : IDefenseBattleSimulation
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
+        private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
         private BattleDefinition _definition;
         private ulong _nextId;
         private Game.MapEngine.Domain.GridMap _spawnMap;
@@ -31,6 +32,8 @@ namespace Game.Battle.Simulation.Bridges
         private readonly MonsterObjectiveSystem _objectives;
         private readonly TerrainCollisionSystem _terrainCollision;
         private readonly MonsterSeparationSystem _separation;
+        private readonly SoldierNavigationSystem _soldierNavigation;
+        private Game.MapEngine.Domain.GridMap _friendlySpawnMap;
         private readonly EntityQuery _units;
         // Entity 只是这个 World 中的句柄；数据在它所挂载的组件里。
         private readonly Entity _settings;
@@ -49,6 +52,9 @@ namespace Game.Battle.Simulation.Bridges
             _group.AddSystemToUpdateList(_objectives);
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
+            _soldierNavigation = _world.GetOrCreateSystemManaged<SoldierNavigationSystem>();
+            _group.AddSystemToUpdateList(_soldierNavigation);
+            _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<SoldierCombatSystem>());
             _separation = _world.GetOrCreateSystemManaged<MonsterSeparationSystem>();
             _group.AddSystemToUpdateList(_separation);
             _terrainCollision = _world.GetOrCreateSystemManaged<TerrainCollisionSystem>();
@@ -79,6 +85,8 @@ namespace Game.Battle.Simulation.Bridges
             em.CompleteAllTrackedJobs();
             _definition = definition;
             _spawnMap = definition.NavigationMap;
+            _friendlySpawnMap = definition.NavigationMap;
+            _soldierNavigation.Configure(definition.NavigationMap);
             _nextId = (ulong)definition.MonsterCount + 2;
             foreach (var entity in _structures.Values)
                 em.DestroyEntity(entity);
@@ -89,6 +97,7 @@ namespace Game.Battle.Simulation.Bridges
             _terrainCollision.Configure(definition.NavigationMap);
             // 只销毁单位查询匹配的实体，保留 _settings 与系统本身。
             em.DestroyEntity(_units);
+            _unitEntities.Clear();
             ElapsedTime = 0;
             var center = new float2(definition.NavigationMap.OriginX + definition.Width * 0.5f, definition.NavigationMap.OriginY + definition.Height * 0.5f);
             em.SetComponentData(_settings, new BattleSettings{HalfSize = new float2(definition.Width, definition.Height) * 0.5f, Center = center});
@@ -144,6 +153,9 @@ namespace Game.Battle.Simulation.Bridges
             _world.EntityManager.CompleteAllTrackedJobs();
             // 敌方用含门洞的路线接近破门目标，实际通行仍由敌方碰撞地图裁决。
             _spawnMap = map;
+            _friendlySpawnMap = friendlyMap ?? map;
+            // 士兵的出营净空与寻路必须使用和英雄碰撞相同的我方图，不能被敌方关门状态拦住。
+            _soldierNavigation.Configure(_friendlySpawnMap);
             _objectives.Configure(friendlyMap ?? map);
             _navigation.Configure(friendlyMap ?? map, navigation);
             _terrainCollision.Configure(map, friendlyMap);
@@ -272,6 +284,7 @@ namespace Game.Battle.Simulation.Bridges
             // 统一移动 Job 所需的数据。英雄的导航组件为空，不使用怪物寻路分支。
             // 同组件类型组合称为 Archetype；这些组件数据会由 ECS 按 Chunk 组织存储。
             var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
+            _unitEntities.Add(id, entity);
             em.AddComponentData(entity, new CombatProfile { AttackInterval = definition.AttackInterval, AttackRange = definition.AttackRange, TargetMainCastle = definition.TargetMainCastle ? (byte)1 : (byte)0 });
             em.AddBuffer<NavigationWaypoint>(entity);
             // SetComponentData 修改已有组件，不会自动添加缺失组件；这里写入只读定义中的初始属性。
@@ -285,11 +298,75 @@ namespace Game.Battle.Simulation.Bridges
             // 添加组件会改变 Archetype，当前集中在生成阶段执行。
             if (definition.Kind == UnitKind.Hero)
                 em.AddComponent<HeroTag>(entity);
-            else
+            else if (UnitKinds.IsEnemy(definition.Kind))
             {
                 em.AddComponent<MonsterTag>(entity);
                 em.AddComponent<HeroContact>(entity);
             }
+        }
+
+        public bool TrySpawnSoldier(UnitKind kind, Game.MapEngine.Domain.MapPoint exit, Game.MapEngine.Domain.MapPoint rally, out ulong unitId)
+        {
+            unitId = 0;
+            if (!UnitKinds.IsSoldier(kind)) throw new ArgumentException("A barracks can only deploy soldiers.");
+            var definition = _definition.GetUnit(kind);
+            var map = _friendlySpawnMap;
+            if (!map.CanOccupy(exit.X, exit.Y, definition.Radius)) return false;
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            using var positions = _units.ToComponentDataArray<GroundTransform>(Allocator.Temp);
+            using var health = _units.ToComponentDataArray<Vitals>(Allocator.Temp);
+            using var motions = _units.ToComponentDataArray<UnitMotion>(Allocator.Temp);
+            for (int i = 0; i < positions.Length; i++)
+            {
+                float clearance = motions[i].Radius + definition.Radius + _definition.Navigation.SeparationGap;
+                if (health[i].Health > 0 && math.distancesq(positions[i].Position, new float2(exit.X, exit.Y)) < clearance * clearance)
+                    return false;
+            }
+            // 驻守点被地形覆盖时，在附近寻找可达净空；不能把兵传送到墙的另一边。
+            var pathfinder = new Game.MapEngine.Domain.GridPathfinder(map);
+            var cells = new List<Game.MapEngine.Domain.GridCell>();
+            map.TryWorldToCell(exit.X, exit.Y, out var start);
+            bool found = false;
+            for (int ring = 0; ring <= 4 && !found; ring++)
+            {
+                int count = ring == 0 ? 1 : ring * 8;
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = i * math.PI * 2 / count;
+                    float2 candidate = new float2(rally.X, rally.Y) + new float2(math.cos(angle), math.sin(angle)) * ring * 0.5f;
+                    if (!map.CanOccupy(candidate.x, candidate.y, definition.Radius) ||
+                        !map.TryWorldToCell(candidate.x, candidate.y, out var goal) || !pathfinder.TryFindPath(start, goal, cells)) continue;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+            unitId = _nextId++;
+            Spawn(unitId, definition, new float2(exit.X, exit.Y), (uint)(unitId % (uint.MaxValue - 1)) + 1);
+            var entity = _unitEntities[unitId];
+            em.AddComponent<SoldierState>(entity);
+            em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
+            return true;
+        }
+
+        /// <summary>外部接收者提交伤害后调用。只登记攻击事实，不由表现再次扣血。</summary>
+        public void RecordExternalAttack(ulong attackerId, Game.MapEngine.Domain.MapPoint target)
+        {
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            if (!_unitEntities.TryGetValue(attackerId, out var entity) || !em.Exists(entity))
+                return;
+            var vitals = em.GetComponentData<Vitals>(entity);
+            if (vitals.Health <= 0)
+                return;
+            vitals.LastAttackTime = (float)ElapsedTime;
+            em.SetComponentData(entity, vitals);
+            var ground = em.GetComponentData<GroundTransform>(entity);
+            float dx = target.X - ground.Position.x;
+            if (math.abs(dx) > 0.0001f)
+                ground.FacingX = math.sign(dx);
+            em.SetComponentData(entity, ground);
         }
 
         public void Step(float deltaTime, MoveIntent intent)

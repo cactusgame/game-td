@@ -140,6 +140,34 @@
       "buildSeconds": 0.0,
       "canDemolish": true,
       "refundRatio": 0.5
+    },
+    {
+      "id": "barracks.melee",
+      "name": "近战兵营",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 300,
+      "attackId": "",
+      "buildCost": 100,
+      "buildSeconds": 0.0,
+      "canDemolish": true,
+      "refundRatio": 0.0
+    },
+    {
+      "id": "barracks.ranged",
+      "name": "远程兵营",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 300,
+      "attackId": "",
+      "buildCost": 100,
+      "buildSeconds": 0.0,
+      "canDemolish": true,
+      "refundRatio": 0.0
     }
   ],
   "upgrades": [
@@ -153,7 +181,8 @@
       "seconds": 0.0,
       "maxHealthBonus": 25,
       "attackBonus": 8,
-      "rangeBonus": 0.0
+      "rangeBonus": 0.0,
+      "capacityBonus": 0
     },
     {
       "id": "upgrade.tower.heavy",
@@ -165,8 +194,77 @@
       "seconds": 0.0,
       "maxHealthBonus": 25,
       "attackBonus": 15,
-      "rangeBonus": 1.0
+      "rangeBonus": 1.0,
+      "capacityBonus": 0
+    },
+    {
+      "id": "upgrade.barracks.melee.2",
+      "buildingId": "barracks.melee",
+      "name": "近战兵营2级",
+      "prerequisiteId": "",
+      "exclusiveGroup": "",
+      "cost": 150,
+      "seconds": 0.0,
+      "maxHealthBonus": 0,
+      "attackBonus": 0,
+      "rangeBonus": 0.0,
+      "capacityBonus": 2
+    },
+    {
+      "id": "upgrade.barracks.melee.3",
+      "buildingId": "barracks.melee",
+      "name": "近战兵营3级",
+      "prerequisiteId": "upgrade.barracks.melee.2",
+      "exclusiveGroup": "",
+      "cost": 250,
+      "seconds": 0.0,
+      "maxHealthBonus": 0,
+      "attackBonus": 0,
+      "rangeBonus": 0.0,
+      "capacityBonus": 2
+    },
+    {
+      "id": "upgrade.barracks.ranged.2",
+      "buildingId": "barracks.ranged",
+      "name": "远程兵营2级",
+      "prerequisiteId": "",
+      "exclusiveGroup": "",
+      "cost": 150,
+      "seconds": 0.0,
+      "maxHealthBonus": 0,
+      "attackBonus": 0,
+      "rangeBonus": 0.0,
+      "capacityBonus": 2
+    },
+    {
+      "id": "upgrade.barracks.ranged.3",
+      "buildingId": "barracks.ranged",
+      "name": "远程兵营3级",
+      "prerequisiteId": "upgrade.barracks.ranged.2",
+      "exclusiveGroup": "",
+      "cost": 250,
+      "seconds": 0.0,
+      "maxHealthBonus": 0,
+      "attackBonus": 0,
+      "rangeBonus": 0.0,
+      "capacityBonus": 2
     }
   ],
-  "contentVersion": "38f1f4714f301d88"
+  "barracks": [
+    {
+      "id": "barracks.melee",
+      "unitId": "ally.soldier",
+      "capacity": 4,
+      "retrainSeconds": 8.0,
+      "rallyDistance": 2.0
+    },
+    {
+      "id": "barracks.ranged",
+      "unitId": "ally.archer",
+      "capacity": 4,
+      "retrainSeconds": 8.0,
+      "rallyDistance": 2.5
+    }
+  ],
+  "contentVersion": "0f29de672523f452"
 }

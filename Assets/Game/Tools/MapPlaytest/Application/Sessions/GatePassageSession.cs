@@ -55,7 +55,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         }
 
         /// <summary>移动完成后读取活单位；敌人接触门洞才攻击，空间发布成功才提交摧毁事实。</summary>
-        public void Update(ISpatialBattleSimulation simulation, MapLayout layout, BattleDefinition definition,
+        public void Update(IDefenseBattleSimulation simulation, MapLayout layout, BattleDefinition definition,
             IReadOnlyList<UnitSnapshot> units, double now, bool applyDamage)
         {
             var network = MapWallSnapshotMapper.Read(layout);
@@ -67,6 +67,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                     if (!Game.Fortifications.Domain.Rules.WallGateRules.TryGetSpan(network, edge, gate, out var span))
                         continue;
                     var state = _defenses.TryGetValue(gate.Id, out var previous) ? previous.Copy() : new GateDefense(_catalog.Wall.GateHealth);
+                    var attackers = new List<ulong>();
                     foreach (var unit in units)
                     {
                         if (unit.Health <= 0)
@@ -78,16 +79,21 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                         float across = Math.Abs(-x * span.Direction.Y + y * span.Direction.X);
                         // 保守格子投影会把门前单位挡在整格边界，攻击距离需覆盖这段投影余量。
                         float projectionMargin = Math.Max(layout.cellWidth, layout.cellHeight) * 0.5f;
-                        float reach = unit.Kind == UnitKind.Hero
+                        // 英雄和我方士兵使用同一套提前开门距离，不按人物类别区分通行权限。
+                        bool friendly = UnitKinds.IsFriendly(unit.Kind);
+                        float reach = friendly
                             ? stats.Speed * definition.FixedStep + 0.5f
                             : projectionMargin + 0.25f;
                         if (along > (span.OpeningEnd - span.OpeningStart) * 0.5f + stats.Radius ||
                             across > _catalog.Wall.Width * 0.5f + stats.Radius + reach)
                             continue;
-                        if (unit.Kind == UnitKind.Hero)
+                        if (friendly)
                             opened.Add(gate.Id);
-                        else if (applyDamage && stats.CanAttackGates)
-                            state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval);
+                        else if (UnitKinds.IsEnemy(unit.Kind) && applyDamage && stats.CanAttackGates &&
+                            state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval))
+                        {
+                            attackers.Add(unit.Id);
+                        }
                     }
                     if (state.IsDestroyed && !Destroyed(gate.Id))
                     {
@@ -104,6 +110,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                         ViewVersion++;
                     }
                     _defenses[gate.Id] = state;
+                    // 冷却内不重播动作。致命一击须等待破门空间提交成功后再发布攻击事实。
+                    foreach (ulong attackerId in attackers)
+                        simulation.RecordExternalAttack(attackerId, span.Center);
                 }
             }
             if (!_opened.SetEquals(opened))

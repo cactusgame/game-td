@@ -8,6 +8,8 @@ namespace Game.Battle.Domain.ValueObjects
     {
         Hero,
         Goblin,
-        Runner
+        Runner,
+        Soldier,
+        Archer
     }
 }

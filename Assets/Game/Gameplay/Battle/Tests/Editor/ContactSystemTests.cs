@@ -69,6 +69,21 @@ namespace Game.Battle.Tests
         }
 
         [Test]
+        public void HeroExchangePublishesAttackHurtAndFacingForBothLivingUnits()
+        {
+            Step();
+            var hero = _world.EntityManager.GetComponentData<Vitals>(_hero);
+            var monster = _world.EntityManager.GetComponentData<Vitals>(_monster);
+            Assert.That(hero.Health, Is.GreaterThan(0));
+            Assert.That(monster.Health, Is.GreaterThan(0));
+            Assert.That(hero.LastAttackTime, Is.EqualTo(1));
+            Assert.That(hero.LastHitTime, Is.EqualTo(1));
+            Assert.That(monster.LastAttackTime, Is.EqualTo(1));
+            Assert.That(monster.LastHitTime, Is.EqualTo(1));
+            Assert.That(_world.EntityManager.GetComponentData<GroundTransform>(_monster).FacingX, Is.EqualTo(-1));
+        }
+
+        [Test]
         public void LethalExchangeIsSimultaneous()
         {
             var hero = _world.EntityManager.GetComponentData<Vitals>(_hero);

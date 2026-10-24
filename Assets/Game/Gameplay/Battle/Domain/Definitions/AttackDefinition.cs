@@ -6,17 +6,23 @@ namespace Game.Battle.Domain.Definitions
     public sealed class AttackDefinition
     {
         public string Id { get; }
-        public string Mode { get; }
+        public AttackMode Mode { get; }
         public int Damage { get; }
         public float Interval { get; }
         public float Range { get; }
         public string EffectIds { get; }
         public AttackDefinition(string id, string mode, int damage, float interval, float range, string effectIds)
         {
-            if (string.IsNullOrWhiteSpace(id) || (damage < 0 || !Positive(interval) || !Nonnegative(range) || (mode != "Contact" && mode != "Melee" && mode != "Direct")))
+            if (!Enum.TryParse<AttackMode>(mode, out var attackMode) || !Enum.IsDefined(typeof(AttackMode), attackMode) || attackMode.ToString() != mode)
+            {
+                throw new ArgumentException("Unknown attack mode: " + mode, nameof(mode));
+            }
+            if (string.IsNullOrWhiteSpace(id) || damage < 0 || !Positive(interval) || !Nonnegative(range))
+            {
                 throw new ArgumentException("Invalid AttackDefinition");
+            }
             Id = id;
-            Mode = mode;
+            Mode = attackMode;
             Damage = damage;
             Interval = interval;
             Range = range;

@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1dd8a3407f4454f86c8e2b8e01ec27, type: 3}
+  m_Name: archer-actions
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.Views.UnitAnimationSet
+  Frames:
+  - {fileID: 21300000, guid: c83306292720c7f4c803d1de3039eed2, type: 3}
+  - {fileID: 21300000, guid: d6eb7987b27f1e740945e9cc3ea3ec18, type: 3}
+  - {fileID: 21300000, guid: 614c3d5b183b9b946b74b59c8445a7b4, type: 3}
+  - {fileID: 21300000, guid: 7fb735902fc38b14095dec9ee58bc033, type: 3}
+  - {fileID: 21300000, guid: 6f406e9841f773947b03e172f32d2fe1, type: 3}
+  - {fileID: 21300000, guid: 7de60939d5fd47047938d5afce78b855, type: 3}
+  - {fileID: 21300000, guid: 6d29b590a0da61a4288a25830329847c, type: 3}
+  - {fileID: 21300000, guid: 3073baceb0329fc429fab59b622e0c42, type: 3}
+  - {fileID: 21300000, guid: af99856a15d7e1e499f901667efb824a, type: 3}
+  - {fileID: 21300000, guid: 1dacbc07c58cba64dbec9e04fa01f330, type: 3}
+  - {fileID: 21300000, guid: e19977375325d834fa66004054910958, type: 3}
+  - {fileID: 21300000, guid: 3fca1206b260aef46a44716e03f54647, type: 3}
+  - {fileID: 21300000, guid: 2e81608ae3cbe77468a235f2ff2878aa, type: 3}
+  - {fileID: 21300000, guid: d4148cfe060466641a87e03a3ecd34d0, type: 3}
+  - {fileID: 21300000, guid: 26d3fe5a1ad774640860d0881d2400fe, type: 3}
+  - {fileID: 21300000, guid: 970a619e52513994e85312ea82023652, type: 3}
+  - {fileID: 21300000, guid: 566aa144cf4fbb04e9c9a6f0fa7c8f20, type: 3}
+  - {fileID: 21300000, guid: a49cd670e1931c64eaadf6476a9c532f, type: 3}
+  - {fileID: 21300000, guid: 49e1ba6a0d6e43c4f813c63f8be96d5a, type: 3}
+  BodyHeightFraction: 0.6911765
+  DeathBodyHeightFraction: 0.6911765
+  FacesLeft: 0
+  UseFallbackDeath: 1
+  Idle:
+    FirstFrame: 1
+    LastFrame: 1
+    Fps: 6
+    Loop: 1
+  Walk:
+    FirstFrame: 1
+    LastFrame: 1
+    Fps: 10
+    Loop: 1
+  Attack:
+    FirstFrame: 3
+    LastFrame: 10
+    Fps: 12
+    Loop: 0
+  Run:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Hurt:
+    FirstFrame: 1
+    LastFrame: 1
+    Fps: 8
+    Loop: 0
+  Death:
+    FirstFrame: 1
+    LastFrame: 1
+    Fps: 2
+    Loop: 0
+  Skill:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill2:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Skill3:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Jump:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  Spawn:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0
+  WalkBack:
+    FirstFrame: 0
+    LastFrame: 0
+    Fps: 0
+    Loop: 0

@@ -4,8 +4,9 @@
     "width": 0.52,
     "height": 0.5,
     "junctionRadius": 0.4,
-    "gateHealth": 100,
-    "gateAttackInterval": 1.0
+    "gateHealth": 1000,
+    "gateAttackInterval": 1.0,
+    "wallHealth": 3000
   },
   "facilities": [
     {
@@ -127,7 +128,31 @@
       "attack": 0,
       "attackRange": 0,
       "attackInterval": 1
+    },
+    {
+      "id": "barracks.melee",
+      "name": "近战兵营",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 300,
+      "attack": 0,
+      "attackRange": 0,
+      "attackInterval": 1
+    },
+    {
+      "id": "barracks.ranged",
+      "name": "远程兵营",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 300,
+      "attack": 0,
+      "attackRange": 0,
+      "attackInterval": 1
     }
   ],
-  "contentVersion": "38f1f4714f301d88"
+  "contentVersion": "0f29de672523f452"
 }

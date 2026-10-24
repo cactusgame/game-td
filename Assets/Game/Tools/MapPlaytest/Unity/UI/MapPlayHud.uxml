@@ -6,11 +6,15 @@
     <ui:VisualElement class="buttons">
       <ui:Button name="inspect" text="Inspect" />
       <ui:Button name="build" text="Build tower" />
+      <ui:Button name="melee-barracks" text="近战兵营" />
+      <ui:Button name="ranged-barracks" text="远程兵营" />
+      <ui:Button name="upgrade-barracks" text="升级兵营" />
       <ui:Button name="remove" text="Remove building / wall" />
       <ui:Button name="gate" text="Open / close gate" />
       <ui:Button name="restart" text="Restart from map" />
       <ui:Button name="exit" text="Exit playtest" />
     </ui:VisualElement>
     <ui:Label name="status" text="Loading map..." />
+    <ui:Label name="barracks-status" text="" />
   </ui:VisualElement>
 </ui:UXML>
