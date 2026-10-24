@@ -38,9 +38,9 @@ namespace Game.Maps.Unity.Views
                 var definition = catalog.Find(item.definitionId);
                 if (definition == null)
                     continue;
-                float x = layout.originX + (item.x + definition.width * 0.5f) * layout.cellWidth;
+                float x = layout.originX + (item.x + item.Width(definition) * 0.5f) * layout.cellWidth;
                 float y = layout.originY + (item.y + 0.5f) * layout.cellHeight;
-                AddFoot(entries, item.id, visuals.Facility(item.definitionId), new Vector2(x, y), definition.width * layout.cellWidth * visuals.facilityWidthScale * (item.definitionId == "hall" ? visuals.keepWidthScale : 1));
+                AddFoot(entries, item.id, (visuals.Facility(item.definitionId) ?? (item.definitionId == "bastion" ? visuals.Facility("tower") : null)), new Vector2(x, y), item.Width(definition) * layout.cellWidth * visuals.facilityWidthScale * (item.definitionId == "hall" ? visuals.keepWidthScale : 1));
                 if (item.definitionId == "hall" && visuals.Facility(item.definitionId) != null)
                 {
                     var entry = entries[entries.Count - 1];

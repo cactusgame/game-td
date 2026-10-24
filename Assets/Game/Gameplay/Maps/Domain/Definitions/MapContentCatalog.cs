@@ -17,6 +17,8 @@ namespace Game.Maps.Domain
         public int height = 1;
         public bool blocksMovement = true;
         public bool blocksShots = true;
+        public bool hasFunction = true;
+        public bool wallMounted;
     }
 
     /// <summary>只读内容目录；预放和试玩建设共用占地规则，不包含费用或阶段许可。</summary>
@@ -50,7 +52,7 @@ namespace Game.Maps.Domain
             return new FacilityDefinition
             {
                 id = item.id, name = item.name, width = item.width, height = item.height,
-                blocksMovement = item.blocksMovement, blocksShots = item.blocksShots, maxHealth = item.maxHealth, attack = item.attack, attackRange = item.attackRange, attackInterval = item.attackInterval
+                blocksMovement = item.blocksMovement, blocksShots = item.blocksShots, hasFunction = item.hasFunction, wallMounted = item.wallMounted, maxHealth = item.maxHealth, attack = item.attack, attackRange = item.attackRange, attackInterval = item.attackInterval
             };
         }
     }

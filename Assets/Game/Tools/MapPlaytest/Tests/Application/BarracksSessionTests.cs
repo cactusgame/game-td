@@ -262,7 +262,7 @@ namespace Game.Tools.MapPlaytest.Tests
         }
 
         [Test]
-        public void RemovedBarracksCannotBeUpgradedOrRetrainItsDeadSoldier()
+        public void SoldBarracksRetiresItsSoldiersAndCannotUpgradeOrRetrain()
         {
             var simulation = new Simulation();
             using var session = Session(simulation);
@@ -272,7 +272,7 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.TryUpgradeBarracks("barracks", out _), Is.False);
             Assert.That(session.Gold, Is.EqualTo(1000));
             for (int i = 0; i < 500; i++) session.Advance(0.02f);
-            Assert.That(Soldiers(session).Length, Is.EqualTo(3));
+            Assert.That(Soldiers(session).Length, Is.Zero);
         }
 
         [Test]
@@ -290,7 +290,7 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(roster.CanUpgrade(upgrade), Is.False);
         }
 
-        private sealed class Simulation : IDefenseBattleSimulation
+        private sealed class Simulation : IDefenseBattleSimulation, ISoldierDismissal
         {
             private readonly List<UnitSnapshot> _units = new List<UnitSnapshot>();
             private readonly List<DefenseStructureDefinition> _structures = new List<DefenseStructureDefinition>();
@@ -339,6 +339,7 @@ namespace Game.Tools.MapPlaytest.Tests
                     destination.Add(new DefenseStructureSnapshot(structure.Id, DestroyBarracks && structure.Id == "barracks" ? 0 : structure.MaxHealth, structure.IsMainCastle));
             }
             public void RecordExternalAttack(ulong attackerId, MapPoint target) { }
+            public void DismissSoldiers(IReadOnlyList<ulong> ids) => _units.RemoveAll(unit => ids.Contains(unit.Id));
             public void Dispose() { }
         }
     }

@@ -17,12 +17,12 @@ namespace Game.Tools.MapAuthoring
             result.facilities.RemoveAll(item =>
             {
                 var other = catalog.Find(item.definitionId);
-                return item.id != facility.id && other != null && item.x < facility.x + definition.width &&
-                    item.x + other.width > facility.x && item.y < facility.y + definition.height && item.y + other.height > facility.y;
+                return item.id != facility.id && other != null && item.x < facility.x + facility.Width(definition) &&
+                    item.x + item.Width(other) > facility.x && item.y < facility.y + facility.Height(definition) && item.y + item.Height(other) > facility.y;
             });
-            for (int y = facility.y; y < facility.y + definition.height; y++)
+            for (int y = facility.y; y < facility.y + facility.Height(definition); y++)
             {
-                for (int x = facility.x; x < facility.x + definition.width; x++)
+                for (int x = facility.x; x < facility.x + facility.Width(definition); x++)
                 {
                     if (!result.Geometry.Contains(new Game.MapEngine.Domain.GridCell(x, y)))
                         continue;
@@ -49,7 +49,7 @@ namespace Game.Tools.MapAuthoring
             layout.facilities.RemoveAll(item =>
             {
                 var definition = catalog.Find(item.definitionId);
-                return definition != null && x >= item.x && x < item.x + definition.width && y >= item.y && y < item.y + definition.height;
+                return definition != null && x >= item.x && x < item.x + item.Width(definition) && y >= item.y && y < item.y + item.Height(definition);
             });
             layout.PaintGround(index, layout.GroundAt(index));
             layout.terrain[index] = kind;

@@ -18,5 +18,11 @@ namespace Game.Economy.Domain.Aggregates.ResourceAccount
             Gold -= amount;
             return true;
         }
+        public bool CanCredit(int amount) => amount >= 0 && (long)Gold + amount <= int.MaxValue;
+        public void Credit(int amount)
+        {
+            if (!CanCredit(amount)) throw new ArgumentOutOfRangeException(nameof(amount));
+            Gold += amount;
+        }
     }
 }

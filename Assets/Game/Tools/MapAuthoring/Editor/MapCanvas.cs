@@ -290,7 +290,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 if (facility.id != SelectedId && !ShowRules)
                     continue;
                 var definition = Catalog.Find(facility.definitionId);
-                Rectangle(ctx.painter2D, CellRect(facility.x, facility.y, definition?.width ?? 1, definition?.height ?? 1), Color.clear,
+                Rectangle(ctx.painter2D, CellRect(facility.x, facility.y, definition == null ? 1 : facility.Width(definition), definition == null ? 1 : facility.Height(definition)), Color.clear,
                     facility.id == SelectedId ? Color.yellow : new Color(0.2f, 0.7f, 1));
             }
             foreach (var node in Layout.wallNodes)

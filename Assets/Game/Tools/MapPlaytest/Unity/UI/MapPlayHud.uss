@@ -16,3 +16,30 @@
     border-width: 1px;
 }
 .buttons Button:hover { background-color: rgb(57, 104, 111); }
+.construction-hint { color: rgb(255, 225, 132); white-space: normal; margin-top: 5px; }
+.construction-menu {
+    position: absolute;
+    width: 300px;
+    max-width: 96%;
+    background-color: rgb(25, 39, 43);
+    color: rgb(245, 241, 220);
+    padding: 10px;
+    border-width: 2px;
+    border-color: rgb(174, 151, 92);
+    font-size: 14px;
+}
+.construction-menu Label { white-space: normal; margin-bottom: 6px; flex-shrink: 0; min-height: 22px; }
+.construction-menu Button {
+    white-space: normal;
+    background-color: rgb(48, 71, 74);
+    color: rgb(255, 247, 214);
+    margin-bottom: 5px;
+    padding: 8px;
+    min-height: 35px;
+    flex-shrink: 0;
+}
+.construction-menu Button:hover { background-color: rgb(70, 103, 99); }
+.construction-menu Button:disabled {
+    background-color: rgb(43, 47, 48);
+    color: rgb(141, 146, 145);
+}

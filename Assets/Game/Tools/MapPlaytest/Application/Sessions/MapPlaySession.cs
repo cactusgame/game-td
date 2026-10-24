@@ -21,7 +21,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
     /// 独立试玩的应用会话，拥有本局布置与模拟的生命周期；源定义不可变，单位真值仍归模拟。
     /// 输入命令在 Advance 前完整提交，地图与模拟空间同步成功后才公布新版本。
     /// </summary>
-    public sealed class MapPlaySession : IDisposable
+    public sealed partial class MapPlaySession : IDisposable
     {
         private readonly DefenseEncounterDefinition _encounterDefinition;
         private DefenseEncounter _encounter;
@@ -110,7 +110,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 battle.Restart();
                 if (!(simulation is IDefenseBattleSimulation defense))
                     throw new InvalidOperationException("防守对局需要支持建筑战斗和波次生成的模拟。");
-                defense.SynchronizeStructures(DescribeStructures(placements.Snapshot));
+                defense.SynchronizeStructures(DescribeStructures(placements.Snapshot, false));
                 enemyNavigation = gates.Navigation(placements.Snapshot, false);
                 simulation.UpdateNavigationMap(enemyNavigation, definition.Navigation, gates.Navigation(placements.Snapshot, true));
                 defense.SpawnEnemies(definition.EnemySpawns, encounter.DueCount(0));
@@ -138,6 +138,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             previousSimulation?.Dispose();
             _account = new ResourceAccount(_initialGold);
             _barracks.Clear();
+            _developments.Clear();
+            _wallInvestments.Clear();
+            _gateInvestments.Clear();
             UpdateBarracks();
             _battle.RefreshSnapshot();
         }
@@ -176,8 +179,10 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             RequireActive();
             if (!CanChangeConstruction(out reason))
                 return false;
+            if (!CanBuildDefinition(definitionId, Construction.Domain.Definitions.ConstructionPlacementKind.Building, out reason))
+                return false;
             var candidate = _placements.CreateCandidate();
-            int cost = _construction != null && _construction.Barracks.ContainsKey(definitionId)
+            int cost = _construction != null && _construction.Buildings.ContainsKey(definitionId)
                 ? _construction.Buildings[definitionId].BuildCost : 0;
             if (!_account.CanSpend(cost))
             {
@@ -186,8 +191,11 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             }
             if (!candidate.TryBuild(definitionId, x, y, UnitsRemainClear, out reason))
                 return false;
+            if (!ValidateBuildingExit(candidate, definitionId, x, y, out reason)) return false;
+            var added = candidate.Snapshot.facilities.Find(item => item.definitionId == definitionId && item.x == x && item.y == y);
             if (!TryPublish(candidate, out reason)) return false;
             _account.TrySpend(cost);
+            _developments[added.id] = new Construction.Domain.Aggregates.BuildingDevelopment.BuildingDevelopment(cost);
             UpdateBarracks();
             _battle.RefreshSnapshot();
             return true;
@@ -223,7 +231,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             return result.AsReadOnly();
         }
 
-        public bool TryUpgradeBarracks(string instanceId, out string reason)
+        public bool TryUpgradeBarracks(string instanceId, out string reason, string upgradeId = null)
         {
             RequireActive();
             if (!CanChangeConstruction(out reason)) return false;
@@ -245,6 +253,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             }
             foreach (var upgrade in _construction.Upgrades.Values)
             {
+                if (upgradeId != null && upgrade.Id != upgradeId) continue;
                 if (!roster.CanUpgrade(upgrade)) continue;
                 if (!_account.CanSpend(upgrade.Cost))
                 {
@@ -254,6 +263,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 // 兵营容量升级即时提交；新增槽位需要训练冷却，不重置已有士兵或补兵进度。
                 roster.Upgrade(upgrade, SimulationTime, _construction.Barracks[roster.BuildingId].RetrainSeconds);
                 _account.TrySpend(upgrade.Cost);
+                Development(instanceId).RecordPayment(upgrade.Cost);
                 reason = null;
                 return true;
             }
@@ -286,7 +296,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                     if (unit.Id == rule.UnitId) soldier = unit;
                 if (soldier == null) throw new InvalidOperationException("兵营引用了未加载的士兵：" + rule.UnitId);
                 var size = _catalog.Find(building.definitionId);
-                float centerX = layout.originX + (building.x + size.width * 0.5f) * layout.cellWidth;
+                float centerX = layout.originX + (building.x + building.Width(size) * 0.5f) * layout.cellWidth;
                 float frontY = layout.originY + building.y * layout.cellHeight;
                 var exit = new MapPoint(centerX, frontY - soldier.Radius - 0.08f);
                 for (int i = 0; i < roster.Capacity; i++)
@@ -312,13 +322,22 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             RequireActive();
             if (!CanChangeConstruction(out reason))
                 return false;
+            if (_construction != null)
+            {
+                var building = FindBuilding(x, y);
+                if (building != null) return TrySellBuilding(building.id, out reason);
+                var edge = FindWall(new MapPoint(x, y));
+                if (edge != null) return TrySellWall(edge.id, 0, WallLengthTiles(edge.id), out reason);
+                reason = "该位置没有可售卖的建筑或墙体";
+                return false;
+            }
             var layout = Snapshot;
             foreach (var facility in layout.facilities)
             {
                 var definition = _catalog.Find(facility.definitionId);
-                if ((facility.definitionId == "hall" || (_construction != null && _construction.Buildings.TryGetValue(facility.definitionId, out var development) && !development.CanDemolish)) && layout.Geometry.TryWorldToCell(x, y, out var cell) &&
-                    cell.X >= facility.x && cell.X < facility.x + definition.width &&
-                    cell.Y >= facility.y && cell.Y < facility.y + definition.height)
+                if (facility.definitionId == "hall" && layout.Geometry.TryWorldToCell(x, y, out var cell) &&
+                    cell.X >= facility.x && cell.X < facility.x + facility.Width(definition) &&
+                    cell.Y >= facility.y && cell.Y < facility.y + facility.Height(definition))
                 {
                     reason = "防守目标不能拆除";
                     return false;
@@ -341,12 +360,16 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             gateId = null;
             if (!CanChangeConstruction(out reason))
                 return false;
+            if (!PreviewGate(edgeId, startTile, widthTiles, openingTiles, out reason)) return false;
             string candidateId = MapLayout.NewId();
             var gate = new WallGateSnapshot(candidateId, startTile, widthTiles, openingTiles, isOpen);
             var candidate = _placements.CreateCandidate();
             if (!candidate.TryPlaceGate(edgeId, gate, UnitsRemainClear, out reason) || !TryPublish(candidate, out reason))
                 return false;
             gateId = candidateId;
+            int cost = _construction?.Buildings["gate"].BuildCost ?? 0;
+            _account.TrySpend(cost);
+            _gateInvestments[gateId] = cost;
             return true;
         }
 
@@ -421,18 +444,20 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 defense.CopyStructures(_structures);
         }
 
-        private List<DefenseStructureDefinition> DescribeStructures(MapLayout layout)
+        private List<DefenseStructureDefinition> DescribeStructures(MapLayout layout, bool useDevelopment = true)
         {
             var result = new List<DefenseStructureDefinition>();
             foreach (var instance in layout.facilities)
             {
                 var definition = _catalog.Find(instance.definitionId);
+                if (!definition.hasFunction) continue;
+                var development = useDevelopment ? Development(instance.id) : new Construction.Domain.Aggregates.BuildingDevelopment.BuildingDevelopment();
                 float minX = layout.originX + instance.x * layout.cellWidth;
                 float minY = layout.originY + instance.y * layout.cellHeight;
                 result.Add(new DefenseStructureDefinition(instance.id, instance.definitionId == "hall",
-                    minX, minY, minX + definition.width * layout.cellWidth,
-                    minY + definition.height * layout.cellHeight, definition.maxHealth,
-                    definition.attack, definition.attackRange, definition.attackInterval));
+                    minX, minY, minX + instance.Width(definition) * layout.cellWidth,
+                    minY + instance.Height(definition) * layout.cellHeight, definition.maxHealth + development.HealthBonus,
+                    definition.attack + development.AttackBonus, definition.attackRange + development.RangeBonus, definition.attackInterval));
             }
             return result;
         }

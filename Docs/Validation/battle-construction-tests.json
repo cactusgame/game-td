@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-24",
+  "unity": "6000.6.4f1",
+  "editMode": {
+    "total": 280,
+    "passed": 280,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "configurationTests": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "runtime": {
+    "confirmedBarracks": {
+      "beforeGold": 10000,
+      "beforeBuildings": 2,
+      "afterBuildings": 3,
+      "afterGold": 9900
+    },
+    "rotatedWithR": true,
+    "note": "Visual inspection used timeScale=0; frame advancement was checked before pausing. Restored timeScale=1 and runInBackground=false, then exited Play Mode. No construction runtime exceptions observed. CLI editor status compatibility errors are separate from gameplay.",
+    "buildModeKeyBVerified": true,
+    "menuSelectionVerified": true,
+    "scene": "Assets/Scenes/Development/DefensePlayground.unity",
+    "frameCounterAdvanced": true
+  },
+  "captures": [
+    "battle-construction-preview.png",
+    "battle-construction-menu.png"
+  ]
+}

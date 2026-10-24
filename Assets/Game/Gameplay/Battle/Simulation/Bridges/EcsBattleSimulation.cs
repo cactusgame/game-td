@@ -19,7 +19,7 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed partial class EcsBattleSimulation : IDefenseBattleSimulation, IPlayerOperations
+    public sealed partial class EcsBattleSimulation : IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
         private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
@@ -250,8 +250,20 @@ namespace Game.Battle.Simulation.Bridges
             foreach (var definition in definitions)
             {
                 retained.Add(definition.Id);
-                if (_structures.ContainsKey(definition.Id))
+                if (_structures.TryGetValue(definition.Id, out var existing))
+                {
+                    var current = em.GetComponentData<DefenseStructure>(existing);
+                    // 升级更新能力并保留生命比例、攻击冷却；空间同步不会复活已毁建筑。
+                    current.Health = current.Health <= 0 ? 0 : (int)math.ceil((double)current.Health * definition.MaxHealth / current.MaxHealth);
+                    current.MaxHealth = definition.MaxHealth;
+                    current.Attack = definition.Attack;
+                    current.Range = definition.Range;
+                    current.AttackInterval = definition.AttackInterval;
+                    current.Min = new float2(definition.MinX, definition.MinY);
+                    current.Max = new float2(definition.MaxX, definition.MaxY);
+                    em.SetComponentData(existing, current);
                     continue;
+                }
                 var entity = em.CreateEntity(typeof(DefenseStructure));
                 em.SetComponentData(entity, new DefenseStructure
                 {
@@ -282,6 +294,20 @@ namespace Game.Battle.Simulation.Bridges
             {
                 var structure = _world.EntityManager.GetComponentData<DefenseStructure>(pair.Value);
                 destination.Add(new DefenseStructureSnapshot(pair.Key, structure.Health, structure.IsMainCastle != 0));
+            }
+        }
+
+        public void DismissSoldiers(IReadOnlyList<ulong> ids)
+        {
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            foreach (var id in ids)
+            {
+                if (!_unitEntities.TryGetValue(id, out var entity) || !em.Exists(entity)) continue;
+                var identity = em.GetComponentData<UnitIdentity>(entity);
+                if (!UnitKinds.IsSoldier(identity.Kind)) continue;
+                em.DestroyEntity(entity);
+                _unitEntities.Remove(id);
             }
         }
 

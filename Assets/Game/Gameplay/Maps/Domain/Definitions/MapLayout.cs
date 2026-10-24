@@ -95,6 +95,9 @@ namespace Game.Maps.Domain
         public string definitionId = "tower";
         public int x;
         public int y;
+        public string wallNodeId;
+        public int Width(FacilityDefinition definition) => definition.width;
+        public int Height(FacilityDefinition definition) => definition.height;
         public InitialFacility Copy() => (InitialFacility)MemberwiseClone();
     }
 

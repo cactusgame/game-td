@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-25",
+  "unity": "6000.6.4f1",
+  "scope": "Remove footprint rotation menu, construction R binding, orientation state and swapped dimensions; barracks always deploy below",
+  "editMode": {
+    "total": 284,
+    "passed": 284,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "checks": [
+    "Menu and confirmation contain no rotation button",
+    "Rectangle navigation uses configured width and height",
+    "Barracks with blocked bottom exit require another tile",
+    "Barracks soldiers spawn below building"
+  ]
+}

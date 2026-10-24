@@ -8,7 +8,16 @@ namespace Game.Tools.MapPlaytest.Unity.Input
     public sealed class KeyboardHeroInput : IHeroInput, IPlayerOperationInput
     {
         private readonly Game.Presentation.Input.KeyboardPlayerOperations _operations = new Game.Presentation.Input.KeyboardPlayerOperations();
-        public void ReadOperations(System.Collections.Generic.List<PlayerOperation> destination) => _operations.Read(destination);
+        public bool ConstructionMode { get; set; }
+        public void ReadOperations(System.Collections.Generic.List<PlayerOperation> destination)
+        {
+            if (ConstructionMode)
+            {
+                _operations.Reset();
+                return;
+            }
+            _operations.Read(destination);
+        }
         public void ResetOperations() => _operations.Reset();
         public MoveIntent Read()
         {

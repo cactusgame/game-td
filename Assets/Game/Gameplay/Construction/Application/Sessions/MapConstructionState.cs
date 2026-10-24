@@ -124,7 +124,7 @@ namespace Game.Construction.Application.Sessions
                 var item = next.facilities.Find(facility =>
                 {
                     var definition = _catalog.Find(facility.definitionId);
-                    return definition != null && cell.X >= facility.x && cell.X < facility.x + definition.width && cell.Y >= facility.y && cell.Y < facility.y + definition.height;
+                    return definition != null && cell.X >= facility.x && cell.X < facility.x + facility.Width(definition) && cell.Y >= facility.y && cell.Y < facility.y + facility.Height(definition);
                 });
                 if (item != null)
                 {
@@ -145,6 +145,28 @@ namespace Game.Construction.Application.Sessions
             walls.TryRemoveEdge(edge.id);
             MapWallSnapshotMapper.Write(walls.Snapshot, next);
             Commit(next, MapSpatialRules.CreateNavigationMap(next, _catalog));
+            return true;
+        }
+
+        public bool TryRemoveBuilding(string id)
+        {
+            var next = Snapshot;
+            if (next.facilities.RemoveAll(item => item.id == id) == 0) return false;
+            next.wallNodes.RemoveAll(node => !next.wallEdges.Any(edge => edge.from == node.id || edge.to == node.id) &&
+                !next.facilities.Any(item => item.wallNodeId == node.id));
+            Commit(next, MapSpatialRules.CreateNavigationMap(next, _catalog));
+            return true;
+        }
+
+        /// <summary>工事候选只能在完整校验和单位净空通过后替换，不直接编辑对局快照。</summary>
+        public bool TryApplyLayout(MapLayout layout, Func<GridMap, bool> unitsRemainClear, out string reason)
+        {
+            foreach (var issue in MapContentValidator.Validate(layout, _catalog))
+                if (issue.IsError) { reason = issue.Message; return false; }
+            var navigation = MapSpatialRules.CreateNavigationMap(layout, _catalog);
+            if (!unitsRemainClear(navigation)) { reason = "新占地覆盖单位，请等待单位离开"; return false; }
+            Commit(layout, navigation);
+            reason = null;
             return true;
         }
 

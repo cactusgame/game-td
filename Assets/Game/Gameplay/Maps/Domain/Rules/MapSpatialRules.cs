@@ -26,7 +26,7 @@ namespace Game.Maps.Domain
                 if (definition == null || !definition.blocksMovement)
                     continue;
                 var min = new MapPoint(layout.originX + item.x * layout.cellWidth, layout.originY + item.y * layout.cellHeight);
-                var max = new MapPoint(min.X + definition.width * layout.cellWidth, min.Y + definition.height * layout.cellHeight);
+                var max = new MapPoint(min.X + item.Width(definition) * layout.cellWidth, min.Y + item.Height(definition) * layout.cellHeight);
                 obstacles.Add(ObstacleFootprint.Rectangle(min, max));
             }
             return GridNavigationBuilder.Build(geometry, walkable, obstacles);
@@ -41,14 +41,22 @@ namespace Game.Maps.Domain
                 return false;
             }
             var geometry = layout.Geometry;
-            if (candidate.x < 0 || candidate.y < 0 || (long)candidate.x + definition.width > layout.columns || (long)candidate.y + definition.height > layout.rows)
+            if (!string.IsNullOrEmpty(candidate.wallNodeId))
+            {
+                var node = layout.wallNodes.Find(item => item.id == candidate.wallNodeId);
+                if (!definition.wallMounted || node == null ||
+                    node.x < layout.originX + candidate.x * layout.cellWidth || node.x > layout.originX + (candidate.x + candidate.Width(definition)) * layout.cellWidth ||
+                    node.y < layout.originY + candidate.y * layout.cellHeight || node.y > layout.originY + (candidate.y + candidate.Height(definition)) * layout.cellHeight)
+                { reason = "敌台必须占据有效的墙连接节点"; return false; }
+            }
+            if (candidate.x < 0 || candidate.y < 0 || (long)candidate.x + candidate.Width(definition) > layout.columns || (long)candidate.y + candidate.Height(definition) > layout.rows)
             {
                 reason = $"建筑占地超出地图：({candidate.x}, {candidate.y})";
                 return false;
             }
-            for (int y = candidate.y; y < candidate.y + definition.height; y++)
+            for (int y = candidate.y; y < candidate.y + candidate.Height(definition); y++)
             {
-                for (int x = candidate.x; x < candidate.x + definition.width; x++)
+                for (int x = candidate.x; x < candidate.x + candidate.Width(definition); x++)
                 {
                     var cell = new GridCell(x, y);
                     if (!geometry.Contains(cell) || !TerrainRules.IsBuildable(layout.terrain[geometry.IndexOf(cell)]))
@@ -61,14 +69,14 @@ namespace Game.Maps.Domain
                         if (existing.id == candidate.id)
                             continue;
                         var other = catalog.Find(existing.definitionId);
-                        if (other != null && x >= existing.x && x < existing.x + other.width && y >= existing.y && y < existing.y + other.height)
+                        if (other != null && x >= existing.x && x < existing.x + existing.Width(other) && y >= existing.y && y < existing.y + existing.Height(other))
                         {
                             reason = "与建筑重叠：" + existing.id;
                             return false;
                         }
                     }
                     var center = geometry.CellCenter(cell);
-                    if (TouchesWall(layout, center.X, center.Y, Math.Max(geometry.CellWidth, geometry.CellHeight) * 0.5f))
+                    if (TouchesWall(layout, center.X, center.Y, Math.Max(geometry.CellWidth, geometry.CellHeight) * 0.5f, candidate.wallNodeId))
                     {
                         reason = "与墙体重叠";
                         return false;
@@ -92,16 +100,25 @@ namespace Game.Maps.Domain
             foreach (var item in layout.facilities)
             {
                 var definition = catalog.Find(item.definitionId);
-                if (definition != null && (!movementOnly || definition.blocksMovement) && cell.X >= item.x && cell.X < item.x + definition.width && cell.Y >= item.y && cell.Y < item.y + definition.height)
+                if (definition != null && (!movementOnly || definition.blocksMovement) && cell.X >= item.x && cell.X < item.x + item.Width(definition) && cell.Y >= item.y && cell.Y < item.y + item.Height(definition))
                     return true;
             }
             return false;
         }
 
-        public static bool TouchesWall(MapLayout layout, float x, float y, float radius)
+        public static bool TouchesWall(MapLayout layout, float x, float y, float radius, string permittedNodeId = null)
         {
             foreach (var edge in layout.wallEdges)
             {
+                if (!string.IsNullOrEmpty(permittedNodeId) && (edge.from == permittedNodeId || edge.to == permittedNodeId))
+                {
+                    foreach (var gate in edge.gates)
+                        if (WallGateRules.TryGetSpan(layout, edge, gate, out var span) &&
+                            SegmentGeometry.DistanceToSegment(x, y, span.At(span.Start).X, span.At(span.Start).Y,
+                                span.At(span.End).X, span.At(span.End).Y) < radius + LegacyNavigationEnvelopeWidth * 0.5f)
+                            return true;
+                    continue;
+                }
                 var from = layout.wallNodes.Find(node => node.id == edge.from);
                 var to = layout.wallNodes.Find(node => node.id == edge.to);
                 if (from != null && to != null && SegmentGeometry.DistanceToSegment(x, y, from.x, from.y, to.x, to.y) < radius + LegacyNavigationEnvelopeWidth * 0.5f)

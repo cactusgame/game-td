@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-24",
+  "unity": "6000.6.4f1",
+  "scope": "Fixed clicked-Tile placement, disabled menu choices, one-operation construction mode, wall-only gate/bastion options",
+  "editMode": {
+    "total": 71,
+    "passed": 71,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "cases": [
+    "TileMenu_DisablesBuildingsThatDoNotFit_AndDoesNotOfferWallUpgrades",
+    "TileMenu_MovingPointerDoesNotMoveChosenBuilding_AndSuccessfulConfirmationExitsMode",
+    "FixedBuildingConfirmation_RechecksOccupiedSpace_AndFailureKeepsModeWithoutPayment",
+    "WallMenu_OffersBastionAtClickedWallPoint_AndConfirmationExitsMode"
+  ],
+  "boundary": "This follow-up used EditMode UI callback and session integration tests; no new Play Mode screenshot was captured."
+}

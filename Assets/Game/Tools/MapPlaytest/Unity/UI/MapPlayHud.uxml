@@ -2,7 +2,7 @@
   <ui:Style src="MapPlayHud.uss" />
   <ui:VisualElement name="mapControls" class="controls">
     <ui:Label text="MAP PLAYTEST" class="title" />
-    <ui:Label text="WASD / arrows: move hero. Choose Build or Remove, then click the map. Changes belong to this session." />
+    <ui:Label text="WASD / 方向键移动；B 建设模式：点击地块 → 选择建筑 → 原位确认；不可建项置灰，建成后自动返回战斗。" />
     <ui:VisualElement class="buttons">
       <ui:Button name="inspect" text="Inspect" />
       <ui:Button name="build" text="Build tower" />

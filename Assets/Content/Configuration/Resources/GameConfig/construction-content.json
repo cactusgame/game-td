@@ -13,7 +13,9 @@
       "buildCost": 50,
       "buildSeconds": 0.0,
       "canDemolish": true,
-      "refundRatio": 0.5
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Building"
     },
     {
       "id": "hall",
@@ -27,7 +29,9 @@
       "buildCost": 100,
       "buildSeconds": 0.0,
       "canDemolish": false,
-      "refundRatio": 0.5
+      "refundRatio": 0.5,
+      "category": "BuiltIn",
+      "placementKind": "Building"
     },
     {
       "id": "mage",
@@ -41,7 +45,9 @@
       "buildCost": 100,
       "buildSeconds": 0.0,
       "canDemolish": true,
-      "refundRatio": 0.5
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Building"
     },
     {
       "id": "foundry",
@@ -55,7 +61,9 @@
       "buildCost": 100,
       "buildSeconds": 0.0,
       "canDemolish": true,
-      "refundRatio": 0.5
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Building"
     },
     {
       "id": "farm",
@@ -68,8 +76,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "house",
@@ -82,8 +92,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "church",
@@ -96,8 +108,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "market",
@@ -110,8 +124,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "well",
@@ -124,8 +140,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "rubble",
@@ -138,8 +156,10 @@
       "attackId": "",
       "buildCost": 100,
       "buildSeconds": 0.0,
-      "canDemolish": true,
-      "refundRatio": 0.5
+      "canDemolish": false,
+      "refundRatio": 0.5,
+      "category": "Decoration",
+      "placementKind": "Building"
     },
     {
       "id": "barracks.melee",
@@ -153,7 +173,9 @@
       "buildCost": 100,
       "buildSeconds": 0.0,
       "canDemolish": true,
-      "refundRatio": 0.0
+      "refundRatio": 0.0,
+      "category": "PlayerBuildable",
+      "placementKind": "Building"
     },
     {
       "id": "barracks.ranged",
@@ -167,14 +189,64 @@
       "buildCost": 100,
       "buildSeconds": 0.0,
       "canDemolish": true,
-      "refundRatio": 0.0
+      "refundRatio": 0.0,
+      "category": "PlayerBuildable",
+      "placementKind": "Building"
+    },
+    {
+      "id": "wall",
+      "name": "城墙",
+      "width": 1,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 30000,
+      "attackId": "",
+      "buildCost": 10,
+      "buildSeconds": 0.0,
+      "canDemolish": true,
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Wall"
+    },
+    {
+      "id": "gate",
+      "name": "城门",
+      "width": 4,
+      "height": 1,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 100,
+      "attackId": "",
+      "buildCost": 60,
+      "buildSeconds": 0.0,
+      "canDemolish": true,
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Gate"
+    },
+    {
+      "id": "bastion",
+      "name": "敌台",
+      "width": 2,
+      "height": 2,
+      "blocksMovement": true,
+      "blocksShots": true,
+      "maxHealth": 500,
+      "attackId": "attack.tower",
+      "buildCost": 100,
+      "buildSeconds": 0.0,
+      "canDemolish": true,
+      "refundRatio": 0.5,
+      "category": "PlayerBuildable",
+      "placementKind": "Bastion"
     }
   ],
   "upgrades": [
     {
       "id": "upgrade.tower.rapid",
       "buildingId": "tower",
-      "name": "连射路线/设计示例",
+      "name": "连射路线",
       "prerequisiteId": "",
       "exclusiveGroup": "tower.branch",
       "cost": 75,
@@ -187,7 +259,7 @@
     {
       "id": "upgrade.tower.heavy",
       "buildingId": "tower",
-      "name": "重弩路线/设计示例",
+      "name": "重弩路线",
       "prerequisiteId": "",
       "exclusiveGroup": "tower.branch",
       "cost": 100,
@@ -248,6 +320,19 @@
       "attackBonus": 0,
       "rangeBonus": 0.0,
       "capacityBonus": 2
+    },
+    {
+      "id": "upgrade.hall.2",
+      "buildingId": "hall",
+      "name": "主堡加固",
+      "prerequisiteId": "",
+      "exclusiveGroup": "",
+      "cost": 150,
+      "seconds": 0.0,
+      "maxHealthBonus": 250,
+      "attackBonus": 0,
+      "rangeBonus": 0.0,
+      "capacityBonus": 0
     }
   ],
   "barracks": [
@@ -266,5 +351,5 @@
       "rallyDistance": 2.5
     }
   ],
-  "contentVersion": "b415d384563ebaf6"
+  "contentVersion": "172485b98c144485"
 }

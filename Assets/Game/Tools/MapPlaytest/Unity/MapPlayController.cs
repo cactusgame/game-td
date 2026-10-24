@@ -45,6 +45,8 @@ namespace Game.Tools.MapPlaytest.Unity
         private Label _barracksStatus;
         private Label _playerStatus;
         private SoldierSelectionView _selectionView;
+        private BattleConstructionView _constructionView;
+        private KeyboardHeroInput _heroInput;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -68,7 +70,8 @@ namespace Game.Tools.MapPlaytest.Unity
                     throw new InvalidOperationException("缺少防守关卡配置 DefenseEncounter.json");
                 var encounter = JsonDefenseEncounterSource.Parse(encounterAsset.text);
                 int initialGold = JsonEconomySource.InitialGold(Resources.Load<TextAsset>("GameConfig/economy").text);
-                _session = new MapPlaySession(definition, _catalog, rules, new KeyboardHeroInput(), () => new EcsBattleSimulation(), encounter, construction, initialGold);
+                _heroInput = new KeyboardHeroInput();
+                _session = new MapPlaySession(definition, _catalog, rules, _heroInput, () => new EcsBattleSimulation(), encounter, construction, initialGold);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize();
@@ -108,6 +111,8 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("exit").clicked += Exit;
                 }
                 _cameraView = new MapPlayCamera(mapCamera, Resources.Load<TextAsset>("GameConfig/MapPlayCamera"));
+                _constructionView = gameObject.AddComponent<BattleConstructionView>();
+                _constructionView.Initialize(_session, _catalog, visuals, mapCamera, hud, RefreshMapView, ShowConstructionFeedback);
                 Restart();
             }
             catch (Exception error)
@@ -128,6 +133,7 @@ namespace Game.Tools.MapPlaytest.Unity
             if (catalog.facilityRules != visuals.facilityRules)
                 throw new InvalidOperationException("美术套装必须引用同一份地图规则。");
             visuals = catalog;
+            _constructionView?.SetVisuals(catalog);
             if (_session != null)
                 _view.Rebuild(_session.Snapshot, visuals, _catalog);
             _gateViewVersion = _session.GateViewVersion;
@@ -136,6 +142,8 @@ namespace Game.Tools.MapPlaytest.Unity
         public void Restart()
         {
             _session.Restart();
+            _constructionView?.ResetMode();
+            if (_heroInput != null) _heroInput.ConstructionMode = false;
             var deployment = hud?.rootVisualElement.Q<Button>("deployment-mode");
             if (deployment != null) deployment.text = "部署瞬移：关";
             _unitView.Clear();
@@ -179,7 +187,10 @@ namespace Game.Tools.MapPlaytest.Unity
             if (_session == null)
                 return;
             var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse.position.ReadValue()))
+            bool wasConstructionMode = _constructionView != null && _constructionView.Active;
+            _constructionView?.Tick();
+            _heroInput.ConstructionMode = _constructionView != null && _constructionView.Active;
+            if (!wasConstructionMode && !_heroInput.ConstructionMode && mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse.position.ReadValue()))
             {
                 Vector3 point = mapCamera.ScreenToWorldPoint(mouse.position.ReadValue());
                 if (_tool == "Build" && _session.Navigation.TryWorldToCell(point.x, point.y, out var cell))
@@ -230,7 +241,7 @@ namespace Game.Tools.MapPlaytest.Unity
             foreach (var building in map.facilities)
             {
                 var definition = _catalog.Find(building.definitionId);
-                if (cell.X < building.x || cell.X >= building.x + definition.width || cell.Y < building.y || cell.Y >= building.y + definition.height) continue;
+                if (cell.X < building.x || cell.X >= building.x + building.Width(definition) || cell.Y < building.y || cell.Y >= building.y + building.Height(definition)) continue;
                 bool isBarracks = _session.BarracksCapacity(building.id) > 0;
                 _status.text = isBarracks ? definition.name + "：编制和训练进度见下方兵营状态。" : definition.name + "：该建筑不训练士兵。";
                 _feedbackUntil = Time.unscaledTime + 3;
@@ -288,7 +299,7 @@ namespace Game.Tools.MapPlaytest.Unity
             foreach (var building in map.facilities)
             {
                 var size = _catalog.Find(building.definitionId);
-                if (cell.X < building.x || cell.X >= building.x + size.width || cell.Y < building.y || cell.Y >= building.y + size.height) continue;
+                if (cell.X < building.x || cell.X >= building.x + building.Width(size) || cell.Y < building.y || cell.Y >= building.y + building.Height(size)) continue;
                 bool success = _session.TryUpgradeBarracks(building.id, out string reason);
                 _status.text = success ? $"兵营升级成功：{_session.BarracksLevel(building.id)}级，编制{_session.BarracksCapacity(building.id)}人。新增士兵正在训练。" : reason;
                 _feedbackUntil = Time.unscaledTime + 3;
@@ -319,6 +330,12 @@ namespace Game.Tools.MapPlaytest.Unity
         private void RefreshMapView()
         {
             _view.Rebuild(_session.Snapshot, visuals, _catalog);
+        }
+
+        private void ShowConstructionFeedback(string message)
+        {
+            if (_status != null) _status.text = message;
+            _feedbackUntil = Time.unscaledTime + 3;
         }
 
         private bool PointerOverHud(Vector2 screen)

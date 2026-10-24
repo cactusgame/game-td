@@ -563,7 +563,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 var building = document.facilities.Find(item =>
                 {
                     var definition = _catalog.Find(item.definitionId);
-                    return definition != null && cell.X >= item.x && cell.X < item.x + definition.width && cell.Y >= item.y && cell.Y < item.y + definition.height;
+                    return definition != null && cell.X >= item.x && cell.X < item.x + item.Width(definition) && cell.Y >= item.y && cell.Y < item.y + item.Height(definition);
                 });
                 if (building != null)
                     return building.id;

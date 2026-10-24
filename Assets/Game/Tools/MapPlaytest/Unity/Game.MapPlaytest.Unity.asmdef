@@ -14,6 +14,7 @@
     "Unity.InputSystem",
     "Game.Presentation",
     "Game.Battle.Unity",
-    "Game.Construction.Domain"
+    "Game.Construction.Domain",
+    "Game.Fortifications.Domain"
   ]
 }

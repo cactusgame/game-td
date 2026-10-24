@@ -244,6 +244,16 @@
       "key": "refundRatio",
       "label": "拆除返还比例0至1",
       "type": "number"
+    },
+    {
+      "key": "category",
+      "label": "分类/PlayerBuildable/Decoration/BuiltIn",
+      "type": "str"
+    },
+    {
+      "key": "placementKind",
+      "label": "放置/Building/Wall/Gate/Bastion",
+      "type": "str"
     }
   ],
   "升级分支": [

@@ -23,6 +23,19 @@ class ExportTests(unittest.TestCase):
         tables['建筑'][0]['maxHealth'] = 999
         self.assertIn('"maxHealth": 999', build_documents(tables)['facilities.json'])
 
+    def test_building_categories_project_and_reject_invalid_or_functional_decoration(self):
+        tables = copy.deepcopy(self.tables)
+        documents = build_documents(tables)
+        construction = json.loads(documents['construction-content.json'])['buildings']
+        self.assertEqual(next(r for r in construction if r['id'] == 'hall')['category'], 'BuiltIn')
+        facilities = json.loads(documents['facilities.json'])['facilities']
+        self.assertFalse(next(r for r in facilities if r['id'] == 'market')['hasFunction'])
+        self.assertNotIn('wall', [r['id'] for r in facilities])
+        tables['建筑'][0]['category'] = 'invalid'
+        with self.assertRaises(ConfigurationError): build_documents(tables)
+        tables['建筑'][0]['category'] = 'Decoration'
+        with self.assertRaises(ConfigurationError): build_documents(tables)
+
     def test_soldier_selection_radius_projects_and_rejects_zero(self):
         tables = copy.deepcopy(self.tables)
         radius = next(r for r in tables['全局参数'] if r['id'] == 'battle.soldierSelectionRadius')

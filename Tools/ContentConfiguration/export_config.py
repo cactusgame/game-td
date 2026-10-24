@@ -167,6 +167,14 @@ def build_documents(tables):
         raise ConfigurationError('单位表必须保留全部三个运行槽位')
     for record in buildings.values():
         refs(record, 'attackId', attacks)
+        if record['category'] not in ('PlayerBuildable', 'Decoration', 'BuiltIn'):
+            fail(record, '建筑分类必须为PlayerBuildable/Decoration/BuiltIn')
+        if record['placementKind'] not in ('Building', 'Wall', 'Gate', 'Bastion'):
+            fail(record, '放置方式必须为Building/Wall/Gate/Bastion')
+        if record['category'] == 'Decoration' and record['attackId']:
+            fail(record, '装饰建筑不能绑定攻击')
+        if record['buildSeconds'] != 0:
+            fail(record, '当前建设即时完成，建设时间必须为0')
         if min(record['width'], record['height'], record['maxHealth']) <= 0 or record['refundRatio'] > 1:
             fail(record, '占地和生命必须为正数，返还比例不得大于1')
     if 'hall' not in buildings or buildings['hall']['canDemolish']:
@@ -174,6 +182,10 @@ def build_documents(tables):
     for record in upgrades.values():
         refs(record, 'buildingId', buildings)
         refs(record, 'prerequisiteId', upgrades)
+        if buildings[record['buildingId']]['category'] == 'Decoration':
+            fail(record, '装饰建筑不能配置升级功能')
+        if record['seconds'] != 0:
+            fail(record, '当前升级即时完成，升级时间必须为0')
         seen = {record['id']}
         current = record
         while current['prerequisiteId']:
@@ -252,9 +264,13 @@ def build_documents(tables):
     documents['presentation']['Units'] = [{'UnitKind': slot, 'ResourceId': record['animationResourceId']} for slot, record in slots.items()]
     facilities = []
     for record in buildings.values():
+        if record['placementKind'] in ('Wall', 'Gate'):
+            continue
         attack = attacks.get(record['attackId'], {'damage': 0, 'range': 0, 'interval': 1})
         item = {k: record[k] for k in ('id', 'name', 'width', 'height', 'blocksMovement', 'blocksShots', 'maxHealth')}
         item.update(attack=attack['damage'], attackRange=attack['range'], attackInterval=attack['interval'])
+        item['hasFunction'] = record['category'] != 'Decoration'
+        item['wallMounted'] = record['placementKind'] == 'Bastion'
         facilities.append(item)
     documents['facilities']['facilities'] = facilities
     documents['combat-content'] = {'schemaVersion': 1, **{key: [clean(r) for r in tables[sheet]] for key, sheet in [('units', '单位'), ('attacks', '攻击'), ('skills', '技能'), ('effects', '效果'), ('behaviors', '怪物行为')]}}
