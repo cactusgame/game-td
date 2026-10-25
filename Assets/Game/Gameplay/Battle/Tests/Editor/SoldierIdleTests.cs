@@ -63,6 +63,51 @@ namespace Game.Battle.Tests
             return monster;
         }
 
+        [Test]
+        public void Regrouping_SuppressesAttacksButNotIncomingDamageAndReleasesOnArrival()
+        {
+            var soldier = Soldier();
+            var monster = Monster(0.45f);
+            Em.SetComponentData(soldier, new SoldierState { IsSelected = true, IsRegrouping = true });
+            _navigation.Update();
+            Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
+            var combat = _world.GetOrCreateSystemManaged<SoldierCombatSystem>();
+            combat.Update();
+            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(100));
+            Assert.That(Em.GetComponentData<Vitals>(soldier).Health, Is.EqualTo(90));
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).RetaliationTarget, Is.EqualTo(Entity.Null));
+            using var query = Em.CreateEntityQuery(typeof(HeroTag));
+            Em.SetComponentData(query.GetSingletonEntity(), new GroundTransform());
+            _world.SetTime(new TimeData(3, 0.02f));
+            _navigation.Update();
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).IsRegrouping, Is.False);
+            combat.Update();
+            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(90));
+        }
+
+        [Test]
+        public void Following_RejectsEnemiesOutsideHeroAreaAndRegroupsWhenHeroLeaves()
+        {
+            using var query = Em.CreateEntityQuery(typeof(HeroTag));
+            var hero = query.GetSingletonEntity();
+            Em.SetComponentData(hero, new GroundTransform());
+            var soldier = Soldier();
+            Em.SetComponentData(soldier, new GroundTransform { Position = new float2(4.5f, 0) });
+            Em.SetComponentData(soldier, new SoldierState { IsSelected = true, FollowOffset = new float2(1, 0) });
+            Em.SetComponentData(soldier, new CombatProfile { AttackRange = 4.5f, AttackInterval = 1 });
+            var enemy = Monster(6);
+            _navigation.Update();
+            var path = Em.GetBuffer<NavigationWaypoint>(soldier);
+            Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(1, 0)));
+            _world.GetOrCreateSystemManaged<SoldierCombatSystem>().Update();
+            Assert.That(Em.GetComponentData<Vitals>(enemy).Health, Is.EqualTo(100), "远程兵也不能在跟随时被圈外目标牵制");
+            Em.SetComponentData(hero, new GroundTransform { Position = new float2(-3, 0) });
+            _navigation.Update();
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).IsRegrouping, Is.True);
+            path = Em.GetBuffer<NavigationWaypoint>(soldier);
+            Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(-2, 0)));
+        }
+
         [TestCase(3, 5, true)]
         [TestCase(6, 5, false)]
         [TestCase(3, 2, false)]

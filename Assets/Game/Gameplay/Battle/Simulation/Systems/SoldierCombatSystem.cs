@@ -11,13 +11,28 @@ namespace Game.Battle.Simulation.Systems
     [UpdateBefore(typeof(StructureCombatSystem))]
     public partial class SoldierCombatSystem : SystemBase
     {
+        private EntityQuery _heroes;
+
+        protected override void OnCreate()
+        {
+            _heroes = GetEntityQuery(typeof(HeroTag), typeof(GroundTransform), typeof(Vitals));
+        }
+
         protected override void OnUpdate()
         {
             double now = SystemAPI.Time.ElapsedTime;
-            foreach (var (ground, health, motion, profile) in
-                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>>().WithAll<SoldierState>())
+            Entity hero = _heroes.CalculateEntityCount() == 1 ? _heroes.GetSingletonEntity() : Entity.Null;
+            bool heroAlive = hero != Entity.Null && EntityManager.GetComponentData<Vitals>(hero).Health > 0;
+            float2 heroPosition = heroAlive ? EntityManager.GetComponentData<GroundTransform>(hero).Position : default;
+            foreach (var (ground, health, motion, profile, soldier) in
+                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>, RefRO<SoldierState>>())
             {
+                // 归队不授予免伤，只暂停士兵主动攻击；怪物仍可正常攻击撤退中的士兵。
+                if (soldier.ValueRO.IsRegrouping) continue;
                 if (health.ValueRO.Health <= 0 || now < health.ValueRO.LastAttackTime + profile.ValueRO.AttackInterval) continue;
+                float leashRadius = soldier.ValueRO.FollowCombatRadius;
+                if (heroAlive && leashRadius > 0 && math.distancesq(ground.ValueRO.Position, heroPosition) > leashRadius * leashRadius)
+                    continue;
                 Entity target = Entity.Null;
                 float nearest = float.PositiveInfinity;
                 foreach (var (other, vital, otherMotion, entity) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>>().WithAll<MonsterTag>().WithEntityAccess())
@@ -25,6 +40,8 @@ namespace Game.Battle.Simulation.Systems
                     float distance = math.distancesq(ground.ValueRO.Position, other.ValueRO.Position);
                     float reach = motion.ValueRO.Radius + otherMotion.ValueRO.Radius + profile.ValueRO.AttackRange;
                     if (vital.ValueRO.Health <= 0 || distance > reach * reach || distance >= nearest) continue;
+                    if (heroAlive && leashRadius > 0 && math.distancesq(other.ValueRO.Position, heroPosition) > leashRadius * leashRadius)
+                        continue;
                     nearest = distance;
                     target = entity;
                 }
@@ -51,7 +68,7 @@ namespace Game.Battle.Simulation.Systems
                 Strike(target, health.ValueRO.Attack, now);
                 // 攻击事实触发反击，即使本次伤害被防御抵消。死守及跟随指令仍由导航优先裁决。
                 var soldier = EntityManager.GetComponentData<SoldierState>(target);
-                soldier.RetaliationTarget = attacker;
+                if (!soldier.IsRegrouping) soldier.RetaliationTarget = attacker;
                 EntityManager.SetComponentData(target, soldier);
                 health.ValueRW.LastAttackTime = (float)now;
                 Face(ref ground.ValueRW, EntityManager.GetComponentData<GroundTransform>(target).Position);

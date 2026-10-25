@@ -183,6 +183,7 @@ namespace Game.Battle.Simulation.Bridges
                     state.FollowOffset = new float2(radius + em.GetComponentData<UnitMotion>(hero).Radius + 0.6f, 0);
                 state.IsSelected = true;
                 state.IsStationed = false;
+                state.IsRegrouping = true;
                 state.RetaliationTarget = Entity.Null;
                 state.HasPlayerOrder = true;
                 em.SetComponentData(entity, state);
@@ -208,6 +209,7 @@ namespace Game.Battle.Simulation.Bridges
                         StationSoldier(entity, candidate, instant);
                         state = em.GetComponentData<SoldierState>(entity);
                         state.IsSelected = true;
+                        state.IsRegrouping = !instant;
                         state.FollowOffset = candidate - center;
                         em.SetComponentData(entity, state);
                         reserved.Add((candidate, radius));
@@ -226,6 +228,8 @@ namespace Game.Battle.Simulation.Bridges
             state.HasPlayerOrder = true;
             state.IsSelected = false;
             state.IsStationed = station;
+            state.IsRegrouping = false;
+            state.FollowCombatRadius = 0;
             state.RetaliationTarget = Entity.Null;
             em.SetComponentData(entity, state);
             em.GetBuffer<NavigationWaypoint>(entity).Clear();

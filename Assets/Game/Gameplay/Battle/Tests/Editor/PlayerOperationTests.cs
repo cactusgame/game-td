@@ -13,6 +13,49 @@ namespace Game.Battle.Tests
 {
     public sealed class PlayerOperationTests
     {
+        [TestCase(PlayerOperation.CallOne, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.CallAll, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.CallOneMelee, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.CallAllMelee, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.CallOneRanged, UnitKind.Archer)]
+        [TestCase(PlayerOperation.CallAllRanged, UnitKind.Archer)]
+        [TestCase(PlayerOperation.NearbyTap, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.NearbyHold, UnitKind.Archer)]
+        public void RecallDuringCombat_ReachesHeroWithoutStoppingToAttackThenResumesCombat(PlayerOperation operation, UnitKind kind)
+        {
+            var hero = new UnitDefinition(UnitKind.Hero, 1000, 0, 0, 4, 0.3f, 1);
+            var goblin = new UnitDefinition(UnitKind.Goblin, 1000, 0, 0, 0.01f, 0.2f, 1);
+            var runner = new UnitDefinition(UnitKind.Runner, 1000, 0, 0, 0.01f, 0.2f, 1);
+            var soldier = new UnitDefinition(kind, 1000, 5, 0, 2, 0.2f, 1, attackInterval: 0.2f,
+                attackRange: kind == UnitKind.Archer ? 4.5f : 0.15f);
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(new BattleDefinition(hero, goblin, runner, 1, 0, 40, 40, 0.02f, 7,
+                enemySpawns: new[] { new MapPoint(3, 0) }, soldiers: new[] { soldier }));
+            Assert.That(simulation.TrySpawnSoldier(kind, new MapPoint(3, 0.54f), new MapPoint(3, 0.54f), out ulong id), Is.True);
+            simulation.Step(0.02f, default);
+            int healthBeforeRecall = Units(simulation).Find(u => u.Kind == UnitKind.Goblin).Health;
+            Assert.That(healthBeforeRecall, Is.LessThan(1000), "先确认士兵确实正在交战");
+            simulation.Execute(operation);
+            Assert.That(Find(simulation, id).IsSelected, Is.True);
+            bool reachedHero = false;
+            for (int i = 0; i < 150; i++)
+            {
+                simulation.Step(0.02f, default);
+                var unit = Find(simulation, id);
+                if (unit.X * unit.X + unit.Y * unit.Y < 1)
+                {
+                    reachedHero = true;
+                    break;
+                }
+                Assert.That(Units(simulation).Find(u => u.Kind == UnitKind.Goblin).Health, Is.EqualTo(healthBeforeRecall),
+                    "归队途中不应停步攻击，即使附近敌人仍在射程内");
+            }
+            Assert.That(reachedHero, Is.True);
+            for (int i = 0; i < 160; i++) simulation.Step(0.02f, default);
+            Assert.That(Units(simulation).Find(u => u.Kind == UnitKind.Goblin).Health, Is.LessThan(healthBeforeRecall),
+                "到位后恢复英雄附近的战斗");
+        }
+
         [Test]
         public void HeroCooldownSnapshots_TrackIndependentSkillsCompleteAndReset()
         {

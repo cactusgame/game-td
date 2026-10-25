@@ -39,12 +39,14 @@ namespace Game.Battle.Simulation.Systems
                 navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
                 if (soldier.ValueRO.IsStationed)
                 {
+                    soldier.ValueRW.IsRegrouping = false;
+                    soldier.ValueRW.FollowCombatRadius = 0;
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
                     continue;
                 }
-                // 战斗优先；跟随模式的英雄死亡时原地警戒，驻守模式不受英雄位置与生死影响。
+                // 明确呼叫优先于交战；已归队士兵只在英雄附近作战，英雄离远后再次强制归队。
                 float followDistance = heroMotion.Radius + motion.ValueRO.Radius + 0.6f;
                 bool selected = soldier.ValueRO.IsSelected;
                 bool followsHero = selected || (FollowHero && !soldier.ValueRO.HasPlayerOrder);
@@ -57,13 +59,40 @@ namespace Game.Battle.Simulation.Systems
                     target = heroGround.Position;
                     stopDistance = followDistance;
                 }
-                if (!followsHero)
+                float combatRadius = math.max(DetectionRadius, math.length(soldier.ValueRO.FollowOffset) + followDistance);
+                soldier.ValueRW.FollowCombatRadius = followsHero && heroAlive ? combatRadius : 0;
+                if (followsHero && !heroAlive)
+                {
+                    // 不跟随死亡英雄的幽灵。原地防御，复活后再依据新位置判断是否归队。
+                    soldier.ValueRW.IsRegrouping = false;
+                    soldier.ValueRW.RetaliationTarget = Entity.Null;
+                    path.Clear();
+                    navigation.ValueRW.NextRepathTime = 0;
+                    continue;
+                }
+                if (followsHero && !soldier.ValueRO.IsRegrouping &&
+                    math.distancesq(ground.ValueRO.Position, heroGround.Position) > combatRadius * combatRadius)
+                {
+                    soldier.ValueRW.IsRegrouping = true;
+                    path.Clear();
+                    navigation.ValueRW.NextRepathTime = 0;
+                }
+                if (soldier.ValueRO.IsRegrouping)
+                {
+                    soldier.ValueRW.RetaliationTarget = Entity.Null;
+                    if (math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
+                        soldier.ValueRW.IsRegrouping = false;
+                }
+                float2 combatCenter = followsHero ? heroGround.Position : ground.ValueRO.Position;
+                float allowedRadius = followsHero ? combatRadius : float.PositiveInfinity;
+                if (!soldier.ValueRO.IsRegrouping)
                 {
                     Entity enemy = soldier.ValueRO.RetaliationTarget;
-                    if (!IsLivingMonster(enemy))
+                    if (!IsLivingMonster(enemy) ||
+                        math.distancesq(EntityManager.GetComponentData<GroundTransform>(enemy).Position, combatCenter) > allowedRadius * allowedRadius)
                     {
                         soldier.ValueRW.RetaliationTarget = Entity.Null;
-                        enemy = FindNearbyEnemy(ground.ValueRO.Position);
+                        enemy = FindNearbyEnemy(ground.ValueRO.Position, combatCenter, allowedRadius);
                     }
                     if (enemy != Entity.Null)
                     {
@@ -72,8 +101,8 @@ namespace Game.Battle.Simulation.Systems
                         stopDistance = motion.ValueRO.Radius + EntityManager.GetComponentData<UnitMotion>(enemy).Radius + profile.ValueRO.AttackRange;
                     }
                 }
-                if (HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange) ||
-                    (followsHero && !heroAlive) || math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
+                if ((!soldier.ValueRO.IsRegrouping && HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, combatCenter, allowedRadius)) ||
+                    math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
                 {
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
@@ -116,7 +145,7 @@ namespace Game.Battle.Simulation.Systems
                 EntityManager.HasComponent<MonsterTag>(entity) && EntityManager.GetComponentData<Vitals>(entity).Health > 0;
         }
 
-        private Entity FindNearbyEnemy(float2 position)
+        private Entity FindNearbyEnemy(float2 position, float2 allowedCenter, float allowedRadius)
         {
             Entity target = Entity.Null;
             float nearest = DetectionRadius * DetectionRadius;
@@ -125,17 +154,20 @@ namespace Game.Battle.Simulation.Systems
                 float distance = math.distancesq(position, ground.ValueRO.Position);
                 if (vital.ValueRO.Health <= 0 || distance > nearest)
                     continue;
+                if (math.distancesq(ground.ValueRO.Position, allowedCenter) > allowedRadius * allowedRadius)
+                    continue;
                 nearest = distance;
                 target = entity;
             }
             return target;
         }
-        private bool HasEnemyInRange(float2 position, float radius, float range)
+        private bool HasEnemyInRange(float2 position, float radius, float range, float2 allowedCenter, float allowedRadius)
         {
             foreach (var (ground, vital, motion) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>>().WithAll<MonsterTag>())
             {
                 float reach = radius + motion.ValueRO.Radius + range;
-                if (vital.ValueRO.Health > 0 && math.distancesq(position, ground.ValueRO.Position) <= reach * reach) return true;
+                if (vital.ValueRO.Health > 0 && math.distancesq(position, ground.ValueRO.Position) <= reach * reach &&
+                    math.distancesq(ground.ValueRO.Position, allowedCenter) <= allowedRadius * allowedRadius) return true;
             }
             return false;
         }
