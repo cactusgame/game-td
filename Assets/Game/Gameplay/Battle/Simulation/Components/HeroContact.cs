@@ -7,5 +7,6 @@ namespace Game.Battle.Simulation.Components
     public struct HeroContact : IComponentData
     {
         public byte WasOverlapping;
+        public byte WasHeroInvulnerable;
     }
 }

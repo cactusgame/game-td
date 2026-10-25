@@ -41,8 +41,8 @@ namespace Game.Tools.MapAuthoring.Editor
             Add(_current);
 
             var tools = Group("工具", "palette-tools");
-            AddTool(tools, MapEditorTool.Select, "选择移动", "点击选择对象，拖动改变位置");
             AddTool(tools, MapEditorTool.Pan, "平移 Q", "Q 切换平移工具，左键拖动地图；空格或中键也可临时平移");
+            AddTool(tools, MapEditorTool.Select, "移动 W", "W 切换移动工具，点击选择对象，拖动改变位置；右键取消当前编辑并切换到移动工具");
             AddTool(tools, MapEditorTool.HeroSpawn, "英雄出生", "点击地图设置唯一的英雄出生位置");
             AddTool(tools, MapEditorTool.EnemyEntry, "敌人入口", "点击地图新增敌人入口");
             var wall = Card("tool-Wall", "城墙", "连续点击绘制墙网，Esc 结束折线", () => SelectTool(MapEditorTool.Wall));
@@ -147,7 +147,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 pair.Value.EnableInClassList("palette-selected", pair.Key == selected);
             _current.text = Tool == MapEditorTool.Terrain ? "当前：" + TerrainName(Terrain) + " · 地形笔刷" :
                 Tool == MapEditorTool.Facility ? "当前：放置建筑 · 点击地图放置" :
-                Tool == MapEditorTool.Select ? "当前：选择 / 移动" :
+                Tool == MapEditorTool.Select ? "当前：移动 · 点击选择，拖动移动" :
                 Tool == MapEditorTool.Pan ? "当前：平移视图 · 拖动地图" :
                 Tool == MapEditorTool.Wall ? "当前：绘制城墙 · Esc 结束折线" :
                 Tool == MapEditorTool.Gate ? "当前：城门 · 点击空位新增 / 点击已有门选择" :

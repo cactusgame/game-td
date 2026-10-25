@@ -243,6 +243,8 @@ namespace Game.Tools.MapPlaytest.Unity.Views
                 string classification = category == BuildingCategory.Decoration ? "地图装饰" : category == BuildingCategory.BuiltIn ? "内置建筑" : "玩家建筑";
                 Menu(screen, $"{_catalog.Find(building.definitionId).name} · {classification}" +
                     (category == BuildingCategory.Decoration ? "" : $" · Lv{_session.BuildingLevel(building.id)}"));
+                var health = _session.Structures.FirstOrDefault(item => item.Id == building.id);
+                AddHealthActions(building.id, health.Health, health.MaxHealth, point, screen);
                 foreach (var upgrade in _session.AvailableUpgrades(building.id))
                 {
                     var choice = upgrade;
@@ -280,8 +282,8 @@ namespace Game.Tools.MapPlaytest.Unity.Views
             {
                 _edgeId = edge.id;
                 Menu(screen, "城墙管理");
+                AddHealthActions(edge.id, _session.GetWallHealth(edge.id), _catalog.Wall.WallHealth, point, screen);
                 AddAction("沿墙建设城门", () => BeginGate(edge.id));
-                AddAction("建设敌台（节点或墙身）", () => Begin("bastion"));
                 AddAction("售卖整段（包含所标城门）", () =>
                 { _saleStart = 0; _saleEnd = _session.WallLengthTiles(edge.id); ConfirmWallSale(screen); });
                 AddAction("售卖局部（沿墙选择起止点）", () =>
@@ -289,6 +291,8 @@ namespace Game.Tools.MapPlaytest.Unity.Views
                 foreach (var gate in edge.gates)
                 {
                     var selected = gate;
+                    _menu.Add(new Label("城门 · " + gate.id));
+                    AddHealthActions(gate.id, _session.GetGateHealth(gate.id), _catalog.Wall.GateHealth, point, screen);
                     AddAction($"售卖城门 · 区间 {gate.startTile}–{gate.startTile + gate.widthTiles}", () =>
                     { _saleStart = selected.startTile; _saleEnd = selected.startTile + selected.widthTiles; ConfirmWallSale(screen); });
                 }
@@ -317,6 +321,25 @@ namespace Game.Tools.MapPlaytest.Unity.Views
             }
             _tileMenuOpen = true;
             RefreshTileChoices();
+        }
+
+        private void AddHealthActions(string id, int health, int maximum, MapPoint point, Vector2 screen)
+        {
+            if (maximum <= 0)
+                return;
+            _menu.Add(new Label($"生命 {health}/{maximum}" + (health <= 0 ? " · 已损毁" : "")));
+            foreach (bool repair in new[] { false, true })
+            {
+                bool restore = repair;
+                var button = AddAction(restore ? "试玩：修复 25% 生命" : "试玩：造成 30% 伤害", () =>
+                {
+                    bool success = _session.TryChangeStructureHealth(id, restore, restore ? 0.25f : 0.3f, out var reason);
+                    if (!success)
+                        _feedback(reason);
+                    OpenContext(point, screen);
+                });
+                button?.SetEnabled(health > 0 && (!restore || health < maximum));
+            }
         }
 
         private void Begin(string definitionId)

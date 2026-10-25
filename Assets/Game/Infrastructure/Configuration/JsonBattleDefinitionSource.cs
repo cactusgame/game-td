@@ -27,7 +27,7 @@ namespace Game.Infrastructure.Configuration
             var soldiers = new List<UnitDefinition>();
             if (data.soldier != null) soldiers.Add(data.soldier.Build(UnitKind.Soldier));
             if (data.archer != null) soldiers.Add(data.archer.Build(UnitKind.Archer));
-            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed), soldiers: soldiers, soldierSelectionRadius: data.soldierSelectionRadius);
+            return new BattleDefinition(data.hero.Build(UnitKind.Hero), data.goblin.Build(UnitKind.Goblin), data.runner.Build(UnitKind.Runner), data.spawn.goblins, data.spawn.runners, data.arena.width, data.arena.height, data.fixedStep, data.seed, new NavigationDefinition(data.navigation.cellSize, data.navigation.detectionRadius, data.navigation.repathSeconds, data.navigation.loseTargetRadius, data.navigation.separationGap, data.navigation.separationSpeed), soldiers: soldiers, soldierSelectionRadius: data.soldierSelectionRadius, soldierDetectionRadius: data.soldierDetectionRadius, heroRespawnSeconds: data.heroRespawnSeconds, heroRespawnInvulnerabilitySeconds: data.heroRespawnInvulnerabilitySeconds);
         }
 
         // 这些可变字段供 JsonUtility 反序列化使用，不是场上单位的可变运行状态。
@@ -38,6 +38,9 @@ namespace Game.Infrastructure.Configuration
             public uint seed;
             public float fixedStep;
             public float soldierSelectionRadius;
+            public float soldierDetectionRadius = 5;
+            public float heroRespawnSeconds = 10;
+            public float heroRespawnInvulnerabilitySeconds = 2;
             public ArenaJson arena;
             public SpawnJson spawn;
             public UnitJson hero, goblin, runner, soldier, archer;

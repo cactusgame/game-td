@@ -126,14 +126,8 @@ def clean(record):
     return {k: v for k, v in record.items() if not k.startswith('_')}
 
 
-def build_documents(tables, enemy_rewards=None):
-    if enemy_rewards is None:
-        enemy_rewards = json.loads((ROOT / 'Config/EnemyRewards.json').read_text(encoding='utf-8'))
-    if not isinstance(enemy_rewards, dict) or any(
-        not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 2147483647
-        for value in enemy_rewards.values()
-    ):
-        raise ConfigurationError('EnemyRewards.json: 击杀金币必须为非负整数且不超过账户上限')
+def build_documents(tables):
+    # 所有产品数值只来自工作簿；本函数不再读取 Config 下的 JSON 旁路配置。
     by = {name: ids(rows) for name, rows in tables.items()}
     attacks, skills, effects = by['攻击'], by['技能'], by['效果']
     behavior, buildings, upgrades = by['怪物行为'], by['建筑'], by['升级分支']
@@ -157,6 +151,11 @@ def build_documents(tables, enemy_rewards=None):
     resources = {p.stem for p in (ROOT / 'Assets/Content/Units').rglob('*-actions.asset')}
     slots = {}
     for record in by['单位'].values():
+        reward = record['killGold']
+        if isinstance(reward, bool) or not isinstance(reward, int) or not 0 <= reward <= 2147483647:
+            fail(record, '击杀金币必须为非负整数且不超过账户上限')
+        if reward and record['slot'] not in ('Goblin', 'Runner') and not record['id'].startswith('enemy.'):
+            fail(record, '只有敌方单位可以配置击杀金币')
         if record['animationResourceId'] not in resources:
             fail(record, f'动画资源不存在: {record["animationResourceId"]}')
         if record['slot']:
@@ -223,6 +222,7 @@ def build_documents(tables, enemy_rewards=None):
     if set(by['全局参数']) != set(expected):
         raise ConfigurationError('全局参数缺失或增加了不支持的键，请保留原键名')
     documents = {name: {'schemaVersion': version} for name, version in [('battle', 1), ('presentation', 3), ('facilities', 1), ('DefenseEncounter', 1), ('MapPlayCamera', 1), ('economy', 1)]}
+    documents['building-appearance'] = {}
     for record in tables['全局参数']:
         value = record['value']
         try:
@@ -246,9 +246,14 @@ def build_documents(tables, enemy_rewards=None):
     battle = documents['battle']
     if battle['soldierSelectionRadius'] <= 0:
         fail(by['全局参数']['battle.soldierSelectionRadius'], '士兵选择半径必须大于0')
-    enemy_ids = {record['id'] for slot, record in slots.items() if slot in ('Goblin', 'Runner')}
-    if set(enemy_rewards) - enemy_ids:
-        raise ConfigurationError('EnemyRewards.json: 引用了未加载的怪物')
+    if battle['soldierDetectionRadius'] <= 0:
+        fail(by['全局参数']['battle.soldierDetectionRadius'], '士兵警戒半径必须大于0')
+    if battle['heroRespawnSeconds'] <= 0:
+        fail(by['全局参数']['battle.heroRespawnSeconds'], '英雄复活时间必须大于0')
+    if battle['heroRespawnInvulnerabilitySeconds'] <= 0:
+        fail(by['全局参数']['battle.heroRespawnInvulnerabilitySeconds'], '英雄复活无敌时间必须大于0')
+    if not 0 < documents['building-appearance']['damagedHealthRatio'] < 1:
+        fail(by['全局参数']['building-appearance.damagedHealthRatio'], '建筑残血外观阈值必须大于0且小于1')
     for slot, key in [('Hero', 'hero'), ('Goblin', 'goblin'), ('Runner', 'runner'), ('Soldier', 'soldier'), ('Archer', 'archer')]:
         if slot not in slots:
             continue
@@ -259,7 +264,7 @@ def build_documents(tables, enemy_rewards=None):
         battle[key].update(attack=attack['damage'], attackInterval=attack['interval'], attackRange=attack['range'],
                            targetMainCastle=rule['target'] == 'MainCastle', canAttackGates=rule['canAttackGates'])
         if slot in ('Goblin', 'Runner'):
-            battle[key]['killGold'] = enemy_rewards.get(record['id'], 0)
+            battle[key]['killGold'] = record['killGold']
         if slot == 'Hero':
             battle[key]['skills'] = []
             for skill_id in record['skillIds'].split(';'):
@@ -332,7 +337,6 @@ def build_documents(tables, enemy_rewards=None):
             raise ConfigurationError('怪物数量必须为整数')
         battle['spawn'][key] = int(value)
     version_payload = {name: [clean(row) for row in records] for name, records in tables.items()}
-    version_payload['enemyRewards'] = enemy_rewards
     version = hashlib.sha256(json.dumps(version_payload, ensure_ascii=False, sort_keys=True).encode('utf-8')).hexdigest()[:16]
     for document in documents.values():
         document['contentVersion'] = version

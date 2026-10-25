@@ -36,11 +36,20 @@ namespace Game.Battle.Domain.Definitions
         public MapPoint HeroSpawn { get; }
         public IReadOnlyList<MapPoint> EnemySpawns { get; }
         public float SoldierSelectionRadius { get; }
+        public float SoldierDetectionRadius { get; }
+        public float HeroRespawnSeconds { get; }
+        public float HeroRespawnInvulnerabilitySeconds { get; }
 
-        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null, IReadOnlyList<UnitDefinition> soldiers = null, float soldierSelectionRadius = 4)
+        public BattleDefinition(UnitDefinition hero, UnitDefinition goblin, UnitDefinition runner, int goblinCount, int runnerCount, float width, float height, float fixedStep, uint seed, NavigationDefinition navigation = null, GridMap navigationMap = null, MapPoint? heroSpawn = null, IReadOnlyList<MapPoint> enemySpawns = null, IReadOnlyList<UnitDefinition> soldiers = null, float soldierSelectionRadius = 4, float soldierDetectionRadius = 5, float heroRespawnSeconds = 10, float heroRespawnInvulnerabilitySeconds = 2)
         {
             UnitDefinition.RequirePositive(soldierSelectionRadius, nameof(soldierSelectionRadius));
             SoldierSelectionRadius = soldierSelectionRadius;
+            UnitDefinition.RequirePositive(soldierDetectionRadius, nameof(soldierDetectionRadius));
+            SoldierDetectionRadius = soldierDetectionRadius;
+            UnitDefinition.RequirePositive(heroRespawnSeconds, nameof(heroRespawnSeconds));
+            HeroRespawnSeconds = heroRespawnSeconds;
+            UnitDefinition.RequirePositive(heroRespawnInvulnerabilitySeconds, nameof(heroRespawnInvulnerabilitySeconds));
+            HeroRespawnInvulnerabilitySeconds = heroRespawnInvulnerabilitySeconds;
             Hero = hero ?? throw new ArgumentNullException(nameof(hero));
             Goblin = goblin ?? throw new ArgumentNullException(nameof(goblin));
             Runner = runner ?? throw new ArgumentNullException(nameof(runner));

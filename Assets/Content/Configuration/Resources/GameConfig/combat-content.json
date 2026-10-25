@@ -13,7 +13,8 @@
       "attackId": "attack.alien",
       "skillIds": "skill.alien_burst;skill.alien_burst_heavy",
       "behaviorId": "",
-      "animationResourceId": "alien-actions"
+      "animationResourceId": "alien-actions",
+      "killGold": 0
     },
     {
       "id": "enemy.skeleton",
@@ -27,7 +28,8 @@
       "attackId": "attack.skeleton",
       "skillIds": "",
       "behaviorId": "behavior.siege",
-      "animationResourceId": "skeleton-actions"
+      "animationResourceId": "skeleton-actions",
+      "killGold": 5
     },
     {
       "id": "enemy.fallen",
@@ -41,7 +43,8 @@
       "attackId": "attack.fallen",
       "skillIds": "",
       "behaviorId": "behavior.siege",
-      "animationResourceId": "fallen-actions"
+      "animationResourceId": "fallen-actions",
+      "killGold": 5
     },
     {
       "id": "ally.soldier",
@@ -55,7 +58,8 @@
       "attackId": "attack.soldier",
       "skillIds": "",
       "behaviorId": "",
-      "animationResourceId": "soldier-actions"
+      "animationResourceId": "soldier-actions",
+      "killGold": 0
     },
     {
       "id": "ally.archer",
@@ -69,7 +73,8 @@
       "attackId": "attack.archer",
       "skillIds": "",
       "behaviorId": "",
-      "animationResourceId": "archer-actions"
+      "animationResourceId": "archer-actions",
+      "killGold": 0
     }
   ],
   "attacks": [
@@ -188,5 +193,5 @@
       "canAttackGates": false
     }
   ],
-  "contentVersion": "d513f6b7a9354564"
+  "contentVersion": "8ac93eed8f5e8303"
 }

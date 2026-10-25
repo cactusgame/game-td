@@ -5,12 +5,14 @@ namespace Game.Battle.Contracts.ReadModels
     {
         public string Id { get; }
         public int Health { get; }
+        public int MaxHealth { get; }
         public bool IsMainCastle { get; }
 
-        public DefenseStructureSnapshot(string id, int health, bool isMainCastle)
+        public DefenseStructureSnapshot(string id, int health, bool isMainCastle, int maxHealth = 0)
         {
             Id = id;
             Health = health;
+            MaxHealth = maxHealth;
             IsMainCastle = isMainCastle;
         }
     }

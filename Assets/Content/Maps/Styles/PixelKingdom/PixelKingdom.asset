@@ -117,7 +117,7 @@ Sprite:
       height: 170
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 485, z: 64, w: 149}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -914,25 +914,46 @@ MonoBehaviour:
   facilities:
   - definitionId: hall
     sprite: {fileID: 3414728107422377839}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: house
     sprite: {fileID: 7823210992740144642}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: church
     sprite: {fileID: 4418568530782555921}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: market
     sprite: {fileID: -4009973473496279471}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: foundry
     sprite: {fileID: 7385618480571981528}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: tower
     sprite: {fileID: 21300000, guid: af3ee18acb88b6246b6e1f87e7d66728, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: farm
     sprite: {fileID: 5784430644861607850}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: well
     sprite: {fileID: -905634676828088795}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: mage
     sprite: {fileID: 4418568530782555921}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: rubble
     sprite: {fileID: -4090666922715264894}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   wall: {fileID: 5036591642475193057}
+  buildingConditions: {fileID: 11400000, guid: 39ff645d805cf724ab75f266f2482f95, type: 2}
   wallJunction: {fileID: 21300000, guid: af3ee18acb88b6246b6e1f87e7d66728, type: 3}
   wallHeightScale: 5
   wallWidthScale: 2.4
@@ -1312,7 +1333,7 @@ Sprite:
       height: 212
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 785.5, z: 64, w: 398}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -1752,7 +1773,7 @@ Sprite:
       height: 341
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 180.5, z: 64, w: 1063.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -1972,7 +1993,7 @@ Sprite:
       height: 340
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 793, z: 64, w: 1064}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -2192,7 +2213,7 @@ Sprite:
       height: 281
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 181.5, z: 64, w: 432.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -3292,7 +3313,7 @@ Sprite:
       height: 259
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 491.5, z: 64, w: 1008.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -3512,7 +3533,7 @@ Sprite:
       height: 170
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3072
+    settingsRaw: 0
     uvTransform: {x: 64, y: 170, z: 64, w: 149}
     downscaleMultiplier: 1
   m_AtlasRD:

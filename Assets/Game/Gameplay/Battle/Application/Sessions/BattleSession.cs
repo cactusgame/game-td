@@ -35,6 +35,7 @@ namespace Game.Battle.Application.Sessions
         public int AliveMonsters { get; private set; }
 
         public int HeroHealth { get; private set; }
+        public double HeroRespawnRemainingSeconds { get; private set; }
 
         public int ContactCount => _simulation.ContactCount;
         public double ElapsedTime => _simulation.ElapsedTime;
@@ -112,11 +113,13 @@ namespace Game.Battle.Application.Sessions
             _simulation.CopyUnits(_units);
             AliveMonsters = 0;
             HeroHealth = 0;
+            HeroRespawnRemainingSeconds = 0;
             foreach (var unit in _units)
             {
                 if (unit.Kind == UnitKind.Hero)
                 {
                     HeroHealth = unit.Health;
+                    HeroRespawnRemainingSeconds = unit.RespawnRemainingSeconds;
                 }
                 else if (UnitKinds.IsEnemy(unit.Kind) && unit.Health > 0)
                 {

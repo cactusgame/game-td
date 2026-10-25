@@ -13,7 +13,15 @@ namespace Game.Battle.Contracts.ReadModels
         public readonly int Health, MaxHealth;
         public readonly float LastHitTime, LastAttackTime;
         public readonly bool IsSelected;
-        public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false)
+        public readonly bool IsStationed;
+        public readonly double RespawnRemainingSeconds;
+        public readonly bool IsGhost;
+        public readonly float DeathX, DeathY, DeathFacingX;
+        public readonly uint DeathSequence;
+        public readonly double InvulnerabilityRemainingSeconds;
+        public bool IsInvulnerable => InvulnerabilityRemainingSeconds > 0;
+        public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false, bool isStationed = false, double respawnRemainingSeconds = 0,
+            bool isGhost = false, float deathX = 0, float deathY = 0, float deathFacingX = 1, uint deathSequence = 0, double invulnerabilityRemainingSeconds = 0)
         {
             Id = id;
             Kind = kind;
@@ -25,6 +33,14 @@ namespace Game.Battle.Contracts.ReadModels
             LastHitTime = lastHitTime;
             LastAttackTime = lastAttackTime;
             IsSelected = isSelected;
+            IsStationed = isStationed;
+            RespawnRemainingSeconds = respawnRemainingSeconds;
+            IsGhost = isGhost;
+            DeathX = deathX;
+            DeathY = deathY;
+            DeathFacingX = deathFacingX;
+            DeathSequence = deathSequence;
+            InvulnerabilityRemainingSeconds = invulnerabilityRemainingSeconds;
         }
     }
 }

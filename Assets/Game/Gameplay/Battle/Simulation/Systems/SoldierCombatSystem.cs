@@ -33,8 +33,8 @@ namespace Game.Battle.Simulation.Systems
                 health.ValueRW.LastAttackTime = (float)now;
                 Face(ref ground.ValueRW, EntityManager.GetComponentData<GroundTransform>(target).Position);
             }
-            foreach (var (ground, health, motion, profile) in
-                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>>().WithAll<MonsterTag>())
+            foreach (var (ground, health, motion, profile, attacker) in
+                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>>().WithAll<MonsterTag>().WithEntityAccess())
             {
                 if (health.ValueRO.Health <= 0 || now < health.ValueRO.LastAttackTime + profile.ValueRO.AttackInterval) continue;
                 Entity target = Entity.Null;
@@ -49,12 +49,19 @@ namespace Game.Battle.Simulation.Systems
                 }
                 if (target == Entity.Null) continue;
                 Strike(target, health.ValueRO.Attack, now);
+                // 攻击事实触发反击，即使本次伤害被防御抵消。死守及跟随指令仍由导航优先裁决。
+                var soldier = EntityManager.GetComponentData<SoldierState>(target);
+                soldier.RetaliationTarget = attacker;
+                EntityManager.SetComponentData(target, soldier);
                 health.ValueRW.LastAttackTime = (float)now;
                 Face(ref ground.ValueRW, EntityManager.GetComponentData<GroundTransform>(target).Position);
             }
         }
         private void Strike(Entity target, int attack, double now)
         {
+            if (EntityManager.HasComponent<UnitStatusState>(target) &&
+                EntityManager.GetComponentData<UnitStatusState>(target).IsInvulnerableAt(now))
+                return;
             var vital = EntityManager.GetComponentData<Vitals>(target);
             int damage = ContactRules.Damage(attack, vital.Defense);
             vital.Health = ContactRules.ApplyDamage(vital.Health, damage);

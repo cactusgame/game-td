@@ -14,7 +14,7 @@ class ExportTests(unittest.TestCase):
         cls.tables = read_workbook(ROOT / 'Config/GameContent.xlsx')
 
     def test_workbook_matches_all_generated_files(self):
-        self.assertEqual(len(export(ROOT / 'Config/GameContent.xlsx', check=True)), 8)
+        self.assertEqual(len(export(ROOT / 'Config/GameContent.xlsx', check=True)), 9)
 
     def test_product_edit_changes_runtime_projection(self):
         tables = copy.deepcopy(self.tables)
@@ -23,17 +23,77 @@ class ExportTests(unittest.TestCase):
         tables['建筑'][0]['maxHealth'] = 999
         self.assertIn('"maxHealth": 999', build_documents(tables)['facilities.json'])
 
-    def test_enemy_rewards_project_and_reject_unknown_or_invalid_values(self):
-        documents = build_documents(self.tables, {'enemy.skeleton': 0, 'enemy.fallen': 9})
+    def test_soldier_detection_radius_projects_and_rejects_invalid_values(self):
+        tables = copy.deepcopy(self.tables)
+        record = next(r for r in tables['全局参数'] if r['id'] == 'battle.soldierDetectionRadius')
+        for radius in ('7', '0', '-1', 'TRUE', 'inf'):
+            with self.subTest(radius=radius):
+                record['value'] = radius
+                if radius == '7':
+                    battle = json.loads(build_documents(tables)['battle.json'])
+                    self.assertEqual(battle['soldierDetectionRadius'], 7)
+                else:
+                    with self.assertRaises(ConfigurationError):
+                        build_documents(tables)
+
+    def test_enemy_rewards_project_from_units_and_reject_invalid_values(self):
+        tables = copy.deepcopy(self.tables)
+        skeleton = next(r for r in tables['单位'] if r['slot'] == 'Goblin')
+        fallen = next(r for r in tables['单位'] if r['slot'] == 'Runner')
+        skeleton['killGold'] = 0
+        fallen['killGold'] = 9
+        documents = build_documents(tables)
         battle = json.loads(documents['battle.json'])
         self.assertEqual(battle['goblin']['killGold'], 0)
         self.assertEqual(battle['runner']['killGold'], 9)
-        for rewards in ({'missing': 1}, {'enemy.skeleton': -1}, {'enemy.skeleton': 1.5}, {'enemy.skeleton': True}):
+        for reward in (-1, 1.5, True, 2147483648):
+            skeleton['killGold'] = reward
             with self.assertRaises(ConfigurationError):
-                build_documents(self.tables, rewards)
+                build_documents(tables)
+
+    def test_building_appearance_projects_from_settings_and_validates_ratio(self):
+        tables = copy.deepcopy(self.tables)
+        record = next(r for r in tables['全局参数'] if r['id'] == 'building-appearance.damagedHealthRatio')
+        record['value'] = '0.3'
+        document = json.loads(build_documents(tables)['building-appearance.json'])
+        self.assertEqual(document['damagedHealthRatio'], 0.3)
+        for ratio in ('0', '1', '-1', 'nan'):
+            record['value'] = ratio
+            with self.assertRaises(ConfigurationError):
+                build_documents(tables)
+
+    def test_config_source_directory_contains_only_excel(self):
+        files = [p for p in (ROOT / 'Config').rglob('*') if p.is_file()]
+        self.assertTrue(files)
+        self.assertEqual([p.name for p in files if p.suffix.lower() not in ('.xlsx', '.xls', '.xlsm')], [])
+
+    def test_hero_respawn_time_projects_and_rejects_nonpositive_or_nonfinite_values(self):
+        tables = copy.deepcopy(self.tables)
+        record = next(r for r in tables['全局参数'] if r['id'] == 'battle.heroRespawnSeconds')
+        self.assertEqual(float(record['value']), 10)
+        record['value'] = '2.5'
+        self.assertEqual(json.loads(build_documents(tables)['battle.json'])['heroRespawnSeconds'], 2.5)
+        for invalid in ('0', '-1', 'nan', 'inf'):
+            record['value'] = invalid
+            with self.assertRaises(ConfigurationError):
+                build_documents(tables)
+
+    def test_respawn_protection_duration_projects_and_validates(self):
+        tables = copy.deepcopy(self.tables)
+        record = next(r for r in tables['全局参数'] if r['id'] == 'battle.heroRespawnInvulnerabilitySeconds')
+        self.assertEqual(float(record['value']), 2)
+        record['value'] = '3.5'
+        self.assertEqual(json.loads(build_documents(tables)['battle.json'])['heroRespawnInvulnerabilitySeconds'], 3.5)
+        for invalid in ('0', '-1', 'inf', 'nan'):
+            record['value'] = invalid
+            with self.assertRaises(ConfigurationError):
+                build_documents(tables)
 
     def test_building_categories_project_and_reject_invalid_or_functional_decoration(self):
         tables = copy.deepcopy(self.tables)
+        decoration = copy.deepcopy(tables['建筑'][0])
+        decoration.update(id='market', category='Decoration', attackId='')
+        tables['建筑'].append(decoration)
         documents = build_documents(tables)
         construction = json.loads(documents['construction-content.json'])['buildings']
         self.assertEqual(next(r for r in construction if r['id'] == 'hall')['category'], 'BuiltIn')
@@ -115,8 +175,12 @@ class ExportTests(unittest.TestCase):
     def test_barracks_and_economy_project_into_their_own_content(self):
         tables = copy.deepcopy(self.tables)
         tables['兵营'][0]['capacity'] = 5
+        tables['兵营'][0]['retrainSeconds'] = 3.5
+        tables['兵营'][1]['retrainSeconds'] = 12
         document = json.loads(build_documents(tables)['construction-content.json'])
         self.assertEqual(document['barracks'][0]['capacity'], 5)
+        self.assertEqual(document['barracks'][0]['retrainSeconds'], 3.5)
+        self.assertEqual(document['barracks'][1]['retrainSeconds'], 12)
         units = json.loads(build_documents(tables)['battle.json'])
         self.assertEqual(units['soldier']['id'], 'ally.soldier')
         self.assertFalse(units['soldier']['canAttackGates'])

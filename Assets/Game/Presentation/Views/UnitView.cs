@@ -26,6 +26,10 @@ namespace Game.Presentation.Views
 
         private double _lastRenderTime = -1, _loopStart;
         private bool _moving;
+        private bool _wasGhost;
+        private uint _lastDeathSequence;
+        private readonly System.Collections.Generic.List<HeroCorpseView> _corpses = new System.Collections.Generic.List<HeroCorpseView>();
+        private InvulnerabilityShieldView _shield;
         public UnitView(
             Transform parent, Sprite sprite, Sprite white, Sprite circle,
             float height, float radius, Color teamColor,
@@ -76,6 +80,41 @@ namespace Game.Presentation.Views
         // ECS 的 Entity 与这里的 GameObject 是两个对象，通过快照 Id 在 BattleView 中关联。
         public void Render(UnitSnapshot state, double simulationTime, float deltaTime)
         {
+            if (state.Kind == UnitKind.Hero && state.DeathSequence > _lastDeathSequence && _animations != null)
+            {
+                _corpses.Add(new HeroCorpseView(_root.transform.parent, state, _animations, _height, _depth, _layer, simulationTime));
+                _lastDeathSequence = state.DeathSequence;
+            }
+            foreach (var corpse in _corpses) corpse.Render(simulationTime);
+            if (state.IsGhost)
+            {
+                RenderGhost(state, simulationTime);
+                return;
+            }
+            if (_wasGhost)
+            {
+                _wasGhost = false;
+                _shadow.gameObject.SetActive(true);
+                _healthBackground.gameObject.SetActive(true);
+                _lastRenderTime = -1;
+                _moving = false;
+                _loopStart = simulationTime;
+            }
+            RenderShield(state);
+            // 复活时间可能短于尸体停留时间；同一视图复用时也必须恢复动作、朝向变换和血条。
+            if (state.Kind == UnitKind.Hero && state.Health > 0 && _deathStart >= 0)
+            {
+                _deathStart = -1;
+                IsReadyForRemoval = false;
+                _lastRenderTime = -1;
+                _moving = false;
+                _loopStart = simulationTime;
+                _body.transform.localRotation = Quaternion.identity;
+                var idle = _animations?.Require(UnitAction.Idle).Frame(0) ?? _body.sprite;
+                _body.sprite = idle;
+                _body.transform.localScale = Vector3.one * (_height / (idle.bounds.size.y * (_animations?.BodyHeightFraction ?? 1)));
+                _healthBackground.gameObject.SetActive(true);
+            }
             if (IsReadyForRemoval)
                 return;
             if (state.Health <= 0)
@@ -141,6 +180,37 @@ namespace Game.Presentation.Views
             _healthFill.localPosition = new Vector3(-0.46f * (1 - ratio), 0, 0);
         }
 
+        private void RenderGhost(UnitSnapshot state, double now)
+        {
+            _wasGhost = true;
+            IsReadyForRemoval = false;
+            _root.SetActive(true);
+            _root.transform.position = new Vector3(state.X, state.Y, 0);
+            _healthBackground.gameObject.SetActive(false);
+            _shadow.gameObject.SetActive(false);
+            if (_shield != null) _shield.Render(false, _depth(state.Y));
+            if (_animations != null)
+                _body.sprite = _animations.Require(UnitAction.Idle).Frame(now);
+            _body.transform.localScale = Vector3.one * (_height / (_body.sprite.bounds.size.y * (_animations?.BodyHeightFraction ?? 1)));
+            _body.transform.localRotation = Quaternion.identity;
+            _body.transform.localPosition = new Vector3(0, 0.12f + Mathf.Sin((float)now * 3) * 0.04f, 0);
+            _body.flipX = (state.FacingX < 0) != (_animations?.FacesLeft ?? false);
+            _body.color = new Color(0.5f, 0.85f, 1, 0.38f);
+            SetDepth(state.Y);
+        }
+
+        private void RenderShield(UnitSnapshot state)
+        {
+            if (state.IsInvulnerable && state.Health > 0 && _shield == null)
+            {
+                var child = new GameObject("Invulnerability shield");
+                child.transform.SetParent(_root.transform, false);
+                _shield = child.AddComponent<InvulnerabilityShieldView>();
+                _shield.Initialize(_height, _layer);
+            }
+            if (_shield != null) _shield.Render(state.IsInvulnerable && state.Health > 0, _depth(state.Y));
+        }
+
         private void RenderDeath(UnitSnapshot state, double simulationTime)
         {
             if (_deathSettings == null)
@@ -171,7 +241,12 @@ namespace Game.Presentation.Views
             IsReadyForRemoval = age >= (death?.Duration ?? 0) + _deathSettings.Hold;
         }
 
-        public void Destroy() => Object.Destroy(_root);
+        public void Destroy()
+        {
+            foreach (var corpse in _corpses) corpse.Destroy();
+            _corpses.Clear();
+            Object.Destroy(_root);
+        }
         private void SetDepth(float groundY)
         {
             int order = _depth(groundY);

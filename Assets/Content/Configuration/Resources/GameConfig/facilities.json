@@ -4,9 +4,9 @@
     "width": 0.52,
     "height": 0.5,
     "junctionRadius": 0.4,
-    "gateHealth": 100000000,
+    "gateHealth": 1000,
     "gateAttackInterval": 1.0,
-    "wallHealth": 30000
+    "wallHealth": 500
   },
   "facilities": [
     {
@@ -38,118 +38,6 @@
       "wallMounted": false
     },
     {
-      "id": "mage",
-      "name": "星辉法师塔",
-      "width": 1,
-      "height": 1,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": true,
-      "wallMounted": false
-    },
-    {
-      "id": "foundry",
-      "name": "铜火炮坊",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": true,
-      "wallMounted": false
-    },
-    {
-      "id": "farm",
-      "name": "风车农庄",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
-      "id": "house",
-      "name": "民居",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
-      "id": "church",
-      "name": "教堂",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
-      "id": "market",
-      "name": "集市",
-      "width": 2,
-      "height": 1,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
-      "id": "well",
-      "name": "水井",
-      "width": 1,
-      "height": 1,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
-      "id": "rubble",
-      "name": "瓦砾",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 150,
-      "attack": 0,
-      "attackRange": 0,
-      "attackInterval": 1,
-      "hasFunction": false,
-      "wallMounted": false
-    },
-    {
       "id": "barracks.melee",
       "name": "近战兵营",
       "width": 2,
@@ -176,21 +64,7 @@
       "attackInterval": 1,
       "hasFunction": true,
       "wallMounted": false
-    },
-    {
-      "id": "bastion",
-      "name": "敌台",
-      "width": 2,
-      "height": 2,
-      "blocksMovement": true,
-      "blocksShots": true,
-      "maxHealth": 500,
-      "attack": 5,
-      "attackRange": 5.0,
-      "attackInterval": 1.0,
-      "hasFunction": true,
-      "wallMounted": true
     }
   ],
-  "contentVersion": "d513f6b7a9354564"
+  "contentVersion": "8ac93eed8f5e8303"
 }

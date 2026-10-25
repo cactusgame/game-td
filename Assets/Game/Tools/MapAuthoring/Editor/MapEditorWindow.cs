@@ -101,6 +101,7 @@ namespace Game.Tools.MapAuthoring.Editor
             _canvas = new MapCanvas { Visuals = _visuals, Catalog = _catalog, ShowGrid = _showGrid, ShowCoordinates = _showCoordinates, ShowRules = _showRules, PanTool = _palette.Tool == MapEditorTool.Pan };
             Q<VisualElement>("canvasHost").Add(_canvas);
             _canvas.Pressed = BeginGesture;
+            _canvas.Cancelled = CancelEditing;
             _canvas.Dragged = ContinueGesture;
             _canvas.Released = EndGesture;
             _canvas.Hovered = ShowHover;
@@ -147,6 +148,8 @@ namespace Game.Tools.MapAuthoring.Editor
             };
             RefreshViewButtons();
             rootVisualElement.RegisterCallback<KeyDownEvent>(OnKey);
+            rootVisualElement.UnregisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+            rootVisualElement.RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
             Refresh();
         }
 
@@ -832,6 +835,34 @@ namespace Game.Tools.MapAuthoring.Editor
         private static Game.Battle.Domain.Definitions.BattleDefinition LoadBattleRules() => JsonBattleDefinitionSource.Parse(
             AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json").text);
 
+        private void OnPointerDown(PointerDownEvent evt)
+        {
+            if (evt.button != 1 || EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
+            CancelEditing(evt.pointerId);
+            evt.StopPropagation();
+        }
+
+        private void CancelEditing(int pointerId)
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
+            // 取消尚未提交的预览；已完成的编辑仍保留在文档和撤销历史中。
+            _gesture = null;
+            _beforeGesture = null;
+            _gestureChanged = false;
+            _lastPaintCell = null;
+            _selectedId = null;
+            _wallTail = null;
+            _canvas.CancelInteraction(pointerId);
+            _palette.SelectTool(MapEditorTool.Select);
+            _canvas.Focus();
+            Refresh();
+            SetStatus("已取消当前选择，切换到移动工具（W）");
+        }
+
         private void OnKey(KeyDownEvent evt)
         {
             if (evt.keyCode == KeyCode.Escape)
@@ -844,7 +875,7 @@ namespace Game.Tools.MapAuthoring.Editor
                 evt.StopPropagation();
                 return;
             }
-            if (!evt.ctrlKey && !evt.commandKey && evt.keyCode == KeyCode.V)
+            if (!evt.ctrlKey && !evt.commandKey && evt.keyCode == KeyCode.W)
             {
                 _palette.SelectTool(MapEditorTool.Select);
                 evt.StopPropagation();

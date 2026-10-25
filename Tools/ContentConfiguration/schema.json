@@ -59,6 +59,11 @@
       "key": "animationResourceId",
       "label": "动画素材名/整套动作",
       "type": "str"
+    },
+    {
+      "key": "killGold",
+      "label": "击杀奖励/金币",
+      "type": "int"
     }
   ],
   "攻击": [

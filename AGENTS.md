@@ -28,5 +28,5 @@ Unity Ddd Ecs Architecture
 
 
 # 核心配置
-- 位于 "D:\projects\game-td\Config\GameContent.xlsx"或者位于目录 "D:\projects\game-td\Config\"
-- 需要使用现有的脚本，导出成json使用
+- 位于 "D:\projects\game-td\Config\GameContent.xlsx"或者位于目录 "D:\projects\game-td\Config\"，注意这个目录只能放excel配置
+- 游戏种使用的配置，应该由以上excel导出成json，放到游戏配置的目录中，比如Assets/Content/Configuration/Resources/GameConfig

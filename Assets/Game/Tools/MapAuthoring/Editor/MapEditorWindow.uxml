@@ -24,7 +24,7 @@
         <ui:Label text="素材与工具" class="heading" />
         <ui:Label text="点击图片直接使用 · 悬停查看用途" class="hint" />
         <ui:VisualElement name="paletteHost" />
-        <ui:Label text="Q：平移视图，V：选择。空格 + 左键 / 中键临时平移；滚轮围绕鼠标缩放。" class="hint" />
+        <ui:Label text="Q：平移视图，W：移动对象。右键取消当前编辑并切换到移动。空格 + 左键 / 中键临时平移；滚轮围绕鼠标缩放。" class="hint" />
       </ui:ScrollView>
       <ui:VisualElement class="canvas-panel">
         <ui:VisualElement class="view-toolbar">

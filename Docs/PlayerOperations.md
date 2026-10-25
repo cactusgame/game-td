@@ -14,6 +14,14 @@
 | 2 | 呼叫一名未选中的近战兵，加入跟随队伍 | 呼叫全部近战兵并持续跟随 |
 | 3 | 呼叫一名未选中的远程兵，加入跟随队伍 | 呼叫全部远程兵并持续跟随 |
 
+数字键1/2/3的单人呼叫先按兵种筛选，再排除已选中和阵亡士兵；优先在未驻守候选中随机选择，仅当该候选池为空时才从驻守士兵中随机选择。连续点击会先招完未驻守士兵，再逐个召回驻守士兵。长按的全体呼叫仍包含符合兵种的全部活士兵。
+
+“驻守”指玩家已有选择时长按R明确驻扎，状态由 ECS `SoldierState.IsStationed` 保存；初始兵营待命与短按R取消跟随后原地待命不算明确驻守。被召回后解除驻守，保持选中并跟随；再次长按R驻扎可重新标记为驻守。
+
+士兵待机分为死守和警戒。上述明确驻守即死守：原地攻击射程内的活敌人，不追敌、不返回兵营，也不会被单位拥挤分离推走；脚下持续显示白色虚线椭圆，与选择圈独立。兵营出兵和短按R取消跟随后采用警戒：范围内主动追击最近的活怪物，受到攻击后反击攻击者（即使伤害被防御抵消），没有目标时返回待机点。主动索敌采用当前士兵与怪物的中心距离；反击可超出警戒范围，直到攻击者死亡。选中跟随命令优先于警戒追击，召回清除死守和旧反击目标。
+
+警戒范围配置在 `Config/GameContent.xlsx` 的“全局参数”表，键为 `battle.soldierDetectionRadius`，默认5世界单位，必须为有限正数。执行现有 `Tools/ContentConfiguration/export_config.py` 后投影为 `battle.json.soldierDetectionRadius`，重新开局加载；与R选择范围和攻击射程独立。此配置属于“单位与战斗”，不修改兵营编制或补兵状态。
+
 白圈只在边走边选期间显示；选中士兵脚下另有小白圈。失焦取消手势与选择，不补发松键操作；重开清空命令、选择及冷却。终局停止模拟和操作。
 
 R短按、长按和白圈共用 `Config/GameContent.xlsx` “全局参数”表中的 `battle.soldierSelectionRadius`（默认4，逻辑地面单位，必须大于0）。修改该行的数值，导出Excel并重新进入Play Mode后生效；该半径与技能攻击范围相互独立。
@@ -38,10 +46,20 @@ R短按、长按和白圈共用 `Config/GameContent.xlsx` “全局参数”表�
 
 本功能归“单位与战斗”。建设领域继续拥有兵营编制与补兵计时。
 
+## 英雄复活
+
+英雄阵亡后按模拟时间等待 `Config/GameContent.xlsx` “全局参数”的 `battle.heroRespawnSeconds`（默认10秒，有限正数），在幽灵当前位置满血复活，无次数限制，保留同一单位ID。复活时间由 Excel 导出到 `GameConfig/battle.json`，重新开局读取。死亡期间幽灵可移动、带动镜头，但不能攻击、使用技能或召唤士兵；技能冷却继续按模拟时间推进，不因复活重置。幽灵沿用英雄的地形通行与地图边界限制，不能移动进墙内。
+
+`HeroRespawnSystem` 在本步伤害系统结束后记录一次尸体位置、朝向、死亡序号和复活截止时间。`GroundTransform` 在死亡期间代表幽灵位置，`MovementSystem` 仍消费移动输入；生命保持0，因此寻敌、攻击和操作入口排除幽灵。到期直接在当前坐标恢复生命；下一固定步才恢复战斗。`HeroRespawnState` 是权威复活状态，`UnitSnapshot` 复制幽灵标志、尸体位置/序号、剩余复活时间。`BattleSession` 和 `MapPlaySession` 只转发快照，不自行计时。暂停或不推进模拟时倒计时冻结；地图对局结束后不再复活。
+
+地图试玩 HUD 的复活提示独立于P键调试面板，显示向上取整的剩余秒数与幽灵可移动提示，复活或终局后隐藏。`UnitView` 显示半透明蓝色浮动幽灵，`HeroCorpseView` 固定在每次死亡位置，播放死亡动作并永久停留末帧；尸体不随幽灵移动，复活后仍保留，本局重开或视图清场时一起移除。复活时同一身体恢复不透明和血条，幽灵立即消失。
+
+复活后默认2秒无敌，Excel“全局参数”的 `battle.heroRespawnInvulnerabilitySeconds` 可调整（有限正数，当前 B105）。所有人物出生时带 `UnitStatusState`，其中 `InvulnerableUntil` 使用模拟时钟；复活系统授予状态，接触、士兵攻击、塔直伤和技能直伤统一检查，表现不决定免伤。保护期结束且怪物仍贴身时会重新判定接触，不会因旧接触标记永久免伤。`UnitSnapshot.InvulnerabilityRemainingSeconds` 仅是只读显示数据，`InvulnerabilityShieldView` 据此显示金色球面保护罩；状态到期罩子隐藏。后续晕眩、中毒等状态可在同一人物状态边界中明确各自的持续时间、效果系统和写入职责，本次没有预先实现这些效果。
+
 1. `Presentation/Input/KeyboardPlayerOperations.cs`：PC键盘通过 `Battle/Application/Sessions/PressGesture.cs` 判定短/长按，输出设备无关的 `PlayerOperation`。地图试玩与旧战斗原型共用输入适配。
 2. `Battle/Application/Sessions/BattleSession.cs`：每画面帧收集操作，保留到下一固定步；在移动/攻击前消费一次，补步不重发。
 3. `Battle/Simulation/Bridges/EcsBattleSimulation.PlayerControls.cs`：等待旧 Job 后提交选择、驻守、传送或伤害。选择、跟随偏移与驻守点归 ECS `SoldierState`，冷却与连续选择模式归本局模拟；每个固定步后采样移动后的范围。
-4. `Battle/Simulation/Systems/SoldierNavigationSystem.cs`：选中时持续读取英雄位置及跟随偏移，取消选择后读取驻守点；玩家命令覆盖可选的旧英雄跟随行为。
-5. `Tools/MapPlaytest/Unity/Views/SoldierSelectionView.cs`：只读 `UnitSnapshot` 和 `PlayerControlSnapshot` 画白圈；`MapPlayController` 组装 HUD 与模式开关。
+4. `Battle/Simulation/Systems/SoldierNavigationSystem.cs`：先禁止死守移动，再裁决跟随、反击、警戒索敌或返回待机点；`SoldierCombatSystem` 在移动后结算攻击并记录反击来源，下一固定步导航消费。`MonsterSeparationSystem` 保留死守单位占位，不写其拥挤位移。
+5. `Tools/MapPlaytest/Unity/Views/SoldierSelectionView.cs`：只读 `UnitSnapshot` 的选择/死守状态和 `PlayerControlSnapshot`，画选择圈与死守虚线椭圆；`MapPlayController` 组装 HUD 与模式开关。
 
 技能定义通过 `JsonBattleDefinitionSource → UnitDefinition.Skills` 加载。后续触控适配可提交相同的操作契约。

@@ -21,6 +21,7 @@
       <ui:Label text="空格：短按技能1 / 长按技能2；R：附近选中跟随 / 再点原地待命，长按边走边选或驻扎；1/2/3：全部/近战/远程，短按一人、长按全体加入跟随。" />
       <ui:Label name="player-status" text="" />
     </ui:VisualElement>
+    <ui:Label name="hero-respawn" text="" class="hero-respawn" picking-mode="Ignore" />
     <ui:Label name="fps" text="FPS --" class="fps" picking-mode="Ignore" />
   </ui:VisualElement>
 </ui:UXML>

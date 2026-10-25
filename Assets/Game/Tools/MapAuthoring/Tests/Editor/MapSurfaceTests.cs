@@ -44,15 +44,16 @@ namespace Game.Tools.MapAuthoring.Tests
         }
 
         [Test]
-        public void ShowcaseHasFiveBuildingKindsAndIndependentValidContent()
+        public void ShowcaseUsesCurrentFunctionalBuildingsAndIndependentValidContent()
         {
             var visuals = AssetDatabase.LoadAssetAtPath<MapVisualCatalog>(MapEditorWindow.VisualPath);
             var map = MapArtShowcase.Create(FacilityCatalogJson.Read(visuals.facilityRules.text));
             Assert.That(map.columns * map.rows, Is.EqualTo(3456));
             Assert.DoesNotThrow(() => new MapDefinition(map, FacilityCatalogJson.Read(visuals.facilityRules.text)));
-            Assert.That(map.facilities.Exists(item => item.definitionId == "mage"), Is.True);
-            Assert.That(map.facilities.Exists(item => item.definitionId == "farm"), Is.True);
-            Assert.That(visuals.facilities.Length, Is.EqualTo(5));
+            Assert.That(map.facilities.Exists(item => item.definitionId == "barracks.melee"), Is.True);
+            Assert.That(map.facilities.Exists(item => item.definitionId == "barracks.ranged"), Is.True);
+            Assert.That(map.facilities.TrueForAll(item => item.definitionId == "hall" || item.definitionId == "tower" ||
+                item.definitionId == "barracks.melee" || item.definitionId == "barracks.ranged"), Is.True);
         }
     }
 }

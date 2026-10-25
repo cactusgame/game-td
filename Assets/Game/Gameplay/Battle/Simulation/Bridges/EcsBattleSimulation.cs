@@ -71,6 +71,7 @@ namespace Game.Battle.Simulation.Bridges
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<CircleContactSystem>());
             // 根据 UpdateAfter 等约束排序；接触系统声明在移动系统之后调用，不依赖添加顺序。
             _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<StructureCombatSystem>());
+            _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<HeroRespawnSystem>());
             _group.SortSystems();
             // 一个设置实体保存本局设置和统计；它没有单位组件，所以不会匹配下面的 _units 查询。
             _settings = _world.EntityManager.CreateEntity(typeof(BattleSettings), typeof(ContactStatistics));
@@ -93,6 +94,7 @@ namespace Game.Battle.Simulation.Bridges
             _spawnMap = definition.NavigationMap;
             _friendlySpawnMap = definition.NavigationMap;
             _soldierNavigation.Configure(definition.NavigationMap);
+            _soldierNavigation.DetectionRadius = definition.SoldierDetectionRadius;
             _nextId = (ulong)definition.MonsterCount + 2;
             foreach (var entity in _structures.Values)
                 em.DestroyEntity(entity);
@@ -314,7 +316,7 @@ namespace Game.Battle.Simulation.Bridges
             foreach (var pair in _structures)
             {
                 var structure = _world.EntityManager.GetComponentData<DefenseStructure>(pair.Value);
-                destination.Add(new DefenseStructureSnapshot(pair.Key, structure.Health, structure.IsMainCastle != 0));
+                destination.Add(new DefenseStructureSnapshot(pair.Key, structure.Health, structure.IsMainCastle != 0, structure.MaxHealth));
             }
         }
 
@@ -340,6 +342,7 @@ namespace Game.Battle.Simulation.Bridges
             var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
             _unitEntities.Add(id, entity);
             em.AddComponentData(entity, new CombatProfile { AttackInterval = definition.AttackInterval, AttackRange = definition.AttackRange, TargetMainCastle = definition.TargetMainCastle ? (byte)1 : (byte)0 });
+            em.AddComponentData(entity, new UnitStatusState());
             em.AddBuffer<NavigationWaypoint>(entity);
             // SetComponentData 修改已有组件，不会自动添加缺失组件；这里写入只读定义中的初始属性。
             em.SetComponentData(entity, new UnitIdentity{Id = id, Kind = definition.Kind});
@@ -351,7 +354,10 @@ namespace Game.Battle.Simulation.Bridges
             // 英雄也有 WanderState 以匹配统一移动 Job，但英雄分支不使用随机行走状态。
             // 添加组件会改变 Archetype，当前集中在生成阶段执行。
             if (definition.Kind == UnitKind.Hero)
+            {
                 em.AddComponent<HeroTag>(entity);
+                em.AddComponentData(entity, new HeroRespawnState { DelaySeconds = _definition.HeroRespawnSeconds, InvulnerabilitySeconds = _definition.HeroRespawnInvulnerabilitySeconds });
+            }
             else if (UnitKinds.IsEnemy(definition.Kind))
             {
                 em.AddComponent<MonsterTag>(entity);
@@ -467,7 +473,21 @@ namespace Game.Battle.Simulation.Bridges
                 bool selected = _unitEntities.TryGetValue(identities[i].Id, out var entity) &&
                     _world.EntityManager.HasComponent<SoldierState>(entity) &&
                     _world.EntityManager.GetComponentData<SoldierState>(entity).IsSelected;
-                destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected));
+                bool stationed = _world.EntityManager.HasComponent<SoldierState>(entity) &&
+                    _world.EntityManager.GetComponentData<SoldierState>(entity).IsStationed;
+                double respawnRemaining = 0;
+                HeroRespawnState heroRespawn = default;
+                if (_world.EntityManager.HasComponent<HeroRespawnState>(entity))
+                {
+                    var respawn = _world.EntityManager.GetComponentData<HeroRespawnState>(entity);
+                    heroRespawn = respawn;
+                    if (respawn.IsWaiting)
+                        respawnRemaining = math.clamp(respawn.ReadyAt - ElapsedTime, 0, respawn.DelaySeconds);
+                }
+                var status = _world.EntityManager.GetComponentData<UnitStatusState>(entity);
+                double invulnerabilityRemaining = math.max(0, status.InvulnerableUntil - ElapsedTime);
+                destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected, stationed, respawnRemaining,
+                    heroRespawn.IsWaiting, heroRespawn.DeathPosition.x, heroRespawn.DeathPosition.y, heroRespawn.DeathFacingX, heroRespawn.DeathSequence, invulnerabilityRemaining));
             }
         }
 

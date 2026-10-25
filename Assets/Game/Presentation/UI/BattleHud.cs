@@ -50,7 +50,7 @@ namespace Game.Presentation.UI
             string message;
             if (_session.HeroHealth == 0)
             {
-                message = "HERO FALLEN  /  RESTART TO RETRY";
+                message = $"HERO FALLEN  /  RESPAWN IN {System.Math.Ceiling(_session.HeroRespawnRemainingSeconds):0}s";
             }
             else if (_session.AliveMonsters == 0)
             {

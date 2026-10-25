@@ -32,6 +32,20 @@
     -unity-text-align: middle-right;
 }
 .title { font-size: 19px; -unity-font-style: bold; }
+.hero-respawn {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 20%;
+    right: 20%;
+    padding: 12px 16px;
+    background-color: rgba(17, 27, 36, 0.85);
+    color: rgb(255, 225, 132);
+    font-size: 22px;
+    -unity-font: url("project://database/Assets/Content/Shared/Fonts/Inter-Regular.otf");
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
 .buttons { flex-direction: row; flex-wrap: wrap; margin-top: 6px; margin-bottom: 5px; }
 .buttons Button {
     margin-right: 7px;

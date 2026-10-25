@@ -108,6 +108,8 @@ namespace Game.Presentation.Views
             Vector2 heroPosition = Vector2.zero;
             foreach (var unit in _session.Units)
             {
+                if (unit.Kind == UnitKind.Hero && unit.Health > 0)
+                    _removedViews.Remove(unit.Id);
                 if (unit.Kind == UnitKind.Hero)
                     heroPosition = new Vector2(unit.X, unit.Y);
                 if (_removedViews.Contains(unit.Id))

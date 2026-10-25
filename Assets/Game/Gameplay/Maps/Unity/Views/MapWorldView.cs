@@ -16,6 +16,30 @@ namespace Game.Maps.Unity.Views
     {
         private GameObject _root;
         private readonly Dictionary<string, GameObject[]> _gateVariants = new Dictionary<string, GameObject[]>();
+        private readonly Dictionary<string, int> _conditions = new Dictionary<string, int>();
+        private MapVisualCatalog _visuals;
+        private MapContentCatalog _catalog;
+        private bool _conditionChanged;
+
+        /// <summary>生命只用于计算表现档位；不保存可写生命，也不裁决伤害和通行。</summary>
+        public void SetCondition(string id, int health, int maximum, float damagedRatio)
+        {
+            int state = health <= 0 ? 2 : maximum > 0 && (double)health / maximum < damagedRatio ? 1 : 0;
+            if ((_conditions.TryGetValue(id, out var previous) ? previous : 0) == state)
+                return;
+            _conditions[id] = state;
+            _conditionChanged = true;
+        }
+
+        public void RefreshConditions(MapLayout layout)
+        {
+            if (!_conditionChanged)
+                return;
+            _conditionChanged = false;
+            Rebuild(layout, _visuals, _catalog);
+        }
+
+        private int Condition(string id) => _conditions.TryGetValue(id, out var state) ? state : 0;
 
         /// <summary>仅切换城门的预生成表现，不创建 Mesh、材质或重建地图。</summary>
         public void SynchronizeGates(MapLayout layout)
@@ -37,6 +61,8 @@ namespace Game.Maps.Unity.Views
         /// <summary>仅地图布置或美术改变时重建静态地图，并预生成各座门的三种状态。</summary>
         public void Rebuild(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
         {
+            _visuals = visuals;
+            _catalog = catalog;
             if (_root != null)
             {
                 _root.SetActive(false);
@@ -82,7 +108,11 @@ namespace Game.Maps.Unity.Views
                         var stateEdge = stateNetwork.FindEdge(edge.Id);
                         var snapshot = System.Linq.Enumerable.First(stateEdge.Gates, item => item.Id == gate.Id);
                         int index = 0;
-                        foreach (var entry in GatePresentation.Build(stateNetwork, stateEdge, snapshot, appearance, visuals.WallStyle))
+                        int condition = state == 2 ? 2 : Condition(gate.Id);
+                        var masonry = condition == 2 ? visuals.destroyedMasonry : condition == 1 ? visuals.damagedMasonry : null;
+                        var style = masonry == null ? visuals.WallStyle : visuals.WallStyle.WithMaterials(masonry, masonry, visuals.gateSideInset);
+                        style.Iron = visuals.WallStyle.Iron;
+                        foreach (var entry in GatePresentation.Build(stateNetwork, stateEdge, snapshot, appearance, style))
                         {
                             var part = new GameObject(entry.Id);
                             part.transform.SetParent(group.transform, false);
@@ -94,7 +124,7 @@ namespace Game.Maps.Unity.Views
             }
             SynchronizeGates(layout);
             int depthIndex = 0;
-            foreach (var entry in MapSceneSprites.Build(layout, visuals, catalog))
+            foreach (var entry in MapSceneSprites.Build(layout, visuals, catalog, Condition))
             {
                 if (_gateVariants.ContainsKey(entry.Id))
                     continue;

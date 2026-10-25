@@ -45,6 +45,8 @@ namespace Game.Battle.Unity.Views
                 _time += deltaTime;
             foreach (var unit in units)
             {
+                if (unit.Kind == UnitKind.Hero && unit.Health > 0)
+                    _removed.Remove(unit.Id);
                 if (_removed.Contains(unit.Id))
                     continue;
                 if (!_views.TryGetValue(unit.Id, out var view))

@@ -56,6 +56,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public int Generation { get; private set; }
         public double SimulationTime => _battle?.ElapsedTime ?? 0;
         public int HeroHealth => _battle?.HeroHealth ?? 0;
+        public double HeroRespawnRemainingSeconds => _battle?.HeroRespawnRemainingSeconds ?? 0;
         public bool IsDeploymentMode { get; private set; }
         public PlayerControlSnapshot PlayerControls => (_simulation as IPlayerOperations)?.PlayerControls ?? default;
         public void SetDeploymentMode(bool enabled)

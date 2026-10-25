@@ -35,8 +35,13 @@ namespace Game.Battle.Simulation.Systems
                 if (bounds.Attack > 0 && now >= bounds.NextAttack && target != Entity.Null)
                 {
                     var health = EntityManager.GetComponentData<Vitals>(target);
-                    health.Health = ContactRules.ApplyDamage(health.Health, ContactRules.Damage(bounds.Attack, health.Defense));
-                    health.LastHitTime = (float)now;
+                    bool invulnerable = EntityManager.HasComponent<UnitStatusState>(target) &&
+                        EntityManager.GetComponentData<UnitStatusState>(target).IsInvulnerableAt(now);
+                    if (!invulnerable)
+                    {
+                        health.Health = ContactRules.ApplyDamage(health.Health, ContactRules.Damage(bounds.Attack, health.Defense));
+                        health.LastHitTime = (float)now;
+                    }
                     EntityManager.SetComponentData(target, health);
                     structure.ValueRW.NextAttack = now + bounds.AttackInterval;
                 }

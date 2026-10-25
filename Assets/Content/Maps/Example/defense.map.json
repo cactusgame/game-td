@@ -428,8 +428,46 @@
       "definitionId": "tower",
       "x": 14,
       "y": 8
+    },
+    {
+      "id": "test-melee-barracks",
+      "definitionId": "barracks.melee",
+      "x": 17,
+      "y": 11
+    },
+    {
+      "id": "test-ranged-barracks",
+      "definitionId": "barracks.ranged",
+      "x": 17,
+      "y": 3
     }
   ],
-  "wallNodes": [],
-  "wallEdges": []
+  "wallNodes": [
+    {
+      "id": "test-wall-south",
+      "x": 0.5,
+      "y": -5.5
+    },
+    {
+      "id": "test-wall-north",
+      "x": 0.5,
+      "y": 5.5
+    }
+  ],
+  "wallEdges": [
+    {
+      "id": "test-wall",
+      "from": "test-wall-south",
+      "to": "test-wall-north",
+      "gates": [
+        {
+          "id": "test-gate",
+          "startTile": 4,
+          "widthTiles": 4,
+          "openingTiles": 2,
+          "isOpen": false
+        }
+      ]
+    }
+  ]
 }

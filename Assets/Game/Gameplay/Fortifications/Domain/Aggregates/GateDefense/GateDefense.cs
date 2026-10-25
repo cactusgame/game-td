@@ -26,5 +26,21 @@ namespace Game.Fortifications.Domain.Aggregates.GateDefense
             _nextAttacks[id] = now + interval;
             return true;
         }
+
+        public bool Damage(int amount)
+        {
+            if (IsDestroyed || amount <= 0)
+                return false;
+            Health = Math.Max(0, Health - amount);
+            return true;
+        }
+
+        public bool Repair(int amount, int maxHealth)
+        {
+            if (IsDestroyed || amount <= 0 || Health >= maxHealth)
+                return false;
+            Health += Math.Min(amount, maxHealth - Health);
+            return true;
+        }
     }
 }

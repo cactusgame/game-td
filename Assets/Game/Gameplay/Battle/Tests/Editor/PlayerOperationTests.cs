@@ -210,6 +210,89 @@ namespace Game.Battle.Tests
             Assert.That(simulation.PlayerControls.SelectedCount, Is.Zero);
         }
 
+        [TestCase(PlayerOperation.CallOne, UnitKind.Soldier, UnitKind.Archer)]
+        [TestCase(PlayerOperation.CallOneMelee, UnitKind.Soldier, UnitKind.Soldier)]
+        [TestCase(PlayerOperation.CallOneRanged, UnitKind.Archer, UnitKind.Archer)]
+        public void SingleCalls_ExhaustUnstationedPoolBeforeRecallingStationedSoldiers(
+            PlayerOperation operation, UnitKind stationedKind, UnitKind availableKind)
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            ulong stationedFirst = Spawn(simulation, stationedKind, 8);
+            ulong stationedSecond = Spawn(simulation, stationedKind, 10);
+            simulation.Execute(PlayerOperation.CallAll, true);
+            simulation.Execute(PlayerOperation.NearbyHold);
+            ulong availableFirst = Spawn(simulation, availableKind, 12);
+            ulong availableSecond = Spawn(simulation, availableKind, 14);
+
+            simulation.Execute(operation);
+            Assert.That(Find(simulation, stationedFirst).IsSelected, Is.False);
+            Assert.That(Find(simulation, stationedSecond).IsSelected, Is.False);
+            Assert.That(simulation.PlayerControls.SelectedCount, Is.EqualTo(1));
+
+            simulation.Execute(operation);
+            Assert.That(Find(simulation, availableFirst).IsSelected, Is.True);
+            Assert.That(Find(simulation, availableSecond).IsSelected, Is.True);
+            Assert.That(Find(simulation, stationedFirst).IsSelected, Is.False);
+            Assert.That(Find(simulation, stationedSecond).IsSelected, Is.False);
+
+            simulation.Execute(operation);
+            Assert.That(simulation.PlayerControls.SelectedCount, Is.EqualTo(3));
+            simulation.Execute(operation);
+            Assert.That(simulation.PlayerControls.SelectedCount, Is.EqualTo(4));
+            simulation.Execute(operation);
+            Assert.That(simulation.PlayerControls.SelectedCount, Is.EqualTo(4), "不能重复呼叫已经选中的士兵");
+        }
+
+        [TestCase(PlayerOperation.CallOneMelee, UnitKind.Soldier, UnitKind.Archer)]
+        [TestCase(PlayerOperation.CallOneRanged, UnitKind.Archer, UnitKind.Soldier)]
+        public void SingleTypedCall_UnstationedOtherKindDoesNotBlockStationedFallback(
+            PlayerOperation operation, UnitKind matchingKind, UnitKind otherKind)
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            ulong stationed = Spawn(simulation, matchingKind, 8);
+            simulation.Execute(PlayerOperation.CallAll, true);
+            simulation.Execute(PlayerOperation.NearbyHold);
+            ulong other = Spawn(simulation, otherKind, 10);
+            simulation.Execute(operation);
+            Assert.That(Find(simulation, stationed).IsSelected, Is.True);
+            Assert.That(Find(simulation, other).IsSelected, Is.False);
+        }
+
+        [Test]
+        public void TapCancel_IsAvailableWaitingRatherThanExplicitStationing()
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            ulong stationed = Spawn(simulation, UnitKind.Soldier, 8);
+            simulation.Execute(PlayerOperation.CallAll, true);
+            simulation.Execute(PlayerOperation.NearbyHold);
+            ulong waiting = Spawn(simulation, UnitKind.Soldier, 10);
+            simulation.Execute(PlayerOperation.CallOneMelee);
+            simulation.Execute(PlayerOperation.NearbyTap);
+            simulation.Execute(PlayerOperation.CallOneMelee);
+            Assert.That(Find(simulation, waiting).IsSelected, Is.True);
+            Assert.That(Find(simulation, stationed).IsSelected, Is.False);
+        }
+
+        [TestCase(PlayerOperation.CallAll)]
+        [TestCase(PlayerOperation.CallAllMelee)]
+        [TestCase(PlayerOperation.CallAllRanged)]
+        public void AllCalls_RecallStationedAndUnstationedMatchingSoldiersTogether(PlayerOperation operation)
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            var kind = operation == PlayerOperation.CallAllRanged ? UnitKind.Archer : UnitKind.Soldier;
+            ulong stationed = Spawn(simulation, kind, 8);
+            simulation.Execute(PlayerOperation.CallAll, true);
+            simulation.Execute(PlayerOperation.NearbyHold);
+            ulong available = Spawn(simulation, kind, 10);
+            simulation.Execute(operation);
+            Assert.That(Find(simulation, stationed).IsSelected, Is.True);
+            Assert.That(Find(simulation, available).IsSelected, Is.True);
+        }
+
         [Test]
         public void OperationQueuedDuringZeroStepFrame_IsConsumedOnlyOnceAcrossCatchup()
         {

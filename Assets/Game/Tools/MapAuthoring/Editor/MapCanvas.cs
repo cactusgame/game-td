@@ -40,6 +40,7 @@ namespace Game.Tools.MapAuthoring.Editor
         public string SelectedId;
         public GridCell? HighlightCell;
         public Action<Vector2, int> Pressed;
+        public Action<int> Cancelled;
         public Action<Vector2> Dragged;
         public Action Released;
         public Action<Vector2> Hovered;
@@ -63,6 +64,12 @@ namespace Game.Tools.MapAuthoring.Editor
             Add(coordinates);
             RegisterCallback<PointerDownEvent>(evt =>
             {
+                if (evt.button == 1)
+                {
+                    Cancelled?.Invoke(evt.pointerId);
+                    evt.StopPropagation();
+                    return;
+                }
                 Focus();
                 _lastPointer = evt.localPosition;
                 _panning = evt.button == 2 || evt.button == 0 && (PanTool || _spaceHeld);
@@ -128,6 +135,16 @@ namespace Game.Tools.MapAuthoring.Editor
                 }
             });
             RegisterCallback<FocusOutEvent>(_ => _spaceHeld = false);
+        }
+
+        /// <summary>先停止拖动再释放捕获，避免取消操作经 CaptureOut 被误提交为已完成的一笔。</summary>
+        public void CancelInteraction(int pointerId)
+        {
+            _dragging = false;
+            _panning = false;
+            _spaceHeld = false;
+            if (this.HasPointerCapture(pointerId))
+                this.ReleasePointer(pointerId);
         }
 
         public void Fit()

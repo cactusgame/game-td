@@ -34,11 +34,11 @@ namespace Game.Tools.MapPlaytest.Tests
             return map;
         }
         private sealed class Input : IHeroInput { public MoveIntent Read() => default; }
-        private static MapPlaySession Session(Simulation simulation, int gold = 1000)
+        private static MapPlaySession Session(Simulation simulation, int gold = 1000, ConstructionContentDefinition construction = null)
         {
             var catalog = FacilityCatalogJson.Read(File.ReadAllText(Root + "facilities.json"));
             return new MapPlaySession(new MapDefinition(Source(), catalog), catalog, Rules(), new Input(), () => simulation,
-                construction: Construction(), initialGold: gold);
+                construction: construction ?? Construction(), initialGold: gold);
         }
         private static UnitSnapshot[] Soldiers(MapPlaySession session) => session.Units.Where(u => UnitKinds.IsSoldier(u.Kind) && u.Health > 0).ToArray();
 
@@ -97,6 +97,31 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(Soldiers(session).Length, Is.EqualTo(4));
             Assert.That(Soldiers(session).All(u => u.Id != dead), Is.True, "补兵生成新身份，旧尸体继续走死亡表现");
             Assert.That(simulation.Deployments, Is.EqualTo(5));
+        }
+
+        [TestCase(1f)]
+        [TestCase(3.5f)]
+        public void RetrainingUsesLoadedConfigurationInsteadOfEightSecondConstant(float seconds)
+        {
+            string json = System.Text.RegularExpressions.Regex.Replace(
+                File.ReadAllText(Root + "construction-content.json"),
+                "\"retrainSeconds\"\\s*:\\s*[0-9.]+",
+                "\"retrainSeconds\": " + seconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var construction = JsonConstructionContentSource.Parse(json);
+            Assert.That(construction.Barracks["barracks.melee"].RetrainSeconds, Is.EqualTo(seconds));
+            var simulation = new Simulation();
+            using var session = Session(simulation, construction: construction);
+            session.Restart();
+            ulong dead = Soldiers(session)[0].Id;
+            simulation.Kill(dead);
+            session.Advance(0.02f);
+            int beforeReady = (int)(seconds / 0.02f) - 2;
+            for (int i = 0; i < beforeReady; i++) session.Advance(0.02f);
+            Assert.That(Soldiers(session).Length, Is.EqualTo(3));
+            for (int i = 0; i < 5; i++) session.Advance(0.02f);
+            Assert.That(Soldiers(session).Length, Is.EqualTo(4));
+            Assert.That(Soldiers(session).All(u => u.Id != dead), Is.True);
+            Assert.That(session.Gold, Is.EqualTo(1000));
         }
 
         [Test]
@@ -235,7 +260,8 @@ namespace Game.Tools.MapPlaytest.Tests
                 var enemy = units.Single(u => UnitKinds.IsEnemy(u.Kind));
                 if (soldier.LastAttackTime < 0) continue;
                 float distance = (float)Math.Sqrt(Math.Pow(soldier.X - enemy.X, 2) + Math.Pow(soldier.Y - enemy.Y, 2));
-                Assert.That(distance, Is.LessThanOrEqualTo(definition.GetUnit(kind).AttackRange + definition.GetUnit(kind).Radius + rules.Goblin.Radius + 0.05f));
+                // 此测试生成的是上方固定敌人，接触距离必须使用同一夹具的半径。
+                Assert.That(distance, Is.LessThanOrEqualTo(definition.GetUnit(kind).AttackRange + definition.GetUnit(kind).Radius + enemyDefinition.Radius + 0.05f));
                 Assert.That(enemy.Health, Is.LessThan(enemyDefinition.MaxHealth));
                 if (kind == UnitKind.Archer)
                     Assert.That(soldier.X, Is.EqualTo(previousX).Within(0.001f), "射程内有敌人时停步战斗");

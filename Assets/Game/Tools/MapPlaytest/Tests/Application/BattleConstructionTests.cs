@@ -26,6 +26,19 @@ namespace Game.Tools.MapPlaytest.Tests
         private static MapPlaySession Session(int gold = 1000)
         {
             var catalog = FacilityCatalogJson.Read(File.ReadAllText(Root + "facilities.json"));
+            // 通用建设规则仍验证装饰和敌台；测试夹具不要求实际游戏继续出售这些内容。
+            catalog = new MapContentCatalog(catalog.FacilityIds.Select(catalog.Find).Concat(new[]
+            {
+                new FacilityDefinition { id = "market", name = "Test decoration", hasFunction = false },
+                new FacilityDefinition { id = "bastion", name = "Test bastion", wallMounted = true }
+            }), catalog.Wall);
+            var content = JsonConstructionContentSource.Parse(File.ReadAllText(Root + "construction-content.json"));
+            content = new ConstructionContentDefinition(content.Buildings.Values.Concat(new[]
+            {
+                new BuildingDevelopmentDefinition("market", 0, 0, false, 0, BuildingCategory.Decoration),
+                new BuildingDevelopmentDefinition("bastion", 100, 0, true, 0.5f,
+                    BuildingCategory.PlayerBuildable, ConstructionPlacementKind.Bastion)
+            }), content.Upgrades.Values, content.Barracks.Values);
             var map = new MapLayout();
             map.markers.Add(new MapMarker { id = "hero", name = "Hero", kind = MarkerKind.HeroSpawn, x = -9.5f, y = 6.5f });
             map.markers.Add(new MapMarker { id = "entry", name = "Entry", kind = MarkerKind.EnemyEntry, x = 10.5f, y = 6.5f });
@@ -33,7 +46,7 @@ namespace Game.Tools.MapPlaytest.Tests
             map.facilities.Add(new InitialFacility { id = "market", definitionId = "market", x = 5, y = 10 });
             var session = new MapPlaySession(new MapDefinition(map, catalog), catalog,
                 JsonBattleDefinitionSource.Parse(File.ReadAllText(Root + "battle.json")), new Input(), () => new EcsBattleSimulation(),
-                construction: JsonConstructionContentSource.Parse(File.ReadAllText(Root + "construction-content.json")), initialGold: gold);
+                construction: content, initialGold: gold);
             session.Restart();
             return session;
         }
@@ -259,7 +272,7 @@ namespace Game.Tools.MapPlaytest.Tests
         }
 
         [Test]
-        public void WallMenu_OffersBastionAtClickedWallPoint_AndConfirmationExitsMode()
+        public void WallMenu_OffersGateAndHealthOperations_WithoutUnsupportedBastion()
         {
             using var session = Session();
             session.TryBuildWall(new MapPoint(-4, -3), new MapPoint(6, -3), out _);
@@ -267,14 +280,8 @@ namespace Game.Tools.MapPlaytest.Tests
             {
                 InvokeView(view, "OpenContext", new MapPoint(1, -3), Vector2.zero);
                 Assert.That(MenuButtons(view).Any(button => button.text.Contains("建设城门")), Is.True);
-                ActivateButton(MenuButtons(view).Single(button => button.text.StartsWith("建设敌台")));
-                InvokeView(view, "UpdatePointer", session.Snapshot, new MapPoint(6, 3));
-                ActivateButton(MenuButtons(view).Single(button => button.text == "确认建设敌台"));
-                var bastion = session.Snapshot.facilities.Single(item => item.definitionId == "bastion");
-                var node = session.Snapshot.wallNodes.Single(item => item.id == bastion.wallNodeId);
-                Assert.That(node.x, Is.EqualTo(1));
-                Assert.That(node.y, Is.EqualTo(-3));
-                Assert.That(view.Active, Is.False);
+                Assert.That(MenuButtons(view).Any(button => button.text.StartsWith("建设敌台")), Is.False);
+                Assert.That(MenuButtons(view).Any(button => button.text.Contains("造成 30%")), Is.True);
             });
         }
 

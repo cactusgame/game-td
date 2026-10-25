@@ -23,10 +23,27 @@ namespace Game.Maps.Unity.Assets
         {
             public string definitionId;
             public Sprite sprite;
+            public Sprite damaged;
+            public Sprite destroyed;
         }
         public TerrainVisual[] terrain;
         public FacilityVisual[] facilities;
         public Sprite wall;
+        public BuildingConditionArt buildingConditions;
+        public Sprite damagedMasonry => buildingConditions != null ? buildingConditions.damagedMasonry : null;
+        public Sprite destroyedMasonry => buildingConditions != null ? buildingConditions.destroyedMasonry : null;
+
+        public Sprite FacilityCondition(string id, int state)
+        {
+            var entry = buildingConditions != null
+                ? Array.Find(buildingConditions.facilities, item => item.definitionId == id)
+                : Array.Find(facilities, item => item.definitionId == id);
+            if (state == 2 && entry?.destroyed != null)
+                return entry.destroyed;
+            if (state == 1 && entry?.damaged != null)
+                return entry.damaged;
+            return Facility(id);
+        }
         public Sprite wallJunction;
         public float wallHeightScale = 1;
         public float wallWidthScale = 1;
@@ -160,6 +177,10 @@ namespace Game.Maps.Unity.Assets
         public TerrainVisual Terrain(TerrainKind kind) => Array.Find(terrain, item => item.kind == kind);
         public Sprite Facility(string id)
         {
+            var conditionArt = buildingConditions != null
+                ? Array.Find(buildingConditions.facilities, item => item.definitionId == id)?.sprite : null;
+            if (conditionArt != null)
+                return conditionArt;
             var sprite = Array.Find(facilities, item => item.definitionId == id)?.sprite;
             if (sprite != null)
                 return sprite;

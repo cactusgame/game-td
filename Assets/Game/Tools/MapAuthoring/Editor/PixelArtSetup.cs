@@ -133,7 +133,11 @@ namespace Game.Tools.MapAuthoring.Editor
 
         public static MapLayout CreateMap()
         {
-            return ReferenceCitadelLayout.Create();
+            var map = ReferenceCitadelLayout.Create();
+            var catalog = FacilityCatalogJson.Read(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/facilities.json"));
+            // 参考布局保留原始坐标资料；生成当前可玩的地图时，只保留内容表仍提供的建筑。
+            map.facilities.RemoveAll(item => catalog.Find(item.definitionId) == null);
+            return map;
         }
     }
 }

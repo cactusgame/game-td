@@ -13,7 +13,8 @@ namespace Game.Maps.Unity.Views
     /// <summary>共享装饰与建筑的脚底锚点、尺寸、稳定排序，以及所有方向一致的实体墙几何。</summary>
     public static class MapSceneSprites
     {
-        public static List<SceneRenderEntry> Build(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog)
+        public static List<SceneRenderEntry> Build(MapLayout layout, MapVisualCatalog visuals, MapContentCatalog catalog,
+            System.Func<string, int> condition = null)
         {
             var entries = new List<SceneRenderEntry>();
             var geometry = layout.Geometry;
@@ -40,7 +41,7 @@ namespace Game.Maps.Unity.Views
                     continue;
                 float x = layout.originX + (item.x + item.Width(definition) * 0.5f) * layout.cellWidth;
                 float y = layout.originY + (item.y + 0.5f) * layout.cellHeight;
-                AddFoot(entries, item.id, (visuals.Facility(item.definitionId) ?? (item.definitionId == "bastion" ? visuals.Facility("tower") : null)), new Vector2(x, y), item.Width(definition) * layout.cellWidth * visuals.facilityWidthScale * (item.definitionId == "hall" ? visuals.keepWidthScale : 1));
+                AddFoot(entries, item.id, (visuals.FacilityCondition(item.definitionId, condition?.Invoke(item.id) ?? 0) ?? (item.definitionId == "bastion" ? visuals.Facility("tower") : null)), new Vector2(x, y), item.Width(definition) * layout.cellWidth * visuals.facilityWidthScale * (item.definitionId == "hall" ? visuals.keepWidthScale : 1));
                 if (item.definitionId == "hall" && visuals.Facility(item.definitionId) != null)
                 {
                     var entry = entries[entries.Count - 1];
@@ -58,7 +59,13 @@ namespace Game.Maps.Unity.Views
             var wallAppearance = new WallDefinition(catalog.Wall.Width * visuals.wallWidthScale, catalog.Wall.Height * visuals.wallHeightScale, Mathf.Max(catalog.Wall.JunctionRadius, catalog.Wall.Width * visuals.wallWidthScale * 0.6f), catalog.Wall.JunctionClearance);
             foreach (var edge in layout.wallEdges)
             {
-                entries.AddRange(RaisedWallPresentation.Build(network, network.FindEdge(edge.id), wallAppearance, style));
+                int state = condition?.Invoke(edge.id) ?? 0;
+                var material = state == 2 ? visuals.destroyedMasonry : state == 1 ? visuals.damagedMasonry : null;
+                var edgeStyle = material == null ? style : style.WithMaterials(material, material, style.GateSideInset);
+                var edgeAppearance = state == 2
+                    ? new WallDefinition(wallAppearance.Width, wallAppearance.Height * 0.18f, wallAppearance.JunctionRadius, wallAppearance.JunctionClearance)
+                    : wallAppearance;
+                entries.AddRange(RaisedWallPresentation.Build(network, network.FindEdge(edge.id), edgeAppearance, edgeStyle));
                 var source = network.FindEdge(edge.id);
                 foreach (var gate in source.Gates)
                 {

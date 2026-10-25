@@ -71,7 +71,7 @@ namespace Game.Battle.Simulation.Bridges
                     }
                     else
                     {
-                        ClearSelection();
+                        ClearSelection(station: true);
                     }
                     return;
                 case PlayerOperation.NearbyRelease:
@@ -87,6 +87,12 @@ namespace Game.Battle.Simulation.Bridges
             {
                 // 连续短按逐个招入队伍，避免随机重复呼叫已经选中的成员。
                 candidates.RemoveAll(entity => em.GetComponentData<SoldierState>(entity).IsSelected);
+                // 先保留未驻扎的可用士兵；全部招入队伍后，后续按键才会进入驻扎候选池。
+                bool hasUnstationed = candidates.Exists(entity => !em.GetComponentData<SoldierState>(entity).IsStationed);
+                if (hasUnstationed)
+                {
+                    candidates.RemoveAll(entity => em.GetComponentData<SoldierState>(entity).IsStationed);
+                }
             }
             if (one && candidates.Count > 0)
             {
@@ -136,13 +142,13 @@ namespace Game.Battle.Simulation.Bridges
             else SelectNearby(_unitEntities[1], _instantSelectionDeployment);
         }
 
-        private void ClearSelection()
+        private void ClearSelection(bool station = false)
         {
             // 取消选择与停止跟随一起提交，清空旧路径并把当前位置作为新驻守点。
             foreach (var entity in Soldiers(true))
             {
                 var position = _world.EntityManager.GetComponentData<GroundTransform>(entity).Position;
-                StationSoldier(entity, position, false);
+                StationSoldier(entity, position, false, station);
             }
             _selectingWhileMoving = false;
         }
@@ -169,6 +175,8 @@ namespace Game.Battle.Simulation.Bridges
                 if (!state.IsSelected)
                     state.FollowOffset = new float2(radius + em.GetComponentData<UnitMotion>(hero).Radius + 0.6f, 0);
                 state.IsSelected = true;
+                state.IsStationed = false;
+                state.RetaliationTarget = Entity.Null;
                 state.HasPlayerOrder = true;
                 em.SetComponentData(entity, state);
                 em.GetBuffer<NavigationWaypoint>(entity).Clear();
@@ -203,13 +211,15 @@ namespace Game.Battle.Simulation.Bridges
             }
         }
 
-        private void StationSoldier(Entity entity, float2 destination, bool instant)
+        private void StationSoldier(Entity entity, float2 destination, bool instant, bool station = false)
         {
             var em = _world.EntityManager;
             var state = em.GetComponentData<SoldierState>(entity);
             state.Rally = destination;
             state.HasPlayerOrder = true;
             state.IsSelected = false;
+            state.IsStationed = station;
+            state.RetaliationTarget = Entity.Null;
             em.SetComponentData(entity, state);
             em.GetBuffer<NavigationWaypoint>(entity).Clear();
             em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
@@ -231,6 +241,7 @@ namespace Game.Battle.Simulation.Bridges
             foreach (var target in targets)
             {
                 var vital = em.GetComponentData<Vitals>(target);
+                if (em.HasComponent<UnitStatusState>(target) && em.GetComponentData<UnitStatusState>(target).IsInvulnerableAt(ElapsedTime)) continue;
                 if (vital.Health <= 0 || math.distancesq(center, em.GetComponentData<GroundTransform>(target).Position) > skill.Radius * skill.Radius) continue;
                 // 示例语义为直接减血 y，不再扣防御；只影响存活敌人。
                 vital.Health = ContactRules.ApplyDamage(vital.Health, skill.Damage);

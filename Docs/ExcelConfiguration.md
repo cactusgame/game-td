@@ -1,6 +1,6 @@
 # Excel 内容配置
 
-唯一编辑源：`Config/GameContent.xlsx`。JSON 为导出产物，请不要直接修改。
+配置源目录 `Config/` 只能放 Excel；当前统一编辑入口为 `Config/GameContent.xlsx`。游戏读取的 JSON 均由现有脚本从 Excel 导出到 `Assets/Content/Configuration/Resources/GameConfig/`，请不要直接修改导出产物。
 
 ## 使用
 
@@ -55,7 +55,20 @@ Soldier/Archer 是两个己方士兵槽位，由近战/远程兵营训练，不�
 
 ## 导出与目录
 
-全部 JSON 集中在 `Assets/Content/Configuration/Resources/GameConfig/`：
+全部运行配置 JSON 集中在 `Assets/Content/Configuration/Resources/GameConfig/`。`Config/` 中原有的警戒范围、建筑残血阈值、怪物奖励 JSON 源已迁入同一工作簿：
+
+| 编辑位置 | 字段 | 当前值 | 导出文件 |
+| --- | --- | --- | --- |
+| 兵营表 D3/D4 | retrainSeconds，阵亡补兵冷却/秒 | 近战8秒，远程8秒，可分别调整 | construction-content.json |
+| 单位表 M列 | killGold，击杀奖励/金币 | 骷髅兵5，亡灵5，其他单位0 | battle.json / combat-content.json |
+| 全局参数 | battle.soldierDetectionRadius | 5世界单位 | battle.json |
+| 全局参数 B104 | battle.heroRespawnSeconds | 10秒 | battle.json |
+| 全局参数 B105 | battle.heroRespawnInvulnerabilitySeconds | 2秒 | battle.json |
+| 全局参数 | building-appearance.damagedHealthRatio | 0.5 | building-appearance.json |
+
+导出器只读取工作簿，不从其他 JSON 合并产品数值；修改后导出并重新开局生效。补兵冷却必须为有限正数，阵亡槽位及升级新增槽位均使用所属兵营的此值。
+
+导出文件：
 
 - `combat-content.json`：完整单位、攻击、技能、效果与行为，单位直接携带动画素材引用。
 - `construction-content.json`：建设发展与升级定义。
@@ -64,6 +77,7 @@ Soldier/Archer 是两个己方士兵槽位，由近战/远程兵营训练，不�
 - `presentation.json`：产品表现与动画资源选择。
 - `DefenseEncounter.json`、`MapPlayCamera.json`：原有对局和镜头配置。
 - `economy.json`：本局金币初值。
+- `building-appearance.json`：建筑生命比例对应的外观阈值。
 
 投影不是另一套手工配置源。五个原 JSON 文件已通过 AssetDatabase.MoveAsset 迁移，保留 GUID；旧路径不再保留 JSON 副本，代码与资源加载路径同步更新。地图源 JSON 和动画制作资产仍放在各自内容目录，避免把地图与资源制作数据混入全局数值目录。
 

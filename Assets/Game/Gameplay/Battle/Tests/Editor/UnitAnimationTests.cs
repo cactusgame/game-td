@@ -9,6 +9,79 @@ namespace Game.Battle.Tests
 {
     public sealed class UnitAnimationTests
     {
+        [Test]
+        public void GhostMovesWhileCorpsePersistsAndRevivalReplacesGhostWithGoldenShield()
+        {
+            var set = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>("Assets/Content/Units/Heroes/Alien/alien-actions.asset");
+            var player = new UnitAnimationPlayer(set);
+            var root = new GameObject("Ghost presentation test");
+            try
+            {
+                var sprite = player.Require(UnitAction.Idle).Frame(0);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1, 0.3f, Color.white, player, new UnitDeathSettings());
+                var ghost = new UnitSnapshot(1, UnitKind.Hero, 2, 3, 1, 0, 100, -100,
+                    isGhost: true, deathX: 0, deathY: 1, deathSequence: 1);
+                view.Render(ghost, 0, 0);
+                view.Render(ghost, 20, 0);
+                var body = root.transform.GetChild(0).Find("Sprite").GetComponent<SpriteRenderer>();
+                var corpse = root.transform.Find("Hero corpse 1");
+                Assert.That(view.IsReadyForRemoval, Is.False);
+                Assert.That(root.transform.GetChild(0).position, Is.EqualTo(new Vector3(2, 3, 0)));
+                Assert.That(corpse.position, Is.EqualTo(new Vector3(0, 1, 0)));
+                Assert.That(body.color.a, Is.LessThan(0.5f));
+                Assert.That(corpse.GetComponent<SpriteRenderer>().sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(20)));
+                var alive = new UnitSnapshot(1, UnitKind.Hero, 2, 3, 1, 100, 100, -100,
+                    deathX: 0, deathY: 1, deathSequence: 1, invulnerabilityRemainingSeconds: 2);
+                view.Render(alive, 21, 0);
+                Assert.That(body.color.a, Is.EqualTo(1));
+                var shield = root.transform.GetChild(0).Find("Invulnerability shield");
+                Assert.That(shield.gameObject.activeSelf, Is.True);
+                Assert.That(root.transform.Find("Hero corpse 1"), Is.Not.Null);
+                view.Render(new UnitSnapshot(1, UnitKind.Hero, 2, 3, 1, 100, 100, -100, deathSequence: 1), 23, 0);
+                Assert.That(shield.gameObject.activeSelf, Is.False);
+                view.Render(new UnitSnapshot(1, UnitKind.Hero, 4, 3, 1, 0, 100, -100,
+                    isGhost: true, deathX: 2, deathY: 3, deathSequence: 2), 24, 0);
+                Assert.That(root.transform.Find("Hero corpse 1"), Is.Not.Null);
+                Assert.That(root.transform.Find("Hero corpse 2"), Is.Not.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [TestCase(0.1f)]
+        [TestCase(10f)]
+        public void HeroRevivesBeforeOrAfterCorpseExpires_RestoresBodyHealthBarAndNextDeath(float wait)
+        {
+            var set = AssetDatabase.LoadAssetAtPath<UnitAnimationSet>("Assets/Content/Units/Heroes/Alien/alien-actions.asset");
+            var player = new UnitAnimationPlayer(set);
+            var root = new GameObject("Hero revival presentation test");
+            try
+            {
+                var sprite = player.Require(UnitAction.Idle).Frame(0);
+                var view = new UnitView(root.transform, sprite, sprite, sprite, 1.5f, 0.4f,
+                    Color.white, player, new UnitDeathSettings { CorpseHoldSeconds = 0.2f });
+                var unit = root.transform.GetChild(0);
+                var body = unit.Find("Sprite").GetComponent<SpriteRenderer>();
+                var dead = new UnitSnapshot(1, UnitKind.Hero, 2, 3, 1, 0, 100, 1);
+                view.Render(dead, 1, 0);
+                view.Render(dead, 1 + wait, wait);
+                view.Render(new UnitSnapshot(1, UnitKind.Hero, 2, 3, 1, 100, 100, -100), 1 + wait, 0);
+                Assert.That(view.IsReadyForRemoval, Is.False);
+                Assert.That(unit.Find("HealthBackground").gameObject.activeSelf, Is.True);
+                Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Idle).Frame(0)));
+                Assert.That(body.transform.localRotation, Is.EqualTo(Quaternion.identity));
+                view.Render(dead, 2 + wait, 0);
+                Assert.That(view.IsReadyForRemoval, Is.False);
+                Assert.That(body.sprite, Is.EqualTo(player.Require(UnitAction.Death).Frame(0)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         [TestCase("Heroes/Alien/alien", UnitKind.Hero)]
         [TestCase("Allies/Soldier/soldier", UnitKind.Soldier)]
         [TestCase("Allies/Archer/archer", UnitKind.Archer)]

@@ -66,6 +66,10 @@ namespace Game.Battle.Simulation.Systems
             }.Schedule(entities.Length, 64).Complete();
             for (int i = 0; i < entities.Length; i++)
             {
+                // 死守仍作为邻居阻挡其他单位，自身不接受拥挤位移。
+                if (EntityManager.HasComponent<SoldierState>(entities[i]) &&
+                    EntityManager.GetComponentData<SoldierState>(entities[i]).IsStationed)
+                    continue;
                 var ground = positions[i];
                 ground.Position += corrections[i];
                 // Previous 保留移动前位置，地形系统对“移动 + 分离”整体做扫掠。

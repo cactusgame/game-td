@@ -45,6 +45,7 @@ namespace Game.Tools.MapPlaytest.Unity
         private Label _status;
         private Label _barracksStatus;
         private Label _playerStatus;
+        private Label _heroRespawn;
         private SoldierSelectionView _selectionView;
         private BattleConstructionView _constructionView;
         private KeyboardHeroInput _heroInput;
@@ -66,6 +67,9 @@ namespace Game.Tools.MapPlaytest.Unity
             _fpsSampleStartedAt = Time.realtimeSinceStartupAsDouble;
             try
             {
+                var appearance = Resources.Load<TextAsset>("GameConfig/building-appearance");
+                if (appearance != null)
+                    _damagedHealthRatio = JsonUtility.FromJson<StructureAppearanceSettings>(appearance.text).damagedHealthRatio;
                 string json = string.IsNullOrEmpty(PendingPlaytestJson) ? mapJson.text : PendingPlaytestJson;
                 PendingPlaytestJson = null;
                 _catalog = FacilityCatalogJson.Read(visuals.facilityRules.text);
@@ -101,6 +105,7 @@ namespace Game.Tools.MapPlaytest.Unity
                     _status = root.Q<Label>("status");
                     _barracksStatus = root.Q<Label>("barracks-status");
                     _playerStatus = root.Q<Label>("player-status");
+                    _heroRespawn = root.Q<Label>("hero-respawn");
                     var deployment = root.Q<Button>("deployment-mode");
                     if (deployment != null)
                         deployment.clicked += () =>
@@ -186,6 +191,12 @@ namespace Game.Tools.MapPlaytest.Unity
         }
 
         private int _gateViewVersion = -1;
+        [Serializable]
+        private sealed class StructureAppearanceSettings
+        {
+            public float damagedHealthRatio = 0.5f;
+        }
+        private float _damagedHealthRatio = 0.5f;
 
         private void Update()
         {
@@ -212,8 +223,26 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
+            var mapSnapshot = _session.Snapshot;
+            foreach (var structure in _session.Structures)
+                _view.SetCondition(structure.Id, structure.Health, structure.MaxHealth, _damagedHealthRatio);
+            foreach (var edge in mapSnapshot.wallEdges)
+            {
+                _view.SetCondition(edge.id, _session.GetWallHealth(edge.id), _catalog.Wall.WallHealth, _damagedHealthRatio);
+                foreach (var gate in edge.gates)
+                    _view.SetCondition(gate.id, _session.GetGateHealth(gate.id), _catalog.Wall.GateHealth, _damagedHealthRatio);
+            }
+            _view.RefreshConditions(mapSnapshot);
             hud?.rootVisualElement.Q<Button>("next-wave")?.SetEnabled(_session.CanStartNextWave);
             var controls = _session.PlayerControls;
+            if (_heroRespawn != null)
+            {
+                bool waiting = _session.HeroHealth <= 0 && _session.Outcome == "Running";
+                _heroRespawn.style.display = waiting ? DisplayStyle.Flex : DisplayStyle.None;
+                _heroRespawn.text = waiting
+                    ? $"幽灵可移动，{Math.Ceiling(_session.HeroRespawnRemainingSeconds):0} 秒后在当前位置复活"
+                    : string.Empty;
+            }
             _selectionView.Synchronize(_session.Units, controls, _session.Outcome == "Running");
             if (_playerStatus != null)
             {
@@ -222,7 +251,7 @@ namespace Game.Tools.MapPlaytest.Unity
             if (_gateViewVersion != _session.GateViewVersion)
             {
                 _gateViewVersion = _session.GateViewVersion;
-                _view.SynchronizeGates(_session.Snapshot);
+                _view.SynchronizeGates(mapSnapshot);
             }
             _unitView.Synchronize(_session.Units, _session.Definition, _session.SimulationTime, Time.deltaTime, _session.Outcome != "Running");
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)

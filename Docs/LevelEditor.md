@@ -20,13 +20,13 @@ Unity 菜单 **Game → 关卡编辑器**。地图布局和波次配置统一在
 
 金币使用 **波次覆盖 → 关卡覆盖 → 怪物默认**。勾选覆盖后允许填写 0；关闭覆盖才表示继承。界面显示最终值及来源。金币在怪物出生时绑定到实例；提前开启后续波次不会改变已经出生怪物的掉落。
 
-默认击杀金币来源为 `Config/EnemyRewards.json`，按稳定怪物 ID 配置。修改后运行现有脚本：
+默认击杀金币来源为 `Config/GameContent.xlsx` 的“单位”表，按稳定怪物 ID 在 `killGold`（击杀奖励/金币）列配置。修改后运行现有脚本：
 
 ```powershell
 python Tools/ContentConfiguration/export_config.py
 ```
 
-脚本将其与 `Config/GameContent.xlsx` 一并校验、生成运行时 `battle.json`，并纳入内容版本。未配置的怪物默认 0；当前示例两种怪物均为 5，这只是起始数值。
+脚本统一校验 Excel，生成运行时 `battle.json` 和 `combat-content.json`，并纳入内容版本。无击杀奖励的单位填写0；当前示例两种怪物均为5，这只是起始数值。`Config/` 仅保存 Excel，不再维护额外 JSON 配置源。
 
 ## 波次和试玩语义
 

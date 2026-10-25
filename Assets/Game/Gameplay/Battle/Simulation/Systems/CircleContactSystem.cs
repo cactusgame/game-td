@@ -28,10 +28,12 @@ namespace Game.Battle.Simulation.Systems
             var heroMotion = SystemAPI.GetComponent<UnitMotion>(hero);
             int heroDamage = 0, contacts = 0;
             float now = (float)SystemAPI.Time.ElapsedTime;
+            bool heroInvulnerable = SystemAPI.HasComponent<UnitStatusState>(hero) &&
+                SystemAPI.GetComponent<UnitStatusState>(hero).IsInvulnerableAt(SystemAPI.Time.ElapsedTime);
             // Query 要求同时具有四种组件，再用 WithAll 额外要求 MonsterTag。
             // RefRO/ValueRO 只读；RefRW/ValueRW 可直接修改 ECS 数据，不需要另行 SetComponent。
             // 此 foreach 在主线程遍历；源代码生成器缓存查询并在遍历前完成必要的数据依赖。
-            foreach (var(ground, motion, vitals, contact)in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<HeroContact>>().WithAll<MonsterTag>())
+            foreach (var(ground, motion, vitals, contact, monster)in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<HeroContact>>().WithAll<MonsterTag>().WithEntityAccess())
             {
                 if (vitals.ValueRO.Health <= 0)
                     continue;
@@ -40,6 +42,10 @@ namespace Game.Battle.Simulation.Systems
                 float2 current = ground.ValueRO.Position - heroGround.Position;
                 float2 previous = ground.ValueRO.Previous - heroGround.Previous;
                 bool overlaps = math.lengthsq(current) <= radius * radius;
+                // 保护结束时重新判定持续接触，避免怪物贴身时永久漏掉伤害。
+                if (contact.ValueRO.WasHeroInvulnerable != 0 && !heroInvulnerable)
+                    contact.ValueRW.WasOverlapping = 0;
+                contact.ValueRW.WasHeroInvulnerable = heroInvulnerable ? (byte)1 : (byte)0;
                 // 上一步未重叠且本步路径发生接触才扣血；持续重叠不重复扣血。
                 // 终点分离时将状态归零，下一步允许重新接触；扫掠检测也覆盖高速中途穿过。
                 bool hit = contact.ValueRO.WasOverlapping == 0 && ContactRules.SweptCircles(previous.x, previous.y, current.x, current.y, radius);
@@ -56,6 +62,10 @@ namespace Game.Battle.Simulation.Systems
                 // 双方根据接触处理前的属性互相攻击，即使怪物本次被击杀，仍结算它的这次攻击。
                 int damage = ContactRules.Damage(heroVitals.Attack, vitals.ValueRO.Defense);
                 int incoming = ContactRules.Damage(vitals.ValueRO.Attack, heroVitals.Defense);
+                if (heroInvulnerable) incoming = 0;
+                if (SystemAPI.HasComponent<UnitStatusState>(monster) &&
+                    SystemAPI.GetComponent<UnitStatusState>(monster).IsInvulnerableAt(SystemAPI.Time.ElapsedTime))
+                    damage = 0;
                 // 累加伤害最多记到英雄当前生命，防止多次极端伤害造成整数溢出。
                 heroDamage = incoming >= heroVitals.Health - heroDamage ? heroVitals.Health : heroDamage + incoming;
                 // 怪物通过组件引用直接扣血，Health 为零后不再移动或参与接触；实体保留至重启。

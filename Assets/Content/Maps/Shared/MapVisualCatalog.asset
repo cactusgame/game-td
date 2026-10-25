@@ -34,15 +34,34 @@ MonoBehaviour:
   facilities:
   - definitionId: tower
     sprite: {fileID: 1061127068, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: hall
     sprite: {fileID: -1550626581, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: mage
     sprite: {fileID: -62259185, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: foundry
     sprite: {fileID: -1342872335, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   - definitionId: farm
     sprite: {fileID: -769758246, guid: 71c12c2593a22bb47959b073d2831e2d, type: 3}
+    damaged: {fileID: 0}
+    destroyed: {fileID: 0}
   wall: {fileID: 2053370403, guid: c6f8972c658ba074f86db05e5227ad1f, type: 3}
+  buildingConditions: {fileID: 11400000, guid: 39ff645d805cf724ab75f266f2482f95, type: 2}
+  wallJunction: {fileID: 0}
+  wallHeightScale: 1
+  wallWidthScale: 1
+  wallJunctionWidth: 1.8
+  wallJunctionHeight: 0
+  keepWidthScale: 1
+  keepHeightScale: 1
+  facilityWidthScale: 1.2
   wallBodyRegion:
     serializedVersion: 2
     x: 0
@@ -66,6 +85,7 @@ MonoBehaviour:
   wallMasonry: {fileID: 21300000, guid: c386b0c7d5f980b4381073ed6658f026, type: 3}
   wallWalkway: {fileID: 21300000, guid: 05e561d143302de4e80bfb76630c5da6, type: 3}
   gateClosed: {fileID: -519434803, guid: 97f4c1c482e32104d9ea67ba4ae04475, type: 3}
+  gateMetal: {fileID: 0}
   gateOpen: {fileID: 58724168, guid: c73f51ca196c5c745af384f930b2ce10, type: 3}
   gateFootInset: 0.025
   gateSideInset: 0.025

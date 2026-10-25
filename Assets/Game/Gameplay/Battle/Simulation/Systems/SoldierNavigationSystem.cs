@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Game.Battle.Simulation.Systems
 {
-    /// <summary>士兵优先交战，默认返回兵营驻守点；保留可选的英雄跟随行为。</summary>
+    /// <summary>死守禁止移动；警戒在范围内追敌、受击反击，无目标时返回待机点。选择时遵循英雄跟随命令。</summary>
     [DisableAutoCreation]
     [UpdateAfter(typeof(MonsterNavigationSystem))]
     [UpdateBefore(typeof(MovementSystem))]
@@ -15,8 +15,9 @@ namespace Game.Battle.Simulation.Systems
         private GridMap _map;
         private GridPathfinder _pathfinder;
         private readonly List<GridCell> _cells = new List<GridCell>();
-        // 会话组装选项，默认驻守；不由动画或 UI 修改导航状态。
+        // 会话组装选项，默认警戒；不由动画或 UI 修改导航状态。
         public bool FollowHero { get; set; }
+        public float DetectionRadius { get; set; } = 5;
         public void Configure(GridMap map)
         {
             _map = map;
@@ -32,10 +33,17 @@ namespace Game.Battle.Simulation.Systems
             bool heroAlive = SystemAPI.GetComponent<Vitals>(hero).Health > 0;
             foreach (var (ground, health, motion, profile, soldier, navigation, path) in
                 SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>,
-                    RefRO<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>())
+                    RefRW<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>())
             {
                 if (health.ValueRO.Health <= 0) continue;
                 navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
+                if (soldier.ValueRO.IsStationed)
+                {
+                    soldier.ValueRW.RetaliationTarget = Entity.Null;
+                    path.Clear();
+                    navigation.ValueRW.NextRepathTime = 0;
+                    continue;
+                }
                 // 战斗优先；跟随模式的英雄死亡时原地警戒，驻守模式不受英雄位置与生死影响。
                 float followDistance = heroMotion.Radius + motion.ValueRO.Radius + 0.6f;
                 bool selected = soldier.ValueRO.IsSelected;
@@ -48,6 +56,21 @@ namespace Game.Battle.Simulation.Systems
                 {
                     target = heroGround.Position;
                     stopDistance = followDistance;
+                }
+                if (!followsHero)
+                {
+                    Entity enemy = soldier.ValueRO.RetaliationTarget;
+                    if (!IsLivingMonster(enemy))
+                    {
+                        soldier.ValueRW.RetaliationTarget = Entity.Null;
+                        enemy = FindNearbyEnemy(ground.ValueRO.Position);
+                    }
+                    if (enemy != Entity.Null)
+                    {
+                        target = EntityManager.GetComponentData<GroundTransform>(enemy).Position;
+                        // 停在攻击距离内，避免弓兵追到敌人中心才停下。
+                        stopDistance = motion.ValueRO.Radius + EntityManager.GetComponentData<UnitMotion>(enemy).Radius + profile.ValueRO.AttackRange;
+                    }
                 }
                 if (HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange) ||
                     (followsHero && !heroAlive) || math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
@@ -86,6 +109,26 @@ namespace Game.Battle.Simulation.Systems
                     break;
                 }
             }
+        }
+        private bool IsLivingMonster(Entity entity)
+        {
+            return entity != Entity.Null && EntityManager.Exists(entity) &&
+                EntityManager.HasComponent<MonsterTag>(entity) && EntityManager.GetComponentData<Vitals>(entity).Health > 0;
+        }
+
+        private Entity FindNearbyEnemy(float2 position)
+        {
+            Entity target = Entity.Null;
+            float nearest = DetectionRadius * DetectionRadius;
+            foreach (var (ground, vital, entity) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>>().WithAll<MonsterTag>().WithEntityAccess())
+            {
+                float distance = math.distancesq(position, ground.ValueRO.Position);
+                if (vital.ValueRO.Health <= 0 || distance > nearest)
+                    continue;
+                nearest = distance;
+                target = entity;
+            }
+            return target;
         }
         private bool HasEnemyInRange(float2 position, float radius, float range)
         {

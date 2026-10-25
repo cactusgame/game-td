@@ -3860,624 +3860,342 @@
         }
     ],
     "facilities": [
-        {
-            "id": "hall-29-30",
-            "definitionId": "hall",
-            "x": 29,
-            "y": 30
-        },
-        {
-            "id": "mage-25-29",
-            "definitionId": "mage",
-            "x": 25,
-            "y": 29
-        },
-        {
-            "id": "foundry-35-28",
-            "definitionId": "foundry",
-            "x": 35,
-            "y": 28
-        },
-        {
-            "id": "tower-24-33",
-            "definitionId": "tower",
-            "x": 24,
-            "y": 33
-        },
-        {
-            "id": "tower-38-33",
-            "definitionId": "tower",
-            "x": 38,
-            "y": 33
-        },
-        {
-            "id": "tower-24-26",
-            "definitionId": "tower",
-            "x": 24,
-            "y": 26
-        },
-        {
-            "id": "tower-38-26",
-            "definitionId": "tower",
-            "x": 38,
-            "y": 26
-        },
-        {
-            "id": "farm-14-8",
-            "definitionId": "farm",
-            "x": 14,
-            "y": 8
-        },
-        {
-            "id": "farm-19-8",
-            "definitionId": "farm",
-            "x": 19,
-            "y": 8
-        },
-        {
-            "id": "tower-58-20",
-            "definitionId": "tower",
-            "x": 58,
-            "y": 20
-        },
-        {
-            "id": "mage-8-21",
-            "definitionId": "mage",
-            "x": 8,
-            "y": 21
-        },
-        {
-            "id": "foundry-61-17",
-            "definitionId": "foundry",
-            "x": 61,
-            "y": 17
-        },
-        {
-            "id": "cb37d422448c45e5b5e869c8e2e67e09",
-            "definitionId": "foundry",
-            "x": 19,
-            "y": 20
-        },
-        {
-            "id": "95b04140cd7e466fa080c269c5ac22d3",
-            "definitionId": "foundry",
-            "x": 23,
-            "y": 21
-        },
-        {
-            "id": "9a78bf572c67470b82ce75982fae2ced",
-            "definitionId": "hall",
-            "x": 28,
-            "y": 19
-        },
-        {
-            "id": "b49ba3d45a3841e7becad40f037acd25",
-            "definitionId": "tower",
-            "x": 31,
-            "y": 15
-        },
-        {
-            "id": "85ea731ca6d24b278aa57299cb928954",
-            "definitionId": "tower",
-            "x": 48,
-            "y": 19
-        },
-        {
-            "id": "6eec9972543a455d9cb42af985e17b3c",
-            "definitionId": "tower",
-            "x": 48,
-            "y": 14
-        },
-        {
-            "id": "d7593d57066f4d74b006ab372ec9e6c3",
-            "definitionId": "tower",
-            "x": 30,
-            "y": 35
-        },
-        {
-            "id": "7c10b78666dc40b780e032f9068621b7",
-            "definitionId": "tower",
-            "x": 30,
-            "y": 25
-        },
-        {
-            "id": "05775011ebc54ea0a8606bddf820c503",
-            "definitionId": "mage",
-            "x": 32,
-            "y": 25
-        },
-        {
-            "id": "5a170cb778cb4f6daf25963cd225d363",
-            "definitionId": "hall",
-            "x": 45,
-            "y": 17
-        },
-        {
-            "id": "a553879f1f7343c3992b22230771aa17",
-            "definitionId": "tower",
-            "x": 5,
-            "y": 30
-        },
-        {
-            "id": "b6411d34dbcb4dddb8990b257bcda4b6",
-            "definitionId": "tower",
-            "x": 5,
-            "y": 29
-        },
-        {
-            "id": "5e851c00616c4059842b173477db9c22",
-            "definitionId": "tower",
-            "x": 5,
-            "y": 28
-        },
-        {
-            "id": "57ec123e58b34f83a66274b3cc037bda",
-            "definitionId": "tower",
-            "x": 5,
-            "y": 27
-        },
-        {
-            "id": "2d6fc390ef9a4630949394fc9681cfbe",
-            "definitionId": "mage",
-            "x": 8,
-            "y": 17
-        },
-        {
-            "id": "a4e2a757436f4752989a8e780701ab77",
-            "definitionId": "mage",
-            "x": 12,
-            "y": 14
-        },
-        {
-            "id": "84c79695ddc641a487a0f4d4d858d816",
-            "definitionId": "mage",
-            "x": 11,
-            "y": 11
-        },
-        {
-            "id": "8952d2ced3ad41b7a89c59742bdd8810",
-            "definitionId": "farm",
-            "x": 16,
-            "y": 12
-        },
-        {
-            "id": "2977d23c0fcc46a6865410ded70b7e3d",
-            "definitionId": "foundry",
-            "x": 3,
-            "y": 14
-        },
-        {
-            "id": "5d455e66ac0c481da8f7a65431d53ead",
-            "definitionId": "tower",
-            "x": 26,
-            "y": 13
-        },
-        {
-            "id": "d7205367e68a464085b3c177e830b95a",
-            "definitionId": "tower",
-            "x": 31,
-            "y": 13
-        },
-        {
-            "id": "beeb9ed4a7a9486ab3f17c9944660ed4",
-            "definitionId": "tower",
-            "x": 35,
-            "y": 15
-        },
-        {
-            "id": "fff0aa53515d4ef1a1ffe05f2c2de806",
-            "definitionId": "tower",
-            "x": 35,
-            "y": 17
-        },
-        {
-            "id": "e91f7a6ef0e44e668a449453139310f8",
-            "definitionId": "tower",
-            "x": 36,
-            "y": 14
-        },
-        {
-            "id": "2258a2b1b4684339a111a499e9b74822",
-            "definitionId": "tower",
-            "x": 37,
-            "y": 13
-        },
-        {
-            "id": "d9b28ba29cc142db90b6c35971286f74",
-            "definitionId": "mage",
-            "x": 37,
-            "y": 20
-        },
-        {
-            "id": "9e3e4301be4f4bfe9aba1e3fd7d41cc9",
-            "definitionId": "mage",
-            "x": 44,
-            "y": 25
-        },
-        {
-            "id": "f2f9edd7eaa740a49fad57f3200d5cb1",
-            "definitionId": "mage",
-            "x": 43,
-            "y": 25
-        },
-        {
-            "id": "75637b5c67464b11931c9611645288eb",
-            "definitionId": "mage",
-            "x": 42,
-            "y": 22
-        },
-        {
-            "id": "ac8c1dd5ed9642268ebfeaa4a33b6a46",
-            "definitionId": "mage",
-            "x": 42,
-            "y": 21
-        },
-        {
-            "id": "6a54061a68e9499e84f18d0ac3ca98a2",
-            "definitionId": "mage",
-            "x": 39,
-            "y": 16
-        },
-        {
-            "id": "55dbdc25f72d4d55bf9e46e7cdda2159",
-            "definitionId": "mage",
-            "x": 39,
-            "y": 15
-        },
-        {
-            "id": "0c9af10b082f460e971c3a6ef945fadf",
-            "definitionId": "mage",
-            "x": 36,
-            "y": 10
-        },
-        {
-            "id": "b55fb3efcaeb48de9b4663573c432b65",
-            "definitionId": "mage",
-            "x": 30,
-            "y": 8
-        },
-        {
-            "id": "0ca25bb61c1d46fab2bc54669a61d5c0",
-            "definitionId": "mage",
-            "x": 26,
-            "y": 9
-        },
-        {
-            "id": "2c643a3248ab4c428956ca531aca6993",
-            "definitionId": "mage",
-            "x": 27,
-            "y": 11
-        },
-        {
-            "id": "8187645f88a74dada404ae3216d276f8",
-            "definitionId": "mage",
-            "x": 32,
-            "y": 14
-        },
-        {
-            "id": "d24cc6b05dbd46ccb531ee31e942d924",
-            "definitionId": "mage",
-            "x": 34,
-            "y": 16
-        },
-        {
-            "id": "c9430e43100e4b64bded5111513dd683",
-            "definitionId": "farm",
-            "x": 29,
-            "y": 11
-        },
-        {
-            "id": "616ee2b7841543468f8e79ca6fa3c14e",
-            "definitionId": "farm",
-            "x": 33,
-            "y": 11
-        },
-        {
-            "id": "8d5976b356854daa8af50b0c960b985f",
-            "definitionId": "farm",
-            "x": 38,
-            "y": 13
-        },
-        {
-            "id": "5f79355eb4714ee5bb677be3e3830c3c",
-            "definitionId": "farm",
-            "x": 42,
-            "y": 18
-        },
-        {
-            "id": "259784379663428c8844eb0e9e0c4283",
-            "definitionId": "farm",
-            "x": 39,
-            "y": 19
-        },
-        {
-            "id": "11be045895a04c428effcc02aa2be7ae",
-            "definitionId": "farm",
-            "x": 44,
-            "y": 28
-        },
-        {
-            "id": "e0c1f25bfe964af1b73f61274bb51ce4",
-            "definitionId": "farm",
-            "x": 54,
-            "y": 28
-        },
-        {
-            "id": "198dc8e6b8bd4923ba488048841bfedc",
-            "definitionId": "mage",
-            "x": 60,
-            "y": 24
-        },
-        {
-            "id": "e0f91a418009486da7efacb47accda2e",
-            "definitionId": "mage",
-            "x": 60,
-            "y": 25
-        },
-        {
-            "id": "4b3d7153bdcd4901a2fce1077d24e69b",
-            "definitionId": "mage",
-            "x": 62,
-            "y": 21
-        },
-        {
-            "id": "6dbcc32e0de04b15983c802cd72d6e23",
-            "definitionId": "mage",
-            "x": 58,
-            "y": 15
-        },
-        {
-            "id": "ba6ccd3083f7425db723f61b08098de8",
-            "definitionId": "mage",
-            "x": 58,
-            "y": 11
-        },
-        {
-            "id": "c91b8603816644e890fcf5b8b4a1228b",
-            "definitionId": "mage",
-            "x": 60,
-            "y": 14
-        },
-        {
-            "id": "f74921071526402291510dbd9e94e4cf",
-            "definitionId": "mage",
-            "x": 61,
-            "y": 12
-        },
-        {
-            "id": "b551c93cf89b4b27abaf86c06d642723",
-            "definitionId": "mage",
-            "x": 61,
-            "y": 11
-        },
-        {
-            "id": "f799f8da8a0f48a580f2fa2187dcf0a2",
-            "definitionId": "mage",
-            "x": 57,
-            "y": 14
-        },
-        {
-            "id": "9b95dd89a56f49c398d618b751a9b91e",
-            "definitionId": "mage",
-            "x": 54,
-            "y": 12
-        },
-        {
-            "id": "587427e8982347bb9d076ce3ad7bed49",
-            "definitionId": "hall",
-            "x": 51,
-            "y": 34
-        },
-        {
-            "id": "a26231a5d24b492bbc9c57183f69c3da",
-            "definitionId": "hall",
-            "x": 49,
-            "y": 34
-        },
-        {
-            "id": "f5192cb35ba1414bb5a04d8edcc45388",
-            "definitionId": "hall",
-            "x": 64,
-            "y": 22
-        },
-        {
-            "id": "c1591085eecc4871a2921c673e3d7867",
-            "definitionId": "hall",
-            "x": 62,
-            "y": 26
-        },
-        {
-            "id": "3a33adba17c84dbc9051467639929d82",
-            "definitionId": "hall",
-            "x": 56,
-            "y": 19
-        },
-        {
-            "id": "be3d08d224404bdaa2812aea3051ba17",
-            "definitionId": "hall",
-            "x": 59,
-            "y": 20
-        },
-        {
-            "id": "a8fb507fe4fd43a38f1519385a9c89db",
-            "definitionId": "tower",
-            "x": 17,
-            "y": 15
-        },
-        {
-            "id": "056c822531e945c6b87855dcc8c77916",
-            "definitionId": "tower",
-            "x": 16,
-            "y": 14
-        },
-        {
-            "id": "76652b060c9240918eec0d47400e1811",
-            "definitionId": "tower",
-            "x": 15,
-            "y": 15
-        },
-        {
-            "id": "13b83fecd6f84578b50bbfe7b0f60343",
-            "definitionId": "tower",
-            "x": 11,
-            "y": 18
-        },
-        {
-            "id": "f0b45ce05f98465abd442b63f4a6295a",
-            "definitionId": "tower",
-            "x": 14,
-            "y": 23
-        },
-        {
-            "id": "583d8b72a44041a48047b11d273e3ed3",
-            "definitionId": "tower",
-            "x": 18,
-            "y": 23
-        },
-        {
-            "id": "b701a2ebf5c2406ab5a60685d3356aba",
-            "definitionId": "tower",
-            "x": 24,
-            "y": 18
-        },
-        {
-            "id": "9ee6bb41123a4da2be09f261fd01036e",
-            "definitionId": "tower",
-            "x": 52,
-            "y": 28
-        },
-        {
-            "id": "a4e0b72bbcf943ad8f5c40b2ae38ee85",
-            "definitionId": "tower",
-            "x": 53,
-            "y": 27
-        },
-        {
-            "id": "bb26a45744dc434499e7278c25132b37",
-            "definitionId": "tower",
-            "x": 55,
-            "y": 24
-        },
-        {
-            "id": "a7c553f8fc4b4a7b92eda83a96d97371",
-            "definitionId": "tower",
-            "x": 53,
-            "y": 35
-        },
-        {
-            "id": "f9f1e8449d1a44b894b0e30c7a79709b",
-            "definitionId": "tower",
-            "x": 52,
-            "y": 33
-        },
-        {
-            "id": "b601d73b72984963bf0659cd14f6b958",
-            "definitionId": "tower",
-            "x": 50,
-            "y": 33
-        },
-        {
-            "id": "0d41d44ad7bf4491ab46e58fd2c8ba58",
-            "definitionId": "tower",
-            "x": 41,
-            "y": 41
-        },
-        {
-            "id": "151282d81b6646a68f109399d6ff639e",
-            "definitionId": "tower",
-            "x": 13,
-            "y": 36
-        },
-        {
-            "id": "3305663c520e4d538e58596c6cf038c5",
-            "definitionId": "tower",
-            "x": 23,
-            "y": 40
-        },
-        {
-            "id": "ccad96f56c474040a42e0f67a313a195",
-            "definitionId": "tower",
-            "x": 25,
-            "y": 40
-        },
-        {
-            "id": "7e86a631fe2a486f9726f8c07b2075c5",
-            "definitionId": "tower",
-            "x": 30,
-            "y": 40
-        },
-        {
-            "id": "df5df177f0254fffa069d1ffd149f9e0",
-            "definitionId": "tower",
-            "x": 36,
-            "y": 39
-        },
-        {
-            "id": "e99171149986418c91b729361f0d70c0",
-            "definitionId": "tower",
-            "x": 52,
-            "y": 42
-        },
-        {
-            "id": "1eb32afab7834682bec13946b560b990",
-            "definitionId": "foundry",
-            "x": 26,
-            "y": 27
-        },
-        {
-            "id": "c3fee0c49067479f915187993c82f9fa",
-            "definitionId": "foundry",
-            "x": 31,
-            "y": 29
-        },
-        {
-            "id": "c454f48e55a74c18a0f97d58423ef6d6",
-            "definitionId": "foundry",
-            "x": 33,
-            "y": 33
-        },
-        {
-            "id": "5194f22be4b745afa08e2f56e40966d5",
-            "definitionId": "tower",
-            "x": 28,
-            "y": 27
-        },
-        {
-            "id": "84303261580c491c9a6c1095f3295006",
-            "definitionId": "tower",
-            "x": 32,
-            "y": 28
-        },
-        {
-            "id": "6cc0f8cdf05a40318d060174cf5eba64",
-            "definitionId": "tower",
-            "x": 33,
-            "y": 26
-        },
-        {
-            "id": "06e6dbba16f6412e95ddc2e61acea8af",
-            "definitionId": "tower",
-            "x": 37,
-            "y": 29
-        },
-        {
-            "id": "6b18bbc8a74c4aa9a7b5f32bf7de6867",
-            "definitionId": "tower",
-            "x": 24,
-            "y": 29
-        },
-        {
-            "id": "da0fe64d4c4b455ca78eba59810cc4cc",
-            "definitionId": "tower",
-            "x": 25,
-            "y": 31
-        },
-        {
-            "id": "9fd7cea052c74b688489f0eae4082418",
-            "definitionId": "tower",
-            "x": 2,
-            "y": 18
-        }
+      {
+        "id": "hall-29-30",
+        "definitionId": "hall",
+        "x": 29,
+        "y": 30
+      },
+      {
+        "id": "tower-24-33",
+        "definitionId": "tower",
+        "x": 24,
+        "y": 33
+      },
+      {
+        "id": "tower-38-33",
+        "definitionId": "tower",
+        "x": 38,
+        "y": 33
+      },
+      {
+        "id": "tower-24-26",
+        "definitionId": "tower",
+        "x": 24,
+        "y": 26
+      },
+      {
+        "id": "tower-38-26",
+        "definitionId": "tower",
+        "x": 38,
+        "y": 26
+      },
+      {
+        "id": "tower-58-20",
+        "definitionId": "tower",
+        "x": 58,
+        "y": 20
+      },
+      {
+        "id": "9a78bf572c67470b82ce75982fae2ced",
+        "definitionId": "hall",
+        "x": 28,
+        "y": 19
+      },
+      {
+        "id": "b49ba3d45a3841e7becad40f037acd25",
+        "definitionId": "tower",
+        "x": 31,
+        "y": 15
+      },
+      {
+        "id": "85ea731ca6d24b278aa57299cb928954",
+        "definitionId": "tower",
+        "x": 48,
+        "y": 19
+      },
+      {
+        "id": "6eec9972543a455d9cb42af985e17b3c",
+        "definitionId": "tower",
+        "x": 48,
+        "y": 14
+      },
+      {
+        "id": "d7593d57066f4d74b006ab372ec9e6c3",
+        "definitionId": "tower",
+        "x": 30,
+        "y": 35
+      },
+      {
+        "id": "7c10b78666dc40b780e032f9068621b7",
+        "definitionId": "tower",
+        "x": 30,
+        "y": 25
+      },
+      {
+        "id": "5a170cb778cb4f6daf25963cd225d363",
+        "definitionId": "hall",
+        "x": 45,
+        "y": 17
+      },
+      {
+        "id": "a553879f1f7343c3992b22230771aa17",
+        "definitionId": "tower",
+        "x": 5,
+        "y": 30
+      },
+      {
+        "id": "b6411d34dbcb4dddb8990b257bcda4b6",
+        "definitionId": "tower",
+        "x": 5,
+        "y": 29
+      },
+      {
+        "id": "5e851c00616c4059842b173477db9c22",
+        "definitionId": "tower",
+        "x": 5,
+        "y": 28
+      },
+      {
+        "id": "57ec123e58b34f83a66274b3cc037bda",
+        "definitionId": "tower",
+        "x": 5,
+        "y": 27
+      },
+      {
+        "id": "5d455e66ac0c481da8f7a65431d53ead",
+        "definitionId": "tower",
+        "x": 26,
+        "y": 13
+      },
+      {
+        "id": "d7205367e68a464085b3c177e830b95a",
+        "definitionId": "tower",
+        "x": 31,
+        "y": 13
+      },
+      {
+        "id": "beeb9ed4a7a9486ab3f17c9944660ed4",
+        "definitionId": "tower",
+        "x": 35,
+        "y": 15
+      },
+      {
+        "id": "fff0aa53515d4ef1a1ffe05f2c2de806",
+        "definitionId": "tower",
+        "x": 35,
+        "y": 17
+      },
+      {
+        "id": "e91f7a6ef0e44e668a449453139310f8",
+        "definitionId": "tower",
+        "x": 36,
+        "y": 14
+      },
+      {
+        "id": "2258a2b1b4684339a111a499e9b74822",
+        "definitionId": "tower",
+        "x": 37,
+        "y": 13
+      },
+      {
+        "id": "587427e8982347bb9d076ce3ad7bed49",
+        "definitionId": "hall",
+        "x": 51,
+        "y": 34
+      },
+      {
+        "id": "a26231a5d24b492bbc9c57183f69c3da",
+        "definitionId": "hall",
+        "x": 49,
+        "y": 34
+      },
+      {
+        "id": "f5192cb35ba1414bb5a04d8edcc45388",
+        "definitionId": "hall",
+        "x": 64,
+        "y": 22
+      },
+      {
+        "id": "c1591085eecc4871a2921c673e3d7867",
+        "definitionId": "hall",
+        "x": 62,
+        "y": 26
+      },
+      {
+        "id": "3a33adba17c84dbc9051467639929d82",
+        "definitionId": "hall",
+        "x": 56,
+        "y": 19
+      },
+      {
+        "id": "be3d08d224404bdaa2812aea3051ba17",
+        "definitionId": "hall",
+        "x": 59,
+        "y": 20
+      },
+      {
+        "id": "a8fb507fe4fd43a38f1519385a9c89db",
+        "definitionId": "tower",
+        "x": 17,
+        "y": 15
+      },
+      {
+        "id": "056c822531e945c6b87855dcc8c77916",
+        "definitionId": "tower",
+        "x": 16,
+        "y": 14
+      },
+      {
+        "id": "76652b060c9240918eec0d47400e1811",
+        "definitionId": "tower",
+        "x": 15,
+        "y": 15
+      },
+      {
+        "id": "13b83fecd6f84578b50bbfe7b0f60343",
+        "definitionId": "tower",
+        "x": 11,
+        "y": 18
+      },
+      {
+        "id": "f0b45ce05f98465abd442b63f4a6295a",
+        "definitionId": "tower",
+        "x": 14,
+        "y": 23
+      },
+      {
+        "id": "583d8b72a44041a48047b11d273e3ed3",
+        "definitionId": "tower",
+        "x": 18,
+        "y": 23
+      },
+      {
+        "id": "b701a2ebf5c2406ab5a60685d3356aba",
+        "definitionId": "tower",
+        "x": 24,
+        "y": 18
+      },
+      {
+        "id": "9ee6bb41123a4da2be09f261fd01036e",
+        "definitionId": "tower",
+        "x": 52,
+        "y": 28
+      },
+      {
+        "id": "a4e0b72bbcf943ad8f5c40b2ae38ee85",
+        "definitionId": "tower",
+        "x": 53,
+        "y": 27
+      },
+      {
+        "id": "bb26a45744dc434499e7278c25132b37",
+        "definitionId": "tower",
+        "x": 55,
+        "y": 24
+      },
+      {
+        "id": "a7c553f8fc4b4a7b92eda83a96d97371",
+        "definitionId": "tower",
+        "x": 53,
+        "y": 35
+      },
+      {
+        "id": "f9f1e8449d1a44b894b0e30c7a79709b",
+        "definitionId": "tower",
+        "x": 52,
+        "y": 33
+      },
+      {
+        "id": "b601d73b72984963bf0659cd14f6b958",
+        "definitionId": "tower",
+        "x": 50,
+        "y": 33
+      },
+      {
+        "id": "0d41d44ad7bf4491ab46e58fd2c8ba58",
+        "definitionId": "tower",
+        "x": 41,
+        "y": 41
+      },
+      {
+        "id": "151282d81b6646a68f109399d6ff639e",
+        "definitionId": "tower",
+        "x": 13,
+        "y": 36
+      },
+      {
+        "id": "3305663c520e4d538e58596c6cf038c5",
+        "definitionId": "tower",
+        "x": 23,
+        "y": 40
+      },
+      {
+        "id": "ccad96f56c474040a42e0f67a313a195",
+        "definitionId": "tower",
+        "x": 25,
+        "y": 40
+      },
+      {
+        "id": "7e86a631fe2a486f9726f8c07b2075c5",
+        "definitionId": "tower",
+        "x": 30,
+        "y": 40
+      },
+      {
+        "id": "df5df177f0254fffa069d1ffd149f9e0",
+        "definitionId": "tower",
+        "x": 36,
+        "y": 39
+      },
+      {
+        "id": "e99171149986418c91b729361f0d70c0",
+        "definitionId": "tower",
+        "x": 52,
+        "y": 42
+      },
+      {
+        "id": "5194f22be4b745afa08e2f56e40966d5",
+        "definitionId": "tower",
+        "x": 28,
+        "y": 27
+      },
+      {
+        "id": "84303261580c491c9a6c1095f3295006",
+        "definitionId": "tower",
+        "x": 32,
+        "y": 28
+      },
+      {
+        "id": "6cc0f8cdf05a40318d060174cf5eba64",
+        "definitionId": "tower",
+        "x": 33,
+        "y": 26
+      },
+      {
+        "id": "06e6dbba16f6412e95ddc2e61acea8af",
+        "definitionId": "tower",
+        "x": 37,
+        "y": 29
+      },
+      {
+        "id": "6b18bbc8a74c4aa9a7b5f32bf7de6867",
+        "definitionId": "tower",
+        "x": 24,
+        "y": 29
+      },
+      {
+        "id": "da0fe64d4c4b455ca78eba59810cc4cc",
+        "definitionId": "tower",
+        "x": 25,
+        "y": 31
+      },
+      {
+        "id": "9fd7cea052c74b688489f0eae4082418",
+        "definitionId": "tower",
+        "x": 2,
+        "y": 18
+      }
     ],
     "wallNodes": [
         {

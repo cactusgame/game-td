@@ -30,7 +30,8 @@ namespace Game.Battle.Simulation.Systems
             private void Execute(ref GroundTransform ground, ref WanderState wander, ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path, in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
             {
                 ground.Previous = ground.Position;
-                if (vitals.Health <= 0)
+                // 死亡英雄的位置代表幽灵；仍消费移动输入，尸体位置独立保存在复活状态中。
+                if (vitals.Health <= 0 && identity.Kind != UnitKind.Hero)
                     return;
                 float2 limit = HalfSize - motion.Radius;
                 float2 next;
