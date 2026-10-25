@@ -32,6 +32,10 @@ R短按、长按和白圈共用 `Config/GameContent.xlsx` “全局参数”表�
 
 ## 示例技能配置
 
+英雄头顶的血条上方显示技能冷却进度：短按技能为青色、长按技能为金色，分别从空填充到满。只有技能正在冷却且英雄存活时显示对应进度条，到期立即独立隐藏；幽灵不显示。`EcsBattleSimulation.CopyUnits` 从现有技能截止时间和 Excel 技能冷却配置生成 `SkillCooldownSnapshot`，`UnitView / HeroSkillCooldownView` 只读显示，不自行启动计时。重开清空冷却，暂停或终局不推进模拟时进度冻结。
+
+血条和正在显示的冷却条按边缘紧贴向上堆叠；未冷却的技能不占空行。`UnitView.ShowHealthBar` 提供未来设置界面的表现控制入口：关闭血条时，最下方冷却条落到原血条位置；恢复血条时自动上移。本次仅预留显隐与布局能力，没有新增设置菜单或改动玩法配置。
+
 唯一数据源为 `Config/GameContent.xlsx`：
 
 - “单位”表英雄行的 `skillIds` 用分号分隔，顺序对应空格短按/长按，最多两个槽位。

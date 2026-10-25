@@ -19,9 +19,11 @@ namespace Game.Battle.Contracts.ReadModels
         public readonly float DeathX, DeathY, DeathFacingX;
         public readonly uint DeathSequence;
         public readonly double InvulnerabilityRemainingSeconds;
+        public readonly SkillCooldownSnapshot SkillOneCooldown, SkillTwoCooldown;
         public bool IsInvulnerable => InvulnerabilityRemainingSeconds > 0;
         public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false, bool isStationed = false, double respawnRemainingSeconds = 0,
-            bool isGhost = false, float deathX = 0, float deathY = 0, float deathFacingX = 1, uint deathSequence = 0, double invulnerabilityRemainingSeconds = 0)
+            bool isGhost = false, float deathX = 0, float deathY = 0, float deathFacingX = 1, uint deathSequence = 0, double invulnerabilityRemainingSeconds = 0,
+            SkillCooldownSnapshot skillOneCooldown = default, SkillCooldownSnapshot skillTwoCooldown = default)
         {
             Id = id;
             Kind = kind;
@@ -41,6 +43,8 @@ namespace Game.Battle.Contracts.ReadModels
             DeathFacingX = deathFacingX;
             DeathSequence = deathSequence;
             InvulnerabilityRemainingSeconds = invulnerabilityRemainingSeconds;
+            SkillOneCooldown = skillOneCooldown;
+            SkillTwoCooldown = skillTwoCooldown;
         }
     }
 }

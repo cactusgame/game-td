@@ -486,8 +486,10 @@ namespace Game.Battle.Simulation.Bridges
                 }
                 var status = _world.EntityManager.GetComponentData<UnitStatusState>(entity);
                 double invulnerabilityRemaining = math.max(0, status.InvulnerableUntil - ElapsedTime);
+                bool isHero = identities[i].Kind == UnitKind.Hero;
                 destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected, stationed, respawnRemaining,
-                    heroRespawn.IsWaiting, heroRespawn.DeathPosition.x, heroRespawn.DeathPosition.y, heroRespawn.DeathFacingX, heroRespawn.DeathSequence, invulnerabilityRemaining));
+                    heroRespawn.IsWaiting, heroRespawn.DeathPosition.x, heroRespawn.DeathPosition.y, heroRespawn.DeathFacingX, heroRespawn.DeathSequence, invulnerabilityRemaining,
+                    isHero ? CopyHeroSkillCooldown(0) : default, isHero ? CopyHeroSkillCooldown(1) : default));
             }
         }
 

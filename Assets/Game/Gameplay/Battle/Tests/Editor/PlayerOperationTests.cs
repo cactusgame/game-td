@@ -13,6 +13,30 @@ namespace Game.Battle.Tests
 {
     public sealed class PlayerOperationTests
     {
+        [Test]
+        public void HeroCooldownSnapshots_TrackIndependentSkillsCompleteAndReset()
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            UnitSnapshot Hero() => Units(simulation).Find(u => u.Kind == UnitKind.Hero);
+            Assert.That(Hero().SkillOneCooldown.IsCoolingDown, Is.False);
+            simulation.Execute(PlayerOperation.SkillOne);
+            simulation.Execute(PlayerOperation.SkillTwo);
+            Assert.That(Hero().SkillOneCooldown.Progress, Is.EqualTo(0));
+            Assert.That(Hero().SkillTwoCooldown.DurationSeconds, Is.EqualTo(8));
+            // 查询本身不推进冷却，只有模拟步消费时间。
+            Assert.That(Hero().SkillOneCooldown.RemainingSeconds, Is.EqualTo(3));
+            for (int i = 0; i < 75; i++) simulation.Step(0.02f, default);
+            Assert.That(Hero().SkillOneCooldown.Progress, Is.EqualTo(0.5f).Within(0.001));
+            Assert.That(Hero().SkillTwoCooldown.Progress, Is.EqualTo(1.5f / 8).Within(0.001));
+            for (int i = 0; i < 76; i++) simulation.Step(0.02f, default);
+            Assert.That(Hero().SkillOneCooldown.IsCoolingDown, Is.False);
+            Assert.That(Hero().SkillTwoCooldown.IsCoolingDown, Is.True);
+            simulation.Reset(Definition());
+            Assert.That(Hero().SkillOneCooldown.IsCoolingDown, Is.False);
+            Assert.That(Hero().SkillTwoCooldown.IsCoolingDown, Is.False);
+        }
+
         private static BattleDefinition Definition(bool enemies = false, float selectionRadius = 4)
         {
             var hero = new UnitDefinition(UnitKind.Hero, 1000, 0, 0, 4, 0.3f, 1, skills: new[]

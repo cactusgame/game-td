@@ -37,6 +37,13 @@ namespace Game.Battle.Simulation.Bridges
             _callRandom = new Unity.Mathematics.Random(_definition.Seed);
         }
 
+        private SkillCooldownSnapshot CopyHeroSkillCooldown(int slot)
+        {
+            if (slot >= _definition.Hero.Skills.Count || !_definition.Hero.Skills[slot].Enabled)
+                return default;
+            return new SkillCooldownSnapshot(_skillReadyAt[slot] - ElapsedTime, _definition.Hero.Skills[slot].Cooldown);
+        }
+
         /// <summary>固定步提交入口。先等待旧 Job，再一次性裁决选择/命令/扣血，随后才运行移动与攻击。</summary>
         public void Execute(PlayerOperation operation, bool instantDeployment = false)
         {

@@ -7,6 +7,9 @@ namespace Game.Presentation.Views
     /// <summary>一个单位的 Sprite、阴影与血条组合；只有表现状态，不保存第二份玩法生命或位置。</summary>
     public sealed class UnitView
     {
+        private const float HealthBarHeight = 0.095f;
+        /// <summary>表现设置入口；切换后下次 Render 同步血条显隐及冷却条布局，不改变生命或冷却。</summary>
+        public bool ShowHealthBar { get; set; } = true;
         private readonly GameObject _root;
         private readonly SpriteRenderer _body;
         private readonly SpriteRenderer _shadow;
@@ -30,6 +33,8 @@ namespace Game.Presentation.Views
         private uint _lastDeathSequence;
         private readonly System.Collections.Generic.List<HeroCorpseView> _corpses = new System.Collections.Generic.List<HeroCorpseView>();
         private InvulnerabilityShieldView _shield;
+        private readonly Sprite _white;
+        private HeroSkillCooldownView _skillCooldowns;
         public UnitView(
             Transform parent, Sprite sprite, Sprite white, Sprite circle,
             float height, float radius, Color teamColor,
@@ -37,6 +42,7 @@ namespace Game.Presentation.Views
             UnitDeathSettings deathSettings = null, System.Func<float, int> depth = null, string layer = null)
         {
             _depth = depth ?? BattleRenderSorting.UnitDepth;
+            _white = white;
             _layer = layer ?? BattleRenderSorting.UnitLayer;
             _animations = animations;
             _deathSettings = deathSettings;
@@ -55,7 +61,7 @@ namespace Game.Presentation.Views
             _body.transform.localScale = Vector3.one * scale;
             var back = Child("HealthBackground", white, new Color(0.1f, 0.12f, 0.09f, 1));
             back.transform.localPosition = new Vector3(0, height + 0.1f, 0);
-            back.transform.localScale = new Vector3(0.50f, 0.095f, 1);
+            back.transform.localScale = new Vector3(0.50f, HealthBarHeight, 1);
             var fill = new GameObject("HealthFill").AddComponent<SpriteRenderer>();
             fill.transform.SetParent(back.transform, false);
             fill.sprite = white;
@@ -80,6 +86,12 @@ namespace Game.Presentation.Views
         // ECS 的 Entity 与这里的 GameObject 是两个对象，通过快照 Id 在 BattleView 中关联。
         public void Render(UnitSnapshot state, double simulationTime, float deltaTime)
         {
+            if (state.Kind == UnitKind.Hero)
+            {
+                if (_skillCooldowns == null && (state.SkillOneCooldown.IsCoolingDown || state.SkillTwoCooldown.IsCoolingDown))
+                    _skillCooldowns = new HeroSkillCooldownView(_root.transform, _white, _healthBackground.transform.localPosition.y, HealthBarHeight, _layer);
+                _skillCooldowns?.Render(state, _depth(state.Y), ShowHealthBar);
+            }
             if (state.Kind == UnitKind.Hero && state.DeathSequence > _lastDeathSequence && _animations != null)
             {
                 _corpses.Add(new HeroCorpseView(_root.transform.parent, state, _animations, _height, _depth, _layer, simulationTime));
@@ -124,6 +136,7 @@ namespace Game.Presentation.Views
             }
 
             _root.SetActive(true);
+            _healthBackground.gameObject.SetActive(ShowHealthBar);
             var position = new Vector2(state.X, state.Y);
             // 模拟暂停或本渲染帧没有新步长时，保留上次移动状态，不误切回待机。
             bool moving = _moving;
