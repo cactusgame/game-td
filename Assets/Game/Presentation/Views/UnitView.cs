@@ -51,7 +51,7 @@ namespace Game.Presentation.Views
             _body.transform.localScale = Vector3.one * scale;
             var back = Child("HealthBackground", white, new Color(0.1f, 0.12f, 0.09f, 1));
             back.transform.localPosition = new Vector3(0, height + 0.1f, 0);
-            back.transform.localScale = new Vector3(0.72f, 0.095f, 1);
+            back.transform.localScale = new Vector3(0.50f, 0.095f, 1);
             var fill = new GameObject("HealthFill").AddComponent<SpriteRenderer>();
             fill.transform.SetParent(back.transform, false);
             fill.sprite = white;

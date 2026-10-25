@@ -22,8 +22,8 @@
       "maxHealth": 60,
       "defense": 2,
       "speed": 1.25,
-      "radius": 0.4,
-      "visualHeight": 1.35,
+      "radius": 0.28,
+      "visualHeight": 0.945,
       "attackId": "attack.skeleton",
       "skillIds": "",
       "behaviorId": "behavior.siege",
@@ -36,8 +36,8 @@
       "maxHealth": 12,
       "defense": 0,
       "speed": 3.0,
-      "radius": 0.24,
-      "visualHeight": 0.95,
+      "radius": 0.168,
+      "visualHeight": 0.665,
       "attackId": "attack.fallen",
       "skillIds": "",
       "behaviorId": "behavior.siege",
@@ -50,8 +50,8 @@
       "maxHealth": 60,
       "defense": 2,
       "speed": 2.2,
-      "radius": 0.3,
-      "visualHeight": 0.95,
+      "radius": 0.21,
+      "visualHeight": 0.665,
       "attackId": "attack.soldier",
       "skillIds": "",
       "behaviorId": "",
@@ -64,8 +64,8 @@
       "maxHealth": 10,
       "defense": 0,
       "speed": 2.4,
-      "radius": 0.28,
-      "visualHeight": 1.0,
+      "radius": 0.196,
+      "visualHeight": 0.7,
       "attackId": "attack.archer",
       "skillIds": "",
       "behaviorId": "",
@@ -188,5 +188,5 @@
       "canAttackGates": false
     }
   ],
-  "contentVersion": "94d177568015d997"
+  "contentVersion": "d513f6b7a9354564"
 }
