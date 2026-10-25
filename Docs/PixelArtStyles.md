@@ -1,6 +1,6 @@
 # 像素美术套装
 
-入口：`Game/地图编辑器`，左侧「美术套装」选择 `PixelKingdom` 或原来的 `MapVisualCatalog`。「参考图城镇地图」打开新地图；「独立试玩」继承所选套装，试玩 HUD 也可切换。
+入口：`Game/关卡编辑器`，在“地图布局”页左侧「美术套装」选择 `PixelKingdom` 或原来的 `MapVisualCatalog`。「参考图城镇地图」打开新地图；「独立试玩」继承所选套装，试玩 HUD 也可切换。
 
 原高清图片和目录保留。新增套装放在 `Assets/Content/Maps/Styles/PixelKingdom/`。未来添加 MapVisualCatalog 资产到 `Assets/Content/Maps` 下即可自动出现在列表。各套装引用同一份 facilities.json，稳定 definitionId、占地和碰撞规则共用。切换偏好存 EditorPrefs，不写入地图、不增加撤销记录。试玩场景直接引用套装资源，运行时不使用 AssetDatabase。
 

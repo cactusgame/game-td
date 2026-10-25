@@ -17,7 +17,8 @@
     "Game.MapPlaytest.Unity",
     "Game.Presentation",
     "Game.Construction.Domain",
-    "Game.Maps.Unity"
+    "Game.Maps.Unity",
+    "Game.Economy.Domain"
   ],
   "includePlatforms": [
     "Editor"

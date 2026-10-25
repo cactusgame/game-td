@@ -2,6 +2,7 @@ using Game.Construction.Application.Sessions;
 using Game.Fortifications.Domain.ValueObjects;
 using System;
 using Game.Encounter.Domain.Definitions;
+using Game.Encounter.Domain.Aggregates.LevelEncounter;
 using Game.Encounter.Domain.Aggregates.DefenseEncounter;
 using System.Collections.Generic;
 using Game.Battle.Application.Sessions;
@@ -28,8 +29,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         private readonly Game.Construction.Domain.Definitions.ConstructionContentDefinition _construction;
         private readonly List<DefenseStructureSnapshot> _structures = new List<DefenseStructureSnapshot>();
         public IReadOnlyList<DefenseStructureSnapshot> Structures => _structures.AsReadOnly();
-        public string Outcome => _encounter?.Outcome ?? "Running";
-        public int SpawnedWaves => _encounter?.SpawnedWaves ?? 0;
+        public string Outcome => _levelEncounter?.Outcome ?? _encounter?.Outcome ?? "Running";
+        public int SpawnedWaves => _levelEncounter?.StartedWaves ?? _encounter?.SpawnedWaves ?? 0;
         private readonly MapDefinition _initialMap;
         private readonly MapContentCatalog _catalog;
         private readonly BattleDefinition _rules;
@@ -69,13 +70,18 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
 
         public MapPlaySession(MapDefinition initialMap, MapContentCatalog catalog, BattleDefinition rules,
-            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null, int initialGold = 1000)
+            IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null,
+            int initialGold = 1000, LevelDefinition levelDefinition = null, int startWaveIndex = 0)
         {
+            _levelDefinition = levelDefinition;
+            _startWaveIndex = startWaveIndex;
             _construction = construction;
             if (initialGold < 0) throw new ArgumentOutOfRangeException(nameof(initialGold));
-            _initialGold = initialGold;
+            _initialGold = levelDefinition?.InitialGold ?? initialGold;
             _encounterDefinition = encounterDefinition ?? new DefenseEncounterDefinition();
             _initialMap = initialMap ?? throw new ArgumentNullException(nameof(initialMap));
+            foreach (var marker in initialMap.CreateWorkingCopy().markers)
+                if (marker.kind == MarkerKind.EnemyEntry) _levelEntries.Add(marker.id, new MapPoint(marker.x, marker.y));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
             _input = input ?? throw new ArgumentNullException(nameof(input));
@@ -98,8 +104,10 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 }
             }
             var placements = new MapConstructionState(_initialMap, _catalog);
-            var simulation = _createSimulation();
             var encounter = new DefenseEncounter(_encounterDefinition);
+            var levelEncounter = _levelDefinition == null ? null :
+                new LevelEncounter(_levelDefinition, _startWaveIndex);
+            var simulation = _createSimulation();
             var structures = new List<DefenseStructureSnapshot>();
             BattleSession battle;
             var gates = new GatePassageSession(_catalog);
@@ -113,8 +121,17 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 defense.SynchronizeStructures(DescribeStructures(placements.Snapshot, false));
                 enemyNavigation = gates.Navigation(placements.Snapshot, false);
                 simulation.UpdateNavigationMap(enemyNavigation, definition.Navigation, gates.Navigation(placements.Snapshot, true));
-                defense.SpawnEnemies(definition.EnemySpawns, encounter.DueCount(0));
-                encounter.CommitWave();
+                if (levelEncounter == null)
+                {
+                    defense.SpawnEnemies(definition.EnemySpawns, encounter.DueCount(0));
+                    encounter.CommitWave();
+                }
+                else
+                {
+                    if (!(simulation is ILevelEnemySimulation levelSimulation))
+                        throw new InvalidOperationException("模拟不支持关卡出怪");
+                    SpawnLevelEnemies(levelEncounter, definition, levelSimulation, 0);
+                }
                 battle.RefreshSnapshot();
                 defense.CopyStructures(structures);
             }
@@ -132,6 +149,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             _enemyNavigation = enemyNavigation;
             _faulted = false;
             _encounter = encounter;
+            _levelEncounter = levelEncounter;
             _structures.Clear();
             _structures.AddRange(structures);
             Generation++;
@@ -148,18 +166,23 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         public void Advance(float deltaTime)
         {
             RequireActive();
-            if (!_encounter.IsRunning)
+            if (!IsEncounterRunning)
                 return;
             double before = SimulationTime;
             _battle.Advance(deltaTime, SpawnDueWave, () =>
             {
-                // 波次时间只读取模拟时钟；第二波在跨过第十秒的边界提交。
+                // 波次时间只读取模拟时钟，生成在固定步边界提交。
                 SpawnDueWave();
                 UpdateGates(true);
                 ReadStructures();
                 UpdateBarracks();
-                _encounter.Evaluate(_structures.Exists(item => item.IsMainCastle && item.Health <= 0), _battle.AliveMonsters);
-                return _encounter.IsRunning;
+                bool castleDestroyed = _structures.Exists(item => item.IsMainCastle && item.Health <= 0);
+                if (_levelEncounter != null)
+                {
+                    SettleLevelRewards(castleDestroyed);
+                }
+                else _encounter.Evaluate(castleDestroyed, _battle.AliveMonsters);
+                return IsEncounterRunning;
             });
             if (SimulationTime == before)
                 UpdateGates(false);
@@ -429,6 +452,20 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
 
         private void SpawnDueWave()
         {
+            if (_levelEncounter != null)
+            {
+                try
+                {
+                    SpawnLevelEnemies(_levelEncounter, Definition, (ILevelEnemySimulation)_simulation, SimulationTime);
+                }
+                catch
+                {
+                    _faulted = true;
+                    throw;
+                }
+                _battle.RefreshSnapshot();
+                return;
+            }
             int count = _encounter.DueCount(SimulationTime);
             if (count == 0)
                 return;
@@ -464,8 +501,8 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
 
         private bool CanChangeConstruction(out string reason)
         {
-            reason = _encounter.IsRunning ? null : "对局已结束，请重试";
-            return _encounter.IsRunning;
+            reason = IsEncounterRunning ? null : "对局已结束，请重试";
+            return IsEncounterRunning;
         }
 
         private void RequireActive()

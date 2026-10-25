@@ -9,6 +9,7 @@ namespace Game.Battle.Domain.Definitions
     {
         public UnitKind Kind { get; }
         public string Id { get; }
+        public int KillGold { get; }
         public float AttackInterval { get; }
         public float AttackRange { get; }
         public bool TargetMainCastle { get; }
@@ -28,7 +29,7 @@ namespace Game.Battle.Domain.Definitions
 
         public float VisualHeight { get; }
 
-        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true, System.Collections.Generic.IEnumerable<HeroAreaSkillDefinition> skills = null)
+        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true, System.Collections.Generic.IEnumerable<HeroAreaSkillDefinition> skills = null, int killGold = 0)
         {
             if (!Enum.IsDefined(typeof(UnitKind), kind))
             {
@@ -43,6 +44,8 @@ namespace Game.Battle.Domain.Definitions
             RequirePositive(attackInterval, nameof(attackInterval));
             if (float.IsNaN(attackRange) || float.IsInfinity(attackRange) || attackRange < 0)
                 throw new ArgumentOutOfRangeException(nameof(attackRange));
+            if (killGold < 0) throw new ArgumentOutOfRangeException(nameof(killGold));
+            KillGold = killGold;
             Id = id ?? kind.ToString();
             Skills = new System.Collections.Generic.List<HeroAreaSkillDefinition>(skills ?? Array.Empty<HeroAreaSkillDefinition>()).AsReadOnly();
             AttackInterval = attackInterval;

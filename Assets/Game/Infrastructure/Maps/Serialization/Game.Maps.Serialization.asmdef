@@ -3,6 +3,7 @@
   "references": [
     "Game.MapContent",
     "Game.MapEngine.Domain",
-    "Game.Fortifications.Domain"
+    "Game.Fortifications.Domain",
+    "Game.Encounter.Domain"
   ]
 }

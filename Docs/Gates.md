@@ -1,6 +1,6 @@
 # 任意方向、多城门与整数 Tile
 
-打开 `Game → 地图编辑器`，点击工具栏“城门示例地图”。示例 `Assets/Content/Maps/Example/gates.map.json` 包含同墙两门、缓斜、陡斜和纵墙城门，既有关闭状态，也有开启状态。
+打开 `Game → 关卡编辑器`，点击工具栏“城门示例地图”。示例 `Assets/Content/Maps/Example/gates.map.json` 包含同墙两门、缓斜、陡斜和纵墙城门，既有关闭状态，也有开启状态。
 
 ## 编辑方式
 

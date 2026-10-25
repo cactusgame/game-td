@@ -19,7 +19,7 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed partial class EcsBattleSimulation : IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal
+    public sealed partial class EcsBattleSimulation : ILevelEnemySimulation, IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
         private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
@@ -201,6 +201,27 @@ namespace Game.Battle.Simulation.Bridges
                     occupied.Add((position, unit.Radius));
                 }
             }
+        }
+
+        public ulong SpawnEnemy(UnitKind kind, Game.MapEngine.Domain.MapPoint entry)
+        {
+            if (!UnitKinds.IsEnemy(kind)) throw new ArgumentException("关卡只能生成敌人");
+            var em = _world.EntityManager;
+            em.CompleteAllTrackedJobs();
+            var occupied = new List<(float2 Position, float Radius)>();
+            using (var positions = _units.ToComponentDataArray<GroundTransform>(Allocator.Temp))
+            using (var health = _units.ToComponentDataArray<Vitals>(Allocator.Temp))
+            using (var motions = _units.ToComponentDataArray<UnitMotion>(Allocator.Temp))
+            {
+                for (int i = 0; i < positions.Length; i++)
+                    if (health[i].Health > 0) occupied.Add((positions[i].Position, motions[i].Radius));
+            }
+            var unit = _definition.GetUnit(kind);
+            var position = FindSpawnPosition(new float2(entry.X, entry.Y), unit.Radius, occupied,
+                new Game.MapEngine.Domain.GridPathfinder(_spawnMap), new List<Game.MapEngine.Domain.GridCell>());
+            ulong id = _nextId++;
+            Spawn(id, unit, position, (uint)(id % (uint.MaxValue - 1)) + 1);
+            return id;
         }
 
         private float2 FindSpawnPosition(float2 entry, float radius, List<(float2 Position, float Radius)> occupied,

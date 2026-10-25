@@ -22,6 +22,8 @@ namespace Game.Tools.MapAuthoring.Editor
         public const string UiPath = "Assets/Game/Tools/MapAuthoring/Editor/MapEditorWindow.uxml";
         public const string VisualPath = "Assets/Content/Maps/Shared/MapVisualCatalog.asset";
         [SerializeField] private string _path;
+        [SerializeField] private bool _showLevel;
+        [SerializeField] private int _selectedWave;
         [SerializeField] private string _historyJson;
         private MapEditSession _session;
         private MapLayout _gesture;
@@ -42,11 +44,11 @@ namespace Game.Tools.MapAuthoring.Editor
         private Vector2 _pressPoint;
         private GridCell? _lastPaintCell;
 
-        [MenuItem("Game/地图编辑器")]
+        [MenuItem("Game/关卡编辑器")]
         public static void Open()
         {
             var window = GetWindow<MapEditorWindow>();
-            window.titleContent = new GUIContent("地图编辑器");
+            window.titleContent = new GUIContent("关卡编辑器");
             window.minSize = new Vector2(960, 600);
             window.Show();
         }
@@ -59,7 +61,7 @@ namespace Game.Tools.MapAuthoring.Editor
             _visuals = MapArtSelection.Current;
             if (_visuals == null)
             {
-                rootVisualElement.Add(new Label("请运行 Game/地图编辑器/安装示例内容"));
+                rootVisualElement.Add(new Label("请运行 Game/地图工具/安装示例内容"));
                 return;
             }
             var artCatalogs = MapArtSelection.All();
@@ -102,6 +104,9 @@ namespace Game.Tools.MapAuthoring.Editor
             _canvas.Dragged = ContinueGesture;
             _canvas.Released = EndGesture;
             _canvas.Hovered = ShowHover;
+            Bind("levelExample", () => OpenMapAsset("Assets/Content/Levels/Example/citadel.level.json"));
+            Bind("editMap", () => { _showLevel = false; Refresh(); });
+            Bind("editLevel", () => { _showLevel = true; Refresh(); });
             Bind("newMap", NewDocument);
             Bind("open", OpenDocument);
             Bind("save", () => Save(false));
@@ -189,7 +194,7 @@ namespace Game.Tools.MapAuthoring.Editor
             _canvas.SelectedId = _selectedId;
             _canvas.MarkDirtyRepaint();
             _historyJson = JsonUtility.ToJson(_session.CaptureHistory());
-            titleContent = new GUIContent("地图编辑器" + (_session.IsDirty ? " *" : ""));
+            titleContent = new GUIContent("关卡编辑器" + (_session.IsDirty ? " *" : ""));
             hasUnsavedChanges = _session.IsDirty;
             saveChangesMessage = "地图存在未保存的修改。";
             Q<Label>("documentPath").text = string.IsNullOrEmpty(_path) ? "未保存的新地图" : _path;
@@ -206,6 +211,19 @@ namespace Game.Tools.MapAuthoring.Editor
                 Q<FloatField>("originY").SetValueWithoutNotify(document.originY);
             }
             UpdateSelection(document);
+            Q<VisualElement>("mapBody").EnableInClassList("level-hidden", _showLevel);
+            var host = Q<VisualElement>("levelHost");
+            host.EnableInClassList("level-hidden", !_showLevel);
+            host.Clear();
+            Q<Button>("editMap").EnableInClassList("view-active", !_showLevel);
+            Q<Button>("editLevel").EnableInClassList("view-active", _showLevel);
+            Q<Button>("export").text = _session.Level == null ? "导出地图" : "导出关卡";
+            if (_showLevel)
+            {
+                var battle = LoadBattleRules();
+                host.Add(new LevelEditorPanel(_session, battle, _selectedWave, () => Refresh(),
+                    index => { _selectedWave = index; Refresh(); }, index => Guard(() => PlayLevel(index))));
+            }
         }
 
         public override void SaveChanges()
@@ -226,7 +244,9 @@ namespace Game.Tools.MapAuthoring.Editor
         {
             if (!ConfirmDiscard())
                 return;
-            _session = new MapEditSession(NewLayout());
+            _session = new MapEditSession(NewLayout(), level: new Game.Encounter.Domain.Definitions.LevelLayout());
+            _showLevel = false;
+            _selectedWave = 0;
             _path = null;
             _selectedId = null;
             _wallTail = null;
@@ -253,8 +273,11 @@ namespace Game.Tools.MapAuthoring.Editor
 
         private void LoadDocument(string path)
         {
-            var document = MapJson.ReadDocument(File.ReadAllText(path));
-            _session = new MapEditSession(document, true);
+            string json = File.ReadAllText(path);
+            var package = LevelJson.IsLevel(json) ? LevelJson.ReadDocument(json) : null;
+            var document = package?.map ?? MapJson.ReadDocument(json);
+            _session = new MapEditSession(document, true, package?.level);
+            _selectedWave = 0;
             _path = path;
             _selectedId = null;
             _wallTail = null;
@@ -266,11 +289,13 @@ namespace Game.Tools.MapAuthoring.Editor
         private bool Save(bool choosePath)
         {
             var path = _path;
-            if (choosePath || string.IsNullOrEmpty(path))
-                path = EditorUtility.SaveFilePanel("保存地图源文档", "Assets/Content/Maps", _session.Document.id + ".source.json", "json");
+            bool isLevel = _session.Level != null;
+            if (choosePath || string.IsNullOrEmpty(path) || isLevel && !path.EndsWith(".level.json", StringComparison.OrdinalIgnoreCase))
+                path = EditorUtility.SaveFilePanel("保存关卡 / 地图源文档", "Assets/Content/Maps",
+                    isLevel ? _session.Level.id + ".level.json" : _session.Document.id + ".source.json", "json");
             if (string.IsNullOrEmpty(path))
                 return false;
-            WriteAtomically(path, MapJson.WriteDocument(_session.Document));
+            WriteAtomically(path, WriteCurrentDocument());
             _path = path;
             _session.MarkSaved();
             AssetDatabase.Refresh();
@@ -769,27 +794,43 @@ namespace Game.Tools.MapAuthoring.Editor
 
         private System.Collections.Generic.List<MapIssue> ValidateDocument()
         {
-            var rulesAsset = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json");
-            var rules = JsonBattleDefinitionSource.Parse(rulesAsset.text);
-            return MapPlayabilityValidator.Validate(_session.Document, _catalog, rules.Hero.Radius, Math.Max(rules.Goblin.Radius, rules.Runner.Radius));
+            var rules = LoadBattleRules();
+            var issues = MapPlayabilityValidator.Validate(_session.Document, _catalog, rules.Hero.Radius, Math.Max(rules.Goblin.Radius, rules.Runner.Radius));
+            if (_session.Level != null)
+            {
+                try { Game.Tools.MapPlaytest.Application.Adapters.LevelDefinitionFactory.Create(_session.Level, _session.Document, rules); }
+                catch (ArgumentException error) { issues.Add(new MapIssue(error.Message)); }
+            }
+            return issues;
         }
 
         private void Export()
         {
             var definition = RequireValid();
-            var path = EditorUtility.SaveFilePanel("导出游戏地图", "Assets/Content/Maps", definition.Id + ".map.json", "json");
+            var path = EditorUtility.SaveFilePanel("导出游戏地图", "Assets/Content/Maps", _session.Level == null ? definition.Id + ".map.json" : _session.Level.id + ".level.json", "json");
             if (string.IsNullOrEmpty(path))
                 return;
-            WriteAtomically(path, MapJson.WriteDocument(definition.CreateWorkingCopy()));
+            WriteAtomically(path, WriteCurrentDocument());
             AssetDatabase.Refresh();
             SetStatus("地图已导出：" + path);
         }
 
         private void Play()
         {
-            var definition = RequireValid();
-            MapEditorSetup.StartPlaytest(MapJson.WriteDocument(definition.CreateWorkingCopy()), _visuals);
+            PlayLevel(0);
         }
+
+        private void PlayLevel(int startWaveIndex)
+        {
+            RequireValid();
+            MapEditorSetup.StartPlaytest(WriteCurrentDocument(), _visuals, startWaveIndex);
+        }
+
+        private string WriteCurrentDocument() => _session.Level == null ? MapJson.WriteDocument(_session.Document) :
+            LevelJson.WriteDocument(_session.Document, _session.Level);
+
+        private static Game.Battle.Domain.Definitions.BattleDefinition LoadBattleRules() => JsonBattleDefinitionSource.Parse(
+            AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Content/Configuration/Resources/GameConfig/battle.json").text);
 
         private void OnKey(KeyDownEvent evt)
         {

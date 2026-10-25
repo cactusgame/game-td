@@ -23,6 +23,7 @@ namespace Game.Tools.MapPlaytest.Unity
     {
         // 保留序列化字段与脚本 GUID，已有试玩场景无需重新配置引用。
         public TextAsset mapJson;
+        public int startWaveIndex;
         public TextAsset battleJson;
         public TextAsset encounterJson;
         public MapVisualCatalog visuals;
@@ -47,6 +48,10 @@ namespace Game.Tools.MapPlaytest.Unity
         private SoldierSelectionView _selectionView;
         private BattleConstructionView _constructionView;
         private KeyboardHeroInput _heroInput;
+        private VisualElement _debugControls;
+        private Label _fps;
+        private double _fpsSampleStartedAt;
+        private int _fpsFrameCount;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -56,12 +61,16 @@ namespace Game.Tools.MapPlaytest.Unity
         {
             // 校验失败也能在 HUD 展示原因，而不是停留在 Loading。
             _status = hud != null ? hud.rootVisualElement.Q<Label>("status") : null;
+            _debugControls = hud != null ? hud.rootVisualElement.Q<VisualElement>("mapControls") : null;
+            _fps = hud != null ? hud.rootVisualElement.Q<Label>("fps") : null;
+            _fpsSampleStartedAt = Time.realtimeSinceStartupAsDouble;
             try
             {
                 string json = string.IsNullOrEmpty(PendingPlaytestJson) ? mapJson.text : PendingPlaytestJson;
                 PendingPlaytestJson = null;
                 _catalog = FacilityCatalogJson.Read(visuals.facilityRules.text);
-                var definition = MapJson.LoadDefinition(json, _catalog);
+                var levelDocument = LevelJson.IsLevel(json) ? LevelJson.ReadDocument(json) : null;
+                var definition = levelDocument == null ? MapJson.LoadDefinition(json, _catalog) : new MapDefinition(levelDocument.map, _catalog);
                 var rules = JsonBattleDefinitionSource.Parse(battleJson.text);
                 var combat = JsonCombatContentSource.Parse(Resources.Load<TextAsset>("GameConfig/combat-content").text);
                 var construction = JsonConstructionContentSource.Parse(Resources.Load<TextAsset>("GameConfig/construction-content").text);
@@ -71,7 +80,8 @@ namespace Game.Tools.MapPlaytest.Unity
                 var encounter = JsonDefenseEncounterSource.Parse(encounterAsset.text);
                 int initialGold = JsonEconomySource.InitialGold(Resources.Load<TextAsset>("GameConfig/economy").text);
                 _heroInput = new KeyboardHeroInput();
-                _session = new MapPlaySession(definition, _catalog, rules, _heroInput, () => new EcsBattleSimulation(), encounter, construction, initialGold);
+                _session = new MapPlaySession(definition, _catalog, rules, _heroInput, () => new EcsBattleSimulation(), encounter, construction, initialGold,
+                    levelDocument == null ? null : Game.Tools.MapPlaytest.Application.Adapters.LevelDefinitionFactory.Create(levelDocument.level, levelDocument.map, rules), startWaveIndex);
                 _view = gameObject.AddComponent<MapWorldView>();
                 _unitView = gameObject.AddComponent<MapPlayUnitView>();
                 _unitView.Initialize();
@@ -86,7 +96,7 @@ namespace Game.Tools.MapPlaytest.Unity
                             names.Add(catalog.name);
                         var picker = new DropdownField("美术套装", names, Math.Max(0, Array.IndexOf(artCatalogs, visuals)));
                         picker.RegisterValueChangedCallback(evt => SwitchArt(artCatalogs[picker.index]));
-                        root.Add(picker);
+                        _debugControls.Add(picker);
                     }
                     _status = root.Q<Label>("status");
                     _barracksStatus = root.Q<Label>("barracks-status");
@@ -107,6 +117,8 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("upgrade-barracks").clicked += () => _tool = "Upgrade";
                     root.Q<Button>("remove").clicked += () => _tool = "Remove";
                     root.Q<Button>("gate").clicked += () => _tool = "Gate";
+                    var nextWave = new Button(() => _session.TryStartNextWave()) { name = "next-wave", text = "开始下一波" };
+                    root.Q<Button>("restart").parent.Add(nextWave);
                     root.Q<Button>("restart").clicked += Restart;
                     root.Q<Button>("exit").clicked += Exit;
                 }
@@ -167,15 +179,8 @@ namespace Game.Tools.MapPlaytest.Unity
             {
                 if (unit.Kind != Game.Battle.Domain.ValueObjects.UnitKind.Hero)
                     continue;
-                float hudFraction = 0;
-                if (hud != null && hud.rootVisualElement.panel != null)
-                {
-                    var controls = hud.rootVisualElement.Q<VisualElement>("mapControls");
-                    float panelHeight = hud.rootVisualElement.panel.visualTree.worldBound.height;
-                    if (controls != null && panelHeight > 0 && !float.IsNaN(controls.worldBound.yMax))
-                        hudFraction = controls.worldBound.yMax / panelHeight;
-                }
-                _cameraView.Follow(new Vector2(unit.X, unit.Y), hudFraction);
+                // 调试区覆盖在游戏上，显隐都不改变镜头视口和跟随位置。
+                _cameraView.Follow(new Vector2(unit.X, unit.Y), 0);
                 break;
             }
         }
@@ -184,6 +189,7 @@ namespace Game.Tools.MapPlaytest.Unity
 
         private void Update()
         {
+            UpdateDebugHud();
             if (_session == null)
                 return;
             var mouse = Mouse.current;
@@ -206,6 +212,7 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             // 命令已由应用会话完整提交，本帧后续模拟读取一致的新空间。
             _session.Advance(Time.deltaTime);
+            hud?.rootVisualElement.Q<Button>("next-wave")?.SetEnabled(_session.CanStartNextWave);
             var controls = _session.PlayerControls;
             _selectionView.Synchronize(_session.Units, controls, _session.Outcome == "Running");
             if (_playerStatus != null)
@@ -219,7 +226,7 @@ namespace Game.Tools.MapPlaytest.Unity
             }
             _unitView.Synchronize(_session.Units, _session.Definition, _session.SimulationTime, Time.deltaTime, _session.Outcome != "Running");
             if (_status != null && Time.unscaledTime >= _feedbackUntil && Time.frameCount % 15 == 0)
-                _status.text = $"{OutcomeText()} | Gold {_session.Gold} | Waves {_session.SpawnedWaves}/2 | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} {_buildDefinitionId} | {_session.SimulationTime:F1}s | Hero {_session.HeroHealth} HP";
+                _status.text = $"{OutcomeText()} | Gold {_session.Gold} | Waves {_session.SpawnedWaves}/{_session.TotalWaves} | Enemies {AliveEnemies()} | Castle {CastleHealth()} HP | {_tool} {_buildDefinitionId} | {_session.SimulationTime:F1}s | Hero {_session.HeroHealth} HP";
             if (_barracksStatus != null && Time.frameCount % 6 == 0)
             {
                 var lines = new System.Collections.Generic.List<string>();
@@ -231,6 +238,30 @@ namespace Game.Tools.MapPlaytest.Unity
                     lines.Add($"{_catalog.Find(barracks.BuildingId).name} Lv{barracks.Level}：士兵 {barracks.Alive}/{barracks.Capacity}，{state}");
                 }
                 _barracksStatus.text = lines.Count > 0 ? string.Join("   |   ", lines) : "地图尚无兵营，请选择近战兵营或远程兵营建造。";
+            }
+        }
+
+        /// <summary>只维护界面显隐和实测帧率；不修改对局状态或模拟时钟。</summary>
+        private void UpdateDebugHud()
+        {
+            var keyboard = Keyboard.current;
+            if (UnityEngine.Application.isFocused && keyboard != null && keyboard.pKey.wasPressedThisFrame && _debugControls != null)
+            {
+                _debugControls.ToggleInClassList("debug-visible");
+            }
+
+            // 按真实墙钟时间统计帧数，不受 timeScale 或 deltaTime 上限影响。
+            _fpsFrameCount++;
+            double now = Time.realtimeSinceStartupAsDouble;
+            double elapsedSeconds = now - _fpsSampleStartedAt;
+            if (elapsedSeconds >= 0.5)
+            {
+                if (_fps != null)
+                {
+                    _fps.text = $"FPS {_fpsFrameCount / elapsedSeconds:F0}";
+                }
+                _fpsFrameCount = 0;
+                _fpsSampleStartedAt = now;
             }
         }
 

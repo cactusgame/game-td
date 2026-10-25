@@ -16,7 +16,8 @@
     "Game.Fortifications.Domain",
     "Game.Fortifications.Unity",
     "Game.MapEngine.Unity",
-    "Game.Construction.Application"
+    "Game.Construction.Application",
+    "Game.Encounter.Domain"
   ],
   "includePlatforms": [
     "Editor"

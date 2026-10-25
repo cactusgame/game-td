@@ -59,7 +59,9 @@ namespace Game.Tools.MapAuthoring
         public sealed class Revision
         {
             public MapLayout Layout;
+            public Game.Encounter.Domain.Definitions.LevelLayout Level;
             public long Number;
+            public Revision Copy() => new Revision { Layout = Layout.Copy(), Level = Level?.Copy(), Number = Number };
         }
         private readonly Stack<Revision> _undo = new Stack<Revision>();
         private readonly Stack<Revision> _redo = new Stack<Revision>();
@@ -67,13 +69,14 @@ namespace Game.Tools.MapAuthoring
         private long _nextRevision;
         private long _savedRevision;
         public MapLayout Document => _current.Layout.Copy();
+        public Game.Encounter.Domain.Definitions.LevelLayout Level => _current.Level?.Copy();
         public bool IsDirty => _current.Number != _savedRevision;
         public bool CanUndo => _undo.Count > 0;
         public bool CanRedo => _redo.Count > 0;
 
-        public MapEditSession(MapLayout document, bool saved = false)
+        public MapEditSession(MapLayout document, bool saved = false, Game.Encounter.Domain.Definitions.LevelLayout level = null)
         {
-            _current = new Revision { Layout = document.Copy(), Number = ++_nextRevision };
+            _current = new Revision { Layout = document.Copy(), Level = level?.Copy(), Number = ++_nextRevision };
             _savedRevision = saved ? _current.Number : 0;
         }
 
@@ -81,7 +84,14 @@ namespace Game.Tools.MapAuthoring
         {
             _undo.Push(_current);
             _redo.Clear();
-            _current = new Revision { Layout = replacement.Copy(), Number = ++_nextRevision };
+            _current = new Revision { Layout = replacement.Copy(), Level = _current.Level?.Copy(), Number = ++_nextRevision };
+        }
+
+        public void CommitLevel(Game.Encounter.Domain.Definitions.LevelLayout replacement)
+        {
+            _undo.Push(_current);
+            _redo.Clear();
+            _current = new Revision { Layout = _current.Layout.Copy(), Level = replacement?.Copy(), Number = ++_nextRevision };
         }
 
         public void Undo()
@@ -116,21 +126,26 @@ namespace Game.Tools.MapAuthoring
         {
             return new History
             {
-                current = _current, undo = _undo.ToArray(), redo = _redo.ToArray(),
+                current = _current.Copy(), undo = CopyRevisions(_undo), redo = CopyRevisions(_redo),
                 nextRevision = _nextRevision, savedRevision = _savedRevision
             };
+        }
+
+        private static Revision[] CopyRevisions(Stack<Revision> revisions)
+        {
+            return Array.ConvertAll(revisions.ToArray(), revision => revision.Copy());
         }
 
         public static MapEditSession Restore(History history)
         {
             var session = new MapEditSession(history.current.Layout);
-            session._current = history.current;
+            session._current = history.current.Copy();
             session._nextRevision = history.nextRevision;
             session._savedRevision = history.savedRevision;
             for (int i = history.undo.Length - 1; i >= 0; i--)
-                session._undo.Push(history.undo[i]);
+                session._undo.Push(history.undo[i].Copy());
             for (int i = history.redo.Length - 1; i >= 0; i--)
-                session._redo.Push(history.redo[i]);
+                session._redo.Push(history.redo[i].Copy());
             return session;
         }
     }

@@ -77,6 +77,7 @@ namespace Game.Infrastructure.Configuration
             public bool targetMainCastle = true;
             public bool canAttackGates = true;
             public int maxHealth, attack, defense;
+            public int killGold;
             public float speed, radius, visualHeight;
             public UnitDefinition Build(UnitKind kind)
             {
@@ -85,7 +86,7 @@ namespace Game.Infrastructure.Configuration
                     foreach (var skill in skills)
                         abilities.Add(new HeroAreaSkillDefinition(skill.id, skill.enabled, skill.radius, skill.damage, skill.cooldown));
                 if (abilities.Count > 2) throw new FormatException("Hero supports two active skill slots.");
-                return new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight, id, attackInterval, attackRange, targetMainCastle, canAttackGates, abilities);
+                return new UnitDefinition(kind, maxHealth, attack, defense, speed, radius, visualHeight, id, attackInterval, attackRange, targetMainCastle, canAttackGates, abilities, killGold);
             }
         }
         [Serializable]

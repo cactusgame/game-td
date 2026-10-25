@@ -39,3 +39,21 @@
 .palette-tools .palette-thumbnail { height: 49px; }
 .palette-overlay { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
 .palette-caption { -unity-text-align: middle-center; font-size: 12px; color: rgb(235, 243, 245); white-space: normal; flex-grow: 1; }
+
+.level-hidden { display: none; }
+.level-host { flex-grow: 1; min-height: 0; }
+.level-editor { flex-grow: 1; flex-direction: row; min-height: 0; }
+.wave-rail { width: 280px; flex-shrink: 0; padding: 12px; background-color: rgb(36, 43, 50); }
+.wave-rail .unity-base-field { flex-direction: column; align-items: stretch; }
+.wave-rail .level-row .unity-base-field { flex-direction: row; }
+.wave-rail .level-row .unity-base-field__label { min-width: 0; }
+.wave-rail Button { margin-top: 5px; padding: 7px; -unity-text-align: middle-left; }
+.wave-selected { background-color: rgb(43, 91, 80); color: rgb(245, 235, 190); }
+.wave-content { flex-grow: 1; padding: 12px 20px; }
+.wave-content .unity-base-field { margin-bottom: 5px; }
+.wave-content .unity-base-field__label { min-width: 210px; }
+.level-row { flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 5px; }
+.level-row Button { margin-right: 6px; padding: 5px 10px; }
+.level-row .unity-integer-field { width: 90px; }
+.spawn-card { background-color: rgb(36, 43, 50); padding: 12px; margin-top: 8px; margin-bottom: 8px; border-radius: 5px; }
+.spawn-timeline { height: 22px; flex-shrink: 0; background-color: rgb(24, 31, 37); margin-bottom: 6px; }

@@ -126,7 +126,14 @@ def clean(record):
     return {k: v for k, v in record.items() if not k.startswith('_')}
 
 
-def build_documents(tables):
+def build_documents(tables, enemy_rewards=None):
+    if enemy_rewards is None:
+        enemy_rewards = json.loads((ROOT / 'Config/EnemyRewards.json').read_text(encoding='utf-8'))
+    if not isinstance(enemy_rewards, dict) or any(
+        not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 2147483647
+        for value in enemy_rewards.values()
+    ):
+        raise ConfigurationError('EnemyRewards.json: 击杀金币必须为非负整数且不超过账户上限')
     by = {name: ids(rows) for name, rows in tables.items()}
     attacks, skills, effects = by['攻击'], by['技能'], by['效果']
     behavior, buildings, upgrades = by['怪物行为'], by['建筑'], by['升级分支']
@@ -239,6 +246,9 @@ def build_documents(tables):
     battle = documents['battle']
     if battle['soldierSelectionRadius'] <= 0:
         fail(by['全局参数']['battle.soldierSelectionRadius'], '士兵选择半径必须大于0')
+    enemy_ids = {record['id'] for slot, record in slots.items() if slot in ('Goblin', 'Runner')}
+    if set(enemy_rewards) - enemy_ids:
+        raise ConfigurationError('EnemyRewards.json: 引用了未加载的怪物')
     for slot, key in [('Hero', 'hero'), ('Goblin', 'goblin'), ('Runner', 'runner'), ('Soldier', 'soldier'), ('Archer', 'archer')]:
         if slot not in slots:
             continue
@@ -248,6 +258,8 @@ def build_documents(tables):
         battle[key] = {k: record[k] for k in ('id', 'maxHealth', 'defense', 'speed', 'radius', 'visualHeight')}
         battle[key].update(attack=attack['damage'], attackInterval=attack['interval'], attackRange=attack['range'],
                            targetMainCastle=rule['target'] == 'MainCastle', canAttackGates=rule['canAttackGates'])
+        if slot in ('Goblin', 'Runner'):
+            battle[key]['killGold'] = enemy_rewards.get(record['id'], 0)
         if slot == 'Hero':
             battle[key]['skills'] = []
             for skill_id in record['skillIds'].split(';'):
@@ -320,6 +332,7 @@ def build_documents(tables):
             raise ConfigurationError('怪物数量必须为整数')
         battle['spawn'][key] = int(value)
     version_payload = {name: [clean(row) for row in records] for name, records in tables.items()}
+    version_payload['enemyRewards'] = enemy_rewards
     version = hashlib.sha256(json.dumps(version_payload, ensure_ascii=False, sort_keys=True).encode('utf-8')).hexdigest()[:16]
     for document in documents.values():
         document['contentVersion'] = version

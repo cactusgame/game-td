@@ -1,5 +1,9 @@
 {
   "name": "Game.MapAuthoring.Core",
-  "references": ["Game.MapContent", "Game.MapEngine.Domain"],
+  "references": [
+    "Game.MapContent",
+    "Game.MapEngine.Domain",
+    "Game.Encounter.Domain"
+  ],
   "noEngineReferences": true
 }

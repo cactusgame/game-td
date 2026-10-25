@@ -181,7 +181,7 @@ namespace Game.Tools.MapAuthoring.Editor
             }
         }
 
-        public static void StartPlaytest(string json, MapVisualCatalog selectedVisuals = null)
+        public static void StartPlaytest(string json, MapVisualCatalog selectedVisuals = null, int startWaveIndex = 0)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new InvalidOperationException("试玩已在运行，请先退出。");
@@ -191,6 +191,12 @@ namespace Game.Tools.MapAuthoring.Editor
             var visuals = selectedVisuals != null ? selectedVisuals : MapArtSelection.Current;
             var panel = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelPath);
             CreateScene(PreviewScene, AssetDatabase.LoadAssetAtPath<TextAsset>(PreviewPath), visuals, panel);
+            var previewScene = EditorSceneManager.OpenScene(PreviewScene, OpenSceneMode.Additive);
+            foreach (var root in previewScene.GetRootGameObjects())
+                foreach (var controller in root.GetComponentsInChildren<Game.Tools.MapPlaytest.Unity.MapPlayController>(true))
+                    controller.startWaveIndex = startWaveIndex;
+            EditorSceneManager.SaveScene(previewScene);
+            EditorSceneManager.CloseScene(previewScene, true);
             SessionState.SetString("MapAuthoring.PreviousPlayScene", AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
             SessionState.SetBool("MapAuthoring.RestorePlayScene", true);
             EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(PreviewScene);

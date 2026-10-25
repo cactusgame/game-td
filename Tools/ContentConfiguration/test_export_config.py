@@ -23,6 +23,15 @@ class ExportTests(unittest.TestCase):
         tables['建筑'][0]['maxHealth'] = 999
         self.assertIn('"maxHealth": 999', build_documents(tables)['facilities.json'])
 
+    def test_enemy_rewards_project_and_reject_unknown_or_invalid_values(self):
+        documents = build_documents(self.tables, {'enemy.skeleton': 0, 'enemy.fallen': 9})
+        battle = json.loads(documents['battle.json'])
+        self.assertEqual(battle['goblin']['killGold'], 0)
+        self.assertEqual(battle['runner']['killGold'], 9)
+        for rewards in ({'missing': 1}, {'enemy.skeleton': -1}, {'enemy.skeleton': 1.5}, {'enemy.skeleton': True}):
+            with self.assertRaises(ConfigurationError):
+                build_documents(self.tables, rewards)
+
     def test_building_categories_project_and_reject_invalid_or_functional_decoration(self):
         tables = copy.deepcopy(self.tables)
         documents = build_documents(tables)

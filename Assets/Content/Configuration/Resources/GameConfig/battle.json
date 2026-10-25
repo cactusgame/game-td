@@ -59,7 +59,8 @@
     "attackInterval": 1.0,
     "attackRange": 0.15,
     "targetMainCastle": true,
-    "canAttackGates": true
+    "canAttackGates": true,
+    "killGold": 5
   },
   "runner": {
     "id": "enemy.fallen",
@@ -72,7 +73,8 @@
     "attackInterval": 1.0,
     "attackRange": 0.15,
     "targetMainCastle": true,
-    "canAttackGates": true
+    "canAttackGates": true,
+    "killGold": 5
   },
   "soldier": {
     "id": "ally.soldier",
@@ -100,5 +102,5 @@
     "targetMainCastle": false,
     "canAttackGates": false
   },
-  "contentVersion": "172485b98c144485"
+  "contentVersion": "15ce4e23c661558b"
 }
