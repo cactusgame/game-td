@@ -13,7 +13,11 @@ namespace Game.Battle.Contracts.ReadModels
         public readonly int Health, MaxHealth;
         public readonly float LastHitTime, LastAttackTime;
         public readonly bool IsSelected;
-        public readonly bool IsStationed;
+        public bool IsStationed => Stance == CombatStance.HoldGround;
+        // 命令和姿态当前只适用于士兵；英雄尚无 AI 行为时为 None。
+        public readonly SoldierCommand Command;
+        public readonly CombatStance Stance;
+        public readonly UnitBehavior Behavior;
         public readonly double RespawnRemainingSeconds;
         public readonly bool IsGhost;
         public readonly float DeathX, DeathY, DeathFacingX;
@@ -23,7 +27,8 @@ namespace Game.Battle.Contracts.ReadModels
         public bool IsInvulnerable => InvulnerabilityRemainingSeconds > 0;
         public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false, bool isStationed = false, double respawnRemainingSeconds = 0,
             bool isGhost = false, float deathX = 0, float deathY = 0, float deathFacingX = 1, uint deathSequence = 0, double invulnerabilityRemainingSeconds = 0,
-            SkillCooldownSnapshot skillOneCooldown = default, SkillCooldownSnapshot skillTwoCooldown = default)
+            SkillCooldownSnapshot skillOneCooldown = default, SkillCooldownSnapshot skillTwoCooldown = default,
+            SoldierCommand command = SoldierCommand.None, CombatStance stance = CombatStance.Alert, UnitBehavior behavior = UnitBehavior.None)
         {
             Id = id;
             Kind = kind;
@@ -35,7 +40,9 @@ namespace Game.Battle.Contracts.ReadModels
             LastHitTime = lastHitTime;
             LastAttackTime = lastAttackTime;
             IsSelected = isSelected;
-            IsStationed = isStationed;
+            Stance = isStationed ? CombatStance.HoldGround : stance;
+            Command = command;
+            Behavior = behavior;
             RespawnRemainingSeconds = respawnRemainingSeconds;
             IsGhost = isGhost;
             DeathX = deathX;

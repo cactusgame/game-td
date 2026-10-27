@@ -4,6 +4,11 @@ namespace Game.Battle.Application.Sessions
     public sealed class PressGesture
     {
         public const double HoldSeconds = 0.45;
+        private readonly double _holdSeconds;
+        public PressGesture(double holdSeconds = HoldSeconds)
+        {
+            _holdSeconds = holdSeconds;
+        }
         private bool _pressed, _held, _blocked;
         private double _started;
         public void Reset() { _pressed = _held = false; _blocked = true; }
@@ -22,14 +27,14 @@ namespace Game.Battle.Application.Sessions
                 _started = now;
             }
             if (!_pressed) return 0;
-            if (down && !_held && now - _started >= HoldSeconds)
+            if (down && !_held && now - _started >= _holdSeconds)
             {
                 _held = true;
                 return 2;
             }
             if (down) return 0;
             _pressed = false;
-            return _held ? 3 : now - _started >= HoldSeconds ? 4 : 1;
+            return _held ? 3 : now - _started >= _holdSeconds ? 4 : 1;
         }
     }
 }

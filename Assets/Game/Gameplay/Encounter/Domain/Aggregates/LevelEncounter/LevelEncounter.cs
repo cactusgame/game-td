@@ -17,6 +17,22 @@ namespace Game.Encounter.Domain.Aggregates.LevelEncounter
         public int WaveCount => _waves.Length;
         public string Outcome { get; private set; } = "Running";
         public bool IsRunning => Outcome == "Running";
+        public bool IsConstructionTime { get; private set; } = true;
+        private double _constructionCompletedAt;
+
+        /// <summary>确认建设后才启用波次调度。首波等待从确认时刻计算，手动首波直接启动。</summary>
+        public bool TryCompleteConstruction(double time)
+        {
+            if (!IsRunning || !IsConstructionTime)
+                return false;
+
+            IsConstructionTime = false;
+            _constructionCompletedAt = time;
+            if (_layout.waves[_startWaveIndex].startMode == WaveStartMode.Manual)
+                StartWave(_startWaveIndex, time);
+            StartDueWaves(time);
+            return true;
+        }
 
         private sealed class WaveProgress
         {
@@ -48,9 +64,9 @@ namespace Game.Encounter.Domain.Aggregates.LevelEncounter
 
         public bool CanStartNextWave(double time)
         {
-            if (!IsRunning || StartedWaves >= WaveCount) return false;
+            if (!IsRunning || IsConstructionTime || StartedWaves >= WaveCount) return false;
             int index = StartedWaves;
-            return index == 0 || _waves[index - 1].Completed || _layout.waves[index].allowEarlyStart;
+            return index == _startWaveIndex || _waves[index - 1].Completed || _layout.waves[index].allowEarlyStart;
         }
 
         public bool TryStartNextWave(double time, out int earlyGold)
@@ -68,7 +84,7 @@ namespace Game.Encounter.Domain.Aggregates.LevelEncounter
 
         public void StartDueWaves(double time)
         {
-            while (IsRunning && StartedWaves < WaveCount && IsAutomaticallyDue(StartedWaves, time))
+            while (IsRunning && !IsConstructionTime && StartedWaves < WaveCount && IsAutomaticallyDue(StartedWaves, time))
                 StartWave(StartedWaves, time);
         }
 
@@ -76,7 +92,7 @@ namespace Game.Encounter.Domain.Aggregates.LevelEncounter
         {
             var wave = _layout.waves[index];
             if (wave.startMode == WaveStartMode.Manual) return false;
-            if (index == _startWaveIndex) return time + 0.000001 >= wave.waitSeconds;
+            if (index == _startWaveIndex) return time + 0.000001 >= _constructionCompletedAt + wave.waitSeconds;
             var previous = _waves[index - 1];
             if (wave.startMode == WaveStartMode.AfterPreviousStarted)
                 return previous.Started && time + 0.000001 >= previous.StartedAt + wave.waitSeconds;

@@ -4,7 +4,7 @@
     "width": 0.52,
     "height": 0.5,
     "junctionRadius": 0.4,
-    "gateHealth": 1000,
+    "gateHealth": 1000000000,
     "gateAttackInterval": 1.0,
     "wallHealth": 500
   },
@@ -66,5 +66,5 @@
       "wallMounted": false
     }
   ],
-  "contentVersion": "8ac93eed8f5e8303"
+  "contentVersion": "b0fa256c7e8be72c"
 }

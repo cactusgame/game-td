@@ -1,5 +1,6 @@
 using Game.Battle.Simulation.Components;
 using Game.Battle.Domain.Rules;
+using Game.Battle.Domain.ValueObjects;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -55,6 +56,12 @@ namespace Game.Battle.Simulation.Systems
                 // 攻击事件独立于实际伤害：被防御抵消时也需要挥击动作。
                 heroVitals.LastAttackTime = now;
                 vitals.ValueRW.LastAttackTime = now;
+                if (SystemAPI.HasComponent<MonsterNavigationState>(monster))
+                {
+                    var navigation = SystemAPI.GetComponent<MonsterNavigationState>(monster);
+                    navigation.Behavior = UnitBehavior.Attacking;
+                    SystemAPI.SetComponent(monster, navigation);
+                }
                 float facing = heroGround.Position.x - ground.ValueRO.Position.x;
                 if (math.abs(facing) > 0.0001f)
                     ground.ValueRW.FacingX = math.sign(facing);

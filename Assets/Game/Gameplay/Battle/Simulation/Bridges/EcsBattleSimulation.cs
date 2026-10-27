@@ -33,6 +33,7 @@ namespace Game.Battle.Simulation.Bridges
         private readonly TerrainCollisionSystem _terrainCollision;
         private readonly MonsterSeparationSystem _separation;
         private readonly SoldierNavigationSystem _soldierNavigation;
+        private readonly bool _soldiersFollowHero;
         private Game.MapEngine.Domain.GridMap _friendlySpawnMap;
         private readonly EntityQuery _units;
         // Entity 只是这个 World 中的句柄；数据在它所挂载的组件里。
@@ -58,7 +59,7 @@ namespace Game.Battle.Simulation.Bridges
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
             _soldierNavigation = _world.GetOrCreateSystemManaged<SoldierNavigationSystem>();
-            _soldierNavigation.FollowHero = soldiersFollowHero;
+            _soldiersFollowHero = soldiersFollowHero;
             _group.AddSystemToUpdateList(_soldierNavigation);
             _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<SoldierCombatSystem>());
             _separation = _world.GetOrCreateSystemManaged<MonsterSeparationSystem>();
@@ -407,7 +408,13 @@ namespace Game.Battle.Simulation.Bridges
             unitId = _nextId++;
             Spawn(unitId, definition, new float2(exit.X, exit.Y), (uint)(unitId % (uint.MaxValue - 1)) + 1);
             var entity = _unitEntities[unitId];
-            em.AddComponentData(entity, new SoldierState { Rally = destination });
+            em.AddComponentData(entity, new SoldierState
+            {
+                Rally = destination,
+                Command = _soldiersFollowHero ? SoldierCommand.FollowHero : SoldierCommand.None,
+                Stance = CombatStance.Alert,
+                Behavior = UnitBehavior.Idle
+            });
             em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
             return true;
         }
@@ -424,6 +431,12 @@ namespace Game.Battle.Simulation.Bridges
                 return;
             vitals.LastAttackTime = (float)ElapsedTime;
             em.SetComponentData(entity, vitals);
+            if (em.HasComponent<MonsterTag>(entity))
+            {
+                var navigation = em.GetComponentData<MonsterNavigationState>(entity);
+                navigation.Behavior = UnitBehavior.Attacking;
+                em.SetComponentData(entity, navigation);
+            }
             var ground = em.GetComponentData<GroundTransform>(entity);
             float dx = target.X - ground.Position.x;
             if (math.abs(dx) > 0.0001f)
@@ -473,8 +486,11 @@ namespace Game.Battle.Simulation.Bridges
                 bool selected = _unitEntities.TryGetValue(identities[i].Id, out var entity) &&
                     _world.EntityManager.HasComponent<SoldierState>(entity) &&
                     _world.EntityManager.GetComponentData<SoldierState>(entity).IsSelected;
-                bool stationed = _world.EntityManager.HasComponent<SoldierState>(entity) &&
-                    _world.EntityManager.GetComponentData<SoldierState>(entity).IsStationed;
+                var soldier = _world.EntityManager.HasComponent<SoldierState>(entity)
+                    ? _world.EntityManager.GetComponentData<SoldierState>(entity) : default;
+                var behavior = _world.EntityManager.HasComponent<MonsterTag>(entity)
+                    ? _world.EntityManager.GetComponentData<MonsterNavigationState>(entity).Behavior : soldier.Behavior;
+                bool stationed = soldier.Stance == CombatStance.HoldGround;
                 double respawnRemaining = 0;
                 HeroRespawnState heroRespawn = default;
                 if (_world.EntityManager.HasComponent<HeroRespawnState>(entity))
@@ -489,7 +505,8 @@ namespace Game.Battle.Simulation.Bridges
                 bool isHero = identities[i].Kind == UnitKind.Hero;
                 destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected, stationed, respawnRemaining,
                     heroRespawn.IsWaiting, heroRespawn.DeathPosition.x, heroRespawn.DeathPosition.y, heroRespawn.DeathFacingX, heroRespawn.DeathSequence, invulnerabilityRemaining,
-                    isHero ? CopyHeroSkillCooldown(0) : default, isHero ? CopyHeroSkillCooldown(1) : default));
+                    isHero ? CopyHeroSkillCooldown(0) : default, isHero ? CopyHeroSkillCooldown(1) : default,
+                    soldier.Command, soldier.Stance, vitals[i].Health <= 0 ? UnitBehavior.Dead : behavior));
             }
         }
 

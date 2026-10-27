@@ -78,12 +78,15 @@ namespace Game.Battle.Tests
             Step();
             Assert.That(Navigation(near).IsChasing, Is.EqualTo(1));
             Assert.That(Navigation(far).IsChasing, Is.Zero);
+            Assert.That(Navigation(near).Behavior, Is.EqualTo(UnitBehavior.Chasing));
+            Assert.That(Navigation(far).Behavior, Is.EqualTo(UnitBehavior.Moving));
             Assert.That(Path(near).Length, Is.GreaterThan(0));
             Assert.That(Path(far).Length, Is.Zero);
             Assert.That(Position(near).x, Is.LessThan(3));
             Move(far, new float2(-3, 0));
             Step();
             Assert.That(Navigation(far).IsChasing, Is.EqualTo(1));
+            Assert.That(Navigation(far).Behavior, Is.EqualTo(UnitBehavior.Chasing));
             var farWaypoint = Path(far)[0].Position;
             var nearPath = Path(near);
             nearPath.Clear();
@@ -155,6 +158,7 @@ namespace Game.Battle.Tests
             Step();
             Assert.That(Navigation(monster).IsChasing, Is.Zero);
             Assert.That(Path(monster).Length, Is.Zero);
+            Assert.That(Navigation(monster).Behavior, Is.EqualTo(killMonster ? UnitBehavior.Dead : UnitBehavior.Moving));
             if (killMonster)
                 Assert.That(Position(monster), Is.EqualTo(before));
         }

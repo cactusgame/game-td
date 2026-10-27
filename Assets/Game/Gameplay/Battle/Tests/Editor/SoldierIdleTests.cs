@@ -50,7 +50,7 @@ namespace Game.Battle.Tests
         private Entity Soldier(bool stationed = false)
         {
             var soldier = Spawn(float2.zero);
-            Em.AddComponentData(soldier, new SoldierState { IsStationed = stationed });
+            Em.AddComponentData(soldier, new SoldierState { Stance = stationed ? CombatStance.HoldGround : CombatStance.Alert });
             Em.SetComponentData(soldier, new UnitIdentity { Id = 2, Kind = UnitKind.Soldier });
             return soldier;
         }
@@ -63,12 +63,93 @@ namespace Game.Battle.Tests
             return monster;
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Selection_WithoutFollowCommand_DoesNotMoveTowardHero(bool selected)
+        {
+            var soldier = Soldier();
+            Em.SetComponentData(soldier, new SoldierState { IsSelected = selected });
+            _navigation.Update();
+            Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Idle));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void FollowCommand_IndependentOfSelection_UsesSameFormationTarget(bool selected)
+        {
+            var soldier = Soldier();
+            Em.SetComponentData(soldier, new SoldierState
+            {
+                IsSelected = selected,
+                Command = SoldierCommand.FollowHero,
+                FollowOffset = new float2(1, 0)
+            });
+            _navigation.Update();
+            var path = Em.GetBuffer<NavigationWaypoint>(soldier);
+            Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(-9, -10)));
+            var state = Em.GetComponentData<SoldierState>(soldier);
+            Assert.That(state.Behavior, Is.EqualTo(UnitBehavior.Regrouping));
+            Assert.That(state.IsSelected, Is.EqualTo(selected));
+        }
+
+        [Test]
+        public void HoldStance_WithFollowCommand_SuppressesMovementWithoutRewritingCommand()
+        {
+            var soldier = Soldier();
+            Em.SetComponentData(soldier, new SoldierState
+            {
+                Command = SoldierCommand.FollowHero,
+                Stance = CombatStance.HoldGround,
+                Behavior = UnitBehavior.Regrouping
+            });
+            _navigation.Update();
+            Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
+            var state = Em.GetComponentData<SoldierState>(soldier);
+            Assert.That(state.Command, Is.EqualTo(SoldierCommand.FollowHero));
+            Assert.That(state.Behavior, Is.EqualTo(UnitBehavior.Idle));
+            state.Stance = CombatStance.Alert;
+            Em.SetComponentData(soldier, state);
+            _navigation.Update();
+            Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Regrouping));
+        }
+
+        [Test]
+        public void MoveToPosition_HeroMoves_KeepsDestinationAndReturnsAfterPursuit()
+        {
+            var soldier = Soldier();
+            Em.SetComponentData(soldier, new SoldierState
+            {
+                Command = SoldierCommand.MoveToPosition,
+                Rally = new float2(2, 0),
+                Behavior = UnitBehavior.Regrouping
+            });
+            var enemy = Monster(3);
+            _navigation.Update();
+            var path = Em.GetBuffer<NavigationWaypoint>(soldier);
+            Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(2, 0)));
+            Em.SetComponentData(soldier, new GroundTransform { Position = new float2(2, 0) });
+            _world.SetTime(new TimeData(2, 0.02f));
+            _navigation.Update();
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Chasing));
+            Em.SetComponentData(enemy, new Vitals());
+            Em.SetComponentData(soldier, new GroundTransform { Position = new float2(3, 0) });
+            using var heroes = Em.CreateEntityQuery(typeof(HeroTag));
+            Em.SetComponentData(heroes.GetSingletonEntity(), new GroundTransform { Position = new float2(8, 8) });
+            _world.SetTime(new TimeData(3, 0.02f));
+            _navigation.Update();
+            path = Em.GetBuffer<NavigationWaypoint>(soldier);
+            Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(2, 0)));
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Returning));
+        }
+
         [Test]
         public void Regrouping_SuppressesAttacksButNotIncomingDamageAndReleasesOnArrival()
         {
             var soldier = Soldier();
             var monster = Monster(0.45f);
-            Em.SetComponentData(soldier, new SoldierState { IsSelected = true, IsRegrouping = true });
+            Em.SetComponentData(soldier, new SoldierState { Command = SoldierCommand.FollowHero, Behavior = UnitBehavior.Regrouping });
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
             var combat = _world.GetOrCreateSystemManaged<SoldierCombatSystem>();
@@ -80,7 +161,7 @@ namespace Game.Battle.Tests
             Em.SetComponentData(query.GetSingletonEntity(), new GroundTransform());
             _world.SetTime(new TimeData(3, 0.02f));
             _navigation.Update();
-            Assert.That(Em.GetComponentData<SoldierState>(soldier).IsRegrouping, Is.False);
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.Not.EqualTo(UnitBehavior.Regrouping));
             combat.Update();
             Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(90));
         }
@@ -93,7 +174,7 @@ namespace Game.Battle.Tests
             Em.SetComponentData(hero, new GroundTransform());
             var soldier = Soldier();
             Em.SetComponentData(soldier, new GroundTransform { Position = new float2(4.5f, 0) });
-            Em.SetComponentData(soldier, new SoldierState { IsSelected = true, FollowOffset = new float2(1, 0) });
+            Em.SetComponentData(soldier, new SoldierState { Command = SoldierCommand.FollowHero, FollowOffset = new float2(1, 0) });
             Em.SetComponentData(soldier, new CombatProfile { AttackRange = 4.5f, AttackInterval = 1 });
             var enemy = Monster(6);
             _navigation.Update();
@@ -103,7 +184,7 @@ namespace Game.Battle.Tests
             Assert.That(Em.GetComponentData<Vitals>(enemy).Health, Is.EqualTo(100), "远程兵也不能在跟随时被圈外目标牵制");
             Em.SetComponentData(hero, new GroundTransform { Position = new float2(-3, 0) });
             _navigation.Update();
-            Assert.That(Em.GetComponentData<SoldierState>(soldier).IsRegrouping, Is.True);
+            Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Regrouping));
             path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(-2, 0)));
         }
@@ -231,6 +312,9 @@ namespace Game.Battle.Tests
             var held = units.Find(u => u.Id == id);
             Assert.That(held.IsStationed, Is.True);
             Assert.That(held.IsSelected, Is.False);
+            Assert.That(held.Command, Is.EqualTo(SoldierCommand.MoveToPosition));
+            Assert.That(held.Stance, Is.EqualTo(CombatStance.HoldGround));
+            Assert.That(held.Behavior, Is.EqualTo(UnitBehavior.Idle));
             for (int i = 0; i < 50; i++) simulation.Step(0.02f, default);
             simulation.CopyUnits(units);
             Assert.That(units.Find(u => u.Id == id).X, Is.EqualTo(held.X));
@@ -238,6 +322,9 @@ namespace Game.Battle.Tests
             simulation.CopyUnits(units);
             Assert.That(units.Find(u => u.Id == id).IsStationed, Is.False);
             Assert.That(units.Find(u => u.Id == id).IsSelected, Is.True);
+            Assert.That(units.Find(u => u.Id == id).Command, Is.EqualTo(SoldierCommand.FollowHero));
+            Assert.That(units.Find(u => u.Id == id).Stance, Is.EqualTo(CombatStance.Alert));
+            Assert.That(units.Find(u => u.Id == id).Behavior, Is.EqualTo(UnitBehavior.Regrouping));
         }
     }
 }

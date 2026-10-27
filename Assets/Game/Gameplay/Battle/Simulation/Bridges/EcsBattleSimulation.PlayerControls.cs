@@ -66,7 +66,11 @@ namespace Game.Battle.Simulation.Bridges
                 case PlayerOperation.SkillTwo: CastAreaSkill(1, hero); return;
                 case PlayerOperation.NearbyTap:
                     if (Soldiers(true).Count == 0) SelectNearby(hero, instantDeployment);
-                    else ClearSelection();
+                    else
+                    {
+                        CallSoldiers(Soldiers(true), hero, instantDeployment, followHero: false);
+                        _selectingWhileMoving = false;
+                    }
                     return;
                 case PlayerOperation.NearbyHold:
                     var selected = Soldiers(true);
@@ -95,10 +99,10 @@ namespace Game.Battle.Simulation.Bridges
                 // 连续短按逐个招入队伍，避免随机重复呼叫已经选中的成员。
                 candidates.RemoveAll(entity => em.GetComponentData<SoldierState>(entity).IsSelected);
                 // 先保留未驻扎的可用士兵；全部招入队伍后，后续按键才会进入驻扎候选池。
-                bool hasUnstationed = candidates.Exists(entity => !em.GetComponentData<SoldierState>(entity).IsStationed);
+                bool hasUnstationed = candidates.Exists(entity => em.GetComponentData<SoldierState>(entity).Stance != CombatStance.HoldGround);
                 if (hasUnstationed)
                 {
-                    candidates.RemoveAll(entity => em.GetComponentData<SoldierState>(entity).IsStationed);
+                    candidates.RemoveAll(entity => em.GetComponentData<SoldierState>(entity).Stance == CombatStance.HoldGround);
                 }
             }
             if (one && candidates.Count > 0)
@@ -160,7 +164,7 @@ namespace Game.Battle.Simulation.Bridges
             _selectingWhileMoving = false;
         }
 
-        private void CallSoldiers(List<Entity> soldiers, Entity hero, bool instant)
+        private void CallSoldiers(List<Entity> soldiers, Entity hero, bool instant, bool followHero = true)
         {
             var em = _world.EntityManager;
             var center = em.GetComponentData<GroundTransform>(hero).Position;
@@ -179,13 +183,17 @@ namespace Game.Battle.Simulation.Bridges
                 var position = em.GetComponentData<GroundTransform>(entity).Position;
                 // 暂无合法落点时仍加入跟随；后续导航继续尝试接近英雄，不进行非法传送。
                 var state = em.GetComponentData<SoldierState>(entity);
-                if (!state.IsSelected)
+                if (state.Command != SoldierCommand.FollowHero)
                     state.FollowOffset = new float2(radius + em.GetComponentData<UnitMotion>(hero).Radius + 0.6f, 0);
-                state.IsSelected = true;
-                state.IsStationed = false;
-                state.IsRegrouping = true;
+                state.IsSelected = followHero;
+                state.Command = followHero ? SoldierCommand.FollowHero : SoldierCommand.MoveToPosition;
+                // 短按 R 放下队伍：落点在本次命令提交时冻结，之后不再追随英雄。
+                // 若暂时没有编队净空，仍寻路接近英雄所在点，禁止强行传送。
+                if (!followHero)
+                    state.Rally = map.CanOccupy(center.x, center.y, radius) ? center : position;
+                state.Stance = CombatStance.Alert;
+                state.Behavior = UnitBehavior.Regrouping;
                 state.RetaliationTarget = Entity.Null;
-                state.HasPlayerOrder = true;
                 em.SetComponentData(entity, state);
                 em.GetBuffer<NavigationWaypoint>(entity).Clear();
                 em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
@@ -208,8 +216,9 @@ namespace Game.Battle.Simulation.Bridges
                             !pathfinder.TryFindPath(start, goal, cells)) continue;
                         StationSoldier(entity, candidate, instant);
                         state = em.GetComponentData<SoldierState>(entity);
-                        state.IsSelected = true;
-                        state.IsRegrouping = !instant;
+                        state.IsSelected = followHero;
+                        state.Command = followHero ? SoldierCommand.FollowHero : SoldierCommand.MoveToPosition;
+                        state.Behavior = instant ? UnitBehavior.Idle : UnitBehavior.Regrouping;
                         state.FollowOffset = candidate - center;
                         em.SetComponentData(entity, state);
                         reserved.Add((candidate, radius));
@@ -225,10 +234,10 @@ namespace Game.Battle.Simulation.Bridges
             var em = _world.EntityManager;
             var state = em.GetComponentData<SoldierState>(entity);
             state.Rally = destination;
-            state.HasPlayerOrder = true;
+            state.Command = SoldierCommand.MoveToPosition;
             state.IsSelected = false;
-            state.IsStationed = station;
-            state.IsRegrouping = false;
+            state.Stance = station ? CombatStance.HoldGround : CombatStance.Alert;
+            state.Behavior = UnitBehavior.Idle;
             state.FollowCombatRadius = 0;
             state.RetaliationTarget = Entity.Null;
             em.SetComponentData(entity, state);

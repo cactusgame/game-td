@@ -30,3 +30,26 @@ Unity Ddd Ecs Architecture
 # 核心配置
 - 位于 "D:\projects\game-td\Config\GameContent.xlsx"或者位于目录 "D:\projects\game-td\Config\"，注意这个目录只能放excel配置
 - 游戏种使用的配置，应该由以上excel导出成json，放到游戏配置的目录中，比如Assets/Content/Configuration/Resources/GameConfig
+
+
+# 关键代码
+
+
+## AI相关
+
+### 术语约定
+- 玩家命令：包含跟随英雄，移动到固定位置，攻击指定目标等
+- 作战姿态：包含警戒、死守等
+- 当前行为：包含移动、归队、追敌、攻击等
+- 人物状态：中毒，减速，亢奋等
+
+
+### 我方士兵AI相关
+- 士兵指令处理：Assets/Game/Gameplay/Battle/Simulation/Bridges/EcsBattleSimulation.PlayerControls.cs
+- 士兵导航：Assets/Game/Gameplay/Battle/Simulation/Systems/SoldierNavigationSystem.cs
+- 士兵战斗：ssets/Game/Gameplay/Battle/Simulation/Systems/SoldierCombatSystem.cs
+
+### 敌方怪物的行为
+- 怪物目标选择 Assets/Game/Gameplay/Battle/Simulation/Systems/MonsterObjectiveSystem.cs)
+- 怪物导航 Assets/Game/Gameplay/Battle/Simulation/Systems/MonsterNavigationSystem.cs)
+- 墙门通行与攻击协调 Assets/Game/Tools/MapPlaytest/Application/Sessions/GatePassageSession.cs)。

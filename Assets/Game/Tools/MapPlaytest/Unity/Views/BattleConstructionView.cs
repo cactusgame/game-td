@@ -84,7 +84,7 @@ namespace Game.Tools.MapPlaytest.Unity.Views
             HideMenu();
             _preview.Clear();
             if (_toggle != null) _toggle.text = Active ? "退出建设 [B]" : "建设模式 [B]";
-            SetHint(Active ? "建设中 · 战斗继续 | 点空地选择建筑，点建筑/墙管理；右键/Esc 返回" : "");
+            SetHint(Active ? (_session.IsConstructionTime ? "建设时间" : "建设中 · 战斗继续") + " | 点空地选择建筑，点建筑/墙管理；右键/Esc 返回" : "");
         }
 
         public void Tick()
@@ -515,7 +515,7 @@ namespace Game.Tools.MapPlaytest.Unity.Views
             var panel = _hud.rootVisualElement.panel;
             var point = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screen.x, Screen.height - screen.y));
             for (var element = panel.Pick(point); element != null; element = element.parent)
-                if (element.name == "mapControls" || element.name == "constructionMenu") return true;
+                if (element.name == "mapControls" || element.name == "constructionMenu" || element.name == "wavePreviews") return true;
             return false;
         }
         private static Vector2 ToVector(MapPoint point) => new Vector2(point.X, point.Y);

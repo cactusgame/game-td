@@ -170,7 +170,13 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             if (!IsEncounterRunning)
                 return;
             double before = SimulationTime;
-            _battle.Advance(deltaTime, SpawnDueWave, () =>
+            _battle.Advance(deltaTime, () =>
+            {
+                SpawnDueWave();
+                // 首个实际试玩波次启动前（含建设确认后的等待）允许 R 放下队伍时瞬移。
+                _battle.InstantSelectionRelease = _levelEncounter != null &&
+                    _levelEncounter.StartedWaves == _startWaveIndex;
+            }, () =>
             {
                 // 波次时间只读取模拟时钟，生成在固定步边界提交。
                 SpawnDueWave();

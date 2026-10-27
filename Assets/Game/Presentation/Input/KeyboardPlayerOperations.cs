@@ -15,7 +15,7 @@ namespace Game.Presentation.Input
         {
             foreach (var button in _buttons) button.Reset();
         }
-        public void Read(List<PlayerOperation> destination)
+        public void Read(List<PlayerOperation> destination, bool suppressSkills = false)
         {
             var keys = Keyboard.current;
             if (!UnityEngine.Application.isFocused || keys == null)
@@ -35,6 +35,11 @@ namespace Game.Presentation.Input
             var holds = new[] { PlayerOperation.SkillTwo, PlayerOperation.NearbyHold, PlayerOperation.CallAll, PlayerOperation.CallAllMelee, PlayerOperation.CallAllRanged };
             for (int i = 0; i < _buttons.Length; i++)
             {
+                if (i == 0 && suppressSkills)
+                {
+                    _buttons[i].Reset();
+                    continue;
+                }
                 int gesture = _buttons[i].Update(controls[i].isPressed, Time.unscaledTimeAsDouble);
                 if (gesture == 1) destination.Add(taps[i]);
                 if (gesture == 2 || gesture == 4) destination.Add(holds[i]);

@@ -11,6 +11,7 @@ using Game.Encounter.Domain.Definitions;
 using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Maps.Serialization;
 using Game.Maps.Domain;
+using Game.MapEngine.Domain;
 using Game.Tools.MapPlaytest.Application.Adapters;
 using Game.Tools.MapPlaytest.Application.Sessions;
 using NUnit.Framework;
@@ -19,6 +20,70 @@ namespace Game.Tools.MapPlaytest.Tests
 {
     public sealed class LevelEncounterTests
     {
+        [Test]
+        public void ConstructionTime_BlocksAllScheduling_AndConfirmationStartsTheWaitClockOnce()
+        {
+            var wave = Wave(Group(count: 1, delay: 1));
+            wave.waitSeconds = 3;
+            var encounter = new LevelEncounter(Definition(wave));
+            encounter.StartDueWaves(100);
+            Assert.That(encounter.IsConstructionTime, Is.True);
+            Assert.That(encounter.CanStartNextWave(100), Is.False);
+            Assert.That(encounter.TryStartNextWave(100, out _), Is.False);
+            Assert.That(encounter.TryGetDueSpawn(100, out _), Is.False);
+            Assert.That(encounter.TryCompleteConstruction(100), Is.True);
+            Assert.That(encounter.TryCompleteConstruction(101), Is.False);
+            encounter.StartDueWaves(102.99);
+            Assert.That(encounter.StartedWaves, Is.Zero);
+            encounter.StartDueWaves(103);
+            Assert.That(encounter.StartedWaves, Is.EqualTo(1));
+            Assert.That(encounter.TryGetDueSpawn(103.99, out _), Is.False);
+            Assert.That(encounter.TryGetDueSpawn(104, out _), Is.True);
+        }
+
+        [Test]
+        public void Runtime_ConstructionTimeAllowsSimulation_ButNoEnemiesOrRewards_AndRestartRestoresIt()
+        {
+            using var session = Session(new LevelLayout { waves = new List<WaveLayout> { Wave(Group(count: 1)) } });
+            session.Restart();
+            for (int i = 0; i < 300; i++)
+                session.Advance(0.02f);
+            Assert.That(session.SimulationTime, Is.GreaterThan(5));
+            Assert.That(session.IsConstructionTime, Is.True);
+            Assert.That(session.SpawnedWaves, Is.Zero);
+            Assert.That(session.Units.Any(unit => UnitKinds.IsEnemy(unit.Kind)), Is.False);
+            int gold = session.Gold;
+            Assert.That(session.TryCompleteConstruction(), Is.True);
+            Assert.That(session.TryCompleteConstruction(), Is.False);
+            Assert.That(session.Gold, Is.EqualTo(gold));
+            Assert.That(session.Units.Count(unit => UnitKinds.IsEnemy(unit.Kind)), Is.EqualTo(1));
+            session.Restart();
+            Assert.That(session.IsConstructionTime, Is.True);
+            Assert.That(session.Units.Any(unit => UnitKinds.IsEnemy(unit.Kind)), Is.False);
+        }
+
+        [Test]
+        public void Preview_UsesEarliestGroupsAtEachEntry_MergesTiesAndAdvancesWithWave()
+        {
+            var first = Wave(Group(count: 3, delay: 2), Group(count: 4, delay: 2),
+                Group("enemy.fallen", 5, 2), Group(count: 99, delay: 3));
+            var second = Wave(Group("enemy.fallen", 6));
+            second.allowEarlyStart = true;
+            using var session = Session(new LevelLayout { waves = new List<WaveLayout> { first, second } });
+            session.Restart();
+            var previews = session.GetWavePreviews();
+            Assert.That(previews.Count, Is.EqualTo(2));
+            Assert.That(previews.Single(item => item.EnemyId == "enemy.skeleton").Count, Is.EqualTo(7));
+            Assert.That(previews.Single(item => item.EnemyId == "enemy.fallen").Count, Is.EqualTo(5));
+            Assert.That(previews[0].WaveIndex, Is.Zero);
+            Assert.That(previews[0].EntryId, Is.EqualTo("entry"));
+            session.TryCompleteConstruction();
+            Assert.That(session.GetWavePreviews().Single().WaveIndex, Is.EqualTo(1));
+            Assert.That(session.GetWavePreviews().Single().Count, Is.EqualTo(6));
+            session.TryStartNextWave();
+            Assert.That(session.GetWavePreviews(), Is.Empty);
+        }
+
         [Test]
         public void RewardAccount_RepeatedReceiptDoesNotCreditTwice_AndFailureCanRetry()
         {
@@ -58,7 +123,7 @@ namespace Game.Tools.MapPlaytest.Tests
         public void SpawnGroups_IndependentDelaysAndIntervals_DoNotCompleteDuringAGap()
         {
             var encounter = new LevelEncounter(Definition(Wave(Group(count: 2, delay: 1, interval: 2), Group("enemy.fallen", 1, 2))));
-            encounter.StartDueWaves(0);
+            encounter.TryCompleteConstruction(0);
             Assert.That(encounter.TryGetDueSpawn(0.99, out _), Is.False);
             Assert.That(encounter.TryGetDueSpawn(1, out var first), Is.True);
             encounter.CommitSpawn(first, 10, 4);
@@ -86,7 +151,7 @@ namespace Game.Tools.MapPlaytest.Tests
             var second = Wave(Group(count: 1)); second.startMode = WaveStartMode.Manual;
             second.allowEarlyStart = true; second.earlyStartGold = 10; second.completionGold = 20;
             var encounter = new LevelEncounter(Definition(first, second));
-            encounter.StartDueWaves(0);
+            encounter.TryCompleteConstruction(0);
             encounter.TryGetDueSpawn(0, out var order); encounter.CommitSpawn(order, 1, 4);
             Assert.That(encounter.TryStartNextWave(0, out int bonus), Is.True);
             Assert.That(bonus, Is.EqualTo(10));
@@ -106,7 +171,7 @@ namespace Game.Tools.MapPlaytest.Tests
         {
             var second = Wave(Group(count: 1)); second.waitSeconds = 2;
             var encounter = new LevelEncounter(Definition(Wave(Group(count: 1)), second));
-            encounter.StartDueWaves(0);
+            encounter.TryCompleteConstruction(0);
             encounter.TryGetDueSpawn(0, out var order); encounter.CommitSpawn(order, 1, 0);
             encounter.StartDueWaves(100);
             Assert.That(encounter.StartedWaves, Is.EqualTo(1));
@@ -123,7 +188,7 @@ namespace Game.Tools.MapPlaytest.Tests
         {
             var second = Wave(Group()); second.startMode = WaveStartMode.AfterPreviousStarted; second.waitSeconds = 2;
             var encounter = new LevelEncounter(Definition(Wave(Group()), second));
-            encounter.StartDueWaves(0); encounter.StartDueWaves(1.99);
+            encounter.TryCompleteConstruction(0); encounter.StartDueWaves(1.99);
             Assert.That(encounter.StartedWaves, Is.EqualTo(1));
             encounter.StartDueWaves(2);
             Assert.That(encounter.StartedWaves, Is.EqualTo(2));
@@ -155,7 +220,7 @@ namespace Game.Tools.MapPlaytest.Tests
             return map;
         }
 
-        private static MapPlaySession Session(LevelLayout level, int start = 0)
+        private static MapPlaySession Session(LevelLayout level, int start = 0, Input input = null, EcsBattleSimulation simulation = null)
         {
             var rules = JsonBattleDefinitionSource.Parse(File.ReadAllText("Assets/Content/Configuration/Resources/GameConfig/battle.json"));
             var catalog = new MapContentCatalog(new[]
@@ -165,7 +230,7 @@ namespace Game.Tools.MapPlaytest.Tests
             });
             var map = Map();
             var definition = LevelDefinitionFactory.Create(level, map, rules);
-            return new MapPlaySession(new MapDefinition(map, catalog), catalog, rules, new Input(), () => new EcsBattleSimulation(), levelDefinition: definition, startWaveIndex: start);
+            return new MapPlaySession(new MapDefinition(map, catalog), catalog, rules, input ?? new Input(), () => simulation ?? new EcsBattleSimulation(), levelDefinition: definition, startWaveIndex: start);
         }
 
         [Test]
@@ -178,6 +243,7 @@ namespace Game.Tools.MapPlaytest.Tests
             level.goldOverrides.Add(new EnemyGoldOverride { enemyId = "enemy.skeleton", gold = 4 });
             using var session = Session(level);
             session.Restart();
+            Assert.That(session.TryCompleteConstruction(), Is.True);
             Assert.That(session.Units.Count(unit => UnitKinds.IsEnemy(unit.Kind)), Is.EqualTo(2));
             for (int i = 0; i < 100 && session.Outcome == "Running"; i++) session.Advance(0.02f);
             Assert.That(session.Outcome, Is.EqualTo("Victory"));
@@ -186,7 +252,8 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.Gold, Is.EqualTo(138));
             session.Restart();
             Assert.That(session.Gold, Is.EqualTo(100));
-            Assert.That(session.SpawnedWaves, Is.EqualTo(1));
+            Assert.That(session.SpawnedWaves, Is.Zero);
+            Assert.That(session.IsConstructionTime, Is.True);
             Assert.That(session.CompletedWaves, Is.Zero);
         }
 
@@ -210,6 +277,7 @@ namespace Game.Tools.MapPlaytest.Tests
             var first = Wave(Group(count: 2, delay: 1, interval: 0.5));
             using var session = Session(new LevelLayout { waves = new List<WaveLayout> { first } });
             session.Restart();
+            Assert.That(session.TryCompleteConstruction(), Is.True);
             for (int i = 0; i < 49; i++) session.Advance(0.02f);
             Assert.That(session.Units.Count(unit => UnitKinds.IsEnemy(unit.Kind)), Is.Zero);
             session.Advance(0.02f);
@@ -218,6 +286,37 @@ namespace Game.Tools.MapPlaytest.Tests
             Assert.That(session.Units.Count(unit => UnitKinds.IsEnemy(unit.Kind)), Is.EqualTo(2));
         }
 
-        private sealed class Input : IHeroInput { public MoveIntent Read() => new MoveIntent(0, 0); }
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ReleaseWithR_TeleportsOnlyBeforeFirstWave(bool confirmed, bool waveStarted)
+        {
+            var wave = Wave(Group(count: 1, delay: 100));
+            wave.waitSeconds = waveStarted ? 0 : 3;
+            var input = new Input();
+            var simulation = new EcsBattleSimulation();
+            using var session = Session(new LevelLayout { waves = new List<WaveLayout> { wave } }, input: input, simulation: simulation);
+            session.Restart();
+            if (confirmed) session.TryCompleteConstruction();
+            Assert.That(simulation.TrySpawnSoldier(UnitKind.Soldier, new MapPoint(2.5f, 5.5f), new MapPoint(2.5f, 5.5f), out ulong id), Is.True);
+            simulation.Execute(PlayerOperation.CallAll);
+            input.Next = PlayerOperation.NearbyTap;
+            session.Advance(0.02f);
+            var unit = session.Units.Single(item => item.Id == id);
+            Assert.That(unit.IsSelected, Is.False);
+            Assert.That(unit.X, waveStarted ? Is.LessThan(3) : Is.GreaterThan(6));
+        }
+
+        private sealed class Input : IHeroInput, IPlayerOperationInput
+        {
+            public PlayerOperation? Next;
+            public MoveIntent Read() => default;
+            public void ResetOperations() => Next = null;
+            public void ReadOperations(List<PlayerOperation> destination)
+            {
+                if (Next.HasValue) destination.Add(Next.Value);
+                Next = null;
+            }
+        }
     }
 }

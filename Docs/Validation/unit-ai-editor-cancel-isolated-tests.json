@@ -1,0 +1,20 @@
+{
+  "status": "completed",
+  "duration": 0.61,
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "Game.Tools.MapAuthoring.Tests.MapCanvasNavigationTests.RightClick_CancelsUncommittedBrushAndPlacement_WithoutRemovingCompletedEdits",
+      "Status": "Failed",
+      "Duration": 0.1530814,
+      "Message": "  Expected: Select\r\n  But was:  Facility\r\n",
+      "StackTrace": "at Game.Tools.MapAuthoring.Tests.MapCanvasNavigationTests+<RightClick_CancelsUncommittedBrushAndPlacement_WithoutRemovingCompletedEdits>d__1.MoveNext () [0x0023f] in D:\\projects\\game-td\\Assets\\Game\\Tools\\MapAuthoring\\Tests\\Editor\\MapCanvasNavigationTests.cs:82\r\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__8.MoveNext () [0x0003a] in .\\Library\\PackageCache\\com.unity.test-framework@80f691d4262b\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:52\r\n"
+    }
+  ]
+}

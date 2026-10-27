@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Battle.Domain.ValueObjects;
 using Game.Battle.Simulation.Components;
 using Game.MapEngine.Domain;
 using Unity.Entities;
@@ -6,7 +7,7 @@ using Unity.Mathematics;
 
 namespace Game.Battle.Simulation.Systems
 {
-    /// <summary>死守禁止移动；警戒在范围内追敌、受击反击，无目标时返回待机点。选择时遵循英雄跟随命令。</summary>
+    /// <summary>死守禁止移动；警戒在范围内追敌、受击反击，无目标时返回待机点。命令决定跟随或固定目标，选择状态不参与 AI。</summary>
     [DisableAutoCreation]
     [UpdateAfter(typeof(MonsterNavigationSystem))]
     [UpdateBefore(typeof(MovementSystem))]
@@ -15,8 +16,6 @@ namespace Game.Battle.Simulation.Systems
         private GridMap _map;
         private GridPathfinder _pathfinder;
         private readonly List<GridCell> _cells = new List<GridCell>();
-        // 会话组装选项，默认警戒；不由动画或 UI 修改导航状态。
-        public bool FollowHero { get; set; }
         public float DetectionRadius { get; set; } = 5;
         public void Configure(GridMap map)
         {
@@ -35,11 +34,18 @@ namespace Game.Battle.Simulation.Systems
                 SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>,
                     RefRW<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>())
             {
-                if (health.ValueRO.Health <= 0) continue;
-                navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
-                if (soldier.ValueRO.IsStationed)
+                if (health.ValueRO.Health <= 0)
                 {
-                    soldier.ValueRW.IsRegrouping = false;
+                    soldier.ValueRW.Behavior = UnitBehavior.Dead;
+                    path.Clear();
+                    continue;
+                }
+                navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
+                if (soldier.ValueRO.Stance == CombatStance.HoldGround)
+                {
+                    soldier.ValueRW.Behavior = HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius,
+                        profile.ValueRO.AttackRange, ground.ValueRO.Position, float.PositiveInfinity)
+                        ? UnitBehavior.Attacking : UnitBehavior.Idle;
                     soldier.ValueRW.FollowCombatRadius = 0;
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
                     path.Clear();
@@ -48,13 +54,14 @@ namespace Game.Battle.Simulation.Systems
                 }
                 // 明确呼叫优先于交战；已归队士兵只在英雄附近作战，英雄离远后再次强制归队。
                 float followDistance = heroMotion.Radius + motion.ValueRO.Radius + 0.6f;
-                bool selected = soldier.ValueRO.IsSelected;
-                bool followsHero = selected || (FollowHero && !soldier.ValueRO.HasPlayerOrder);
-                float2 target = selected ? heroGround.Position + soldier.ValueRO.FollowOffset :
+                bool followsHero = soldier.ValueRO.Command == SoldierCommand.FollowHero;
+                // 无偏移的跟随命令接近英雄；编队偏移与选择状态无关。
+                bool hasFormationOffset = followsHero && math.lengthsq(soldier.ValueRO.FollowOffset) > 0;
+                float2 target = hasFormationOffset ? heroGround.Position + soldier.ValueRO.FollowOffset :
                     followsHero ? heroGround.Position : soldier.ValueRO.Rally;
-                float stopDistance = selected ? 0.15f : followsHero ? followDistance : 0.08f;
+                float stopDistance = hasFormationOffset ? 0.15f : followsHero ? followDistance : 0.08f;
                 // 跟随点随英雄更新；贴墙时偏移点可能进入障碍，改为接近英雄本身。
-                if (selected && !_map.CanOccupy(target.x, target.y, motion.ValueRO.Radius))
+                if (hasFormationOffset && !_map.CanOccupy(target.x, target.y, motion.ValueRO.Radius))
                 {
                     target = heroGround.Position;
                     stopDistance = followDistance;
@@ -64,29 +71,30 @@ namespace Game.Battle.Simulation.Systems
                 if (followsHero && !heroAlive)
                 {
                     // 不跟随死亡英雄的幽灵。原地防御，复活后再依据新位置判断是否归队。
-                    soldier.ValueRW.IsRegrouping = false;
+                    soldier.ValueRW.Behavior = UnitBehavior.Idle;
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
                     continue;
                 }
-                if (followsHero && !soldier.ValueRO.IsRegrouping &&
+                if (followsHero && soldier.ValueRO.Behavior != UnitBehavior.Regrouping &&
                     math.distancesq(ground.ValueRO.Position, heroGround.Position) > combatRadius * combatRadius)
                 {
-                    soldier.ValueRW.IsRegrouping = true;
+                    soldier.ValueRW.Behavior = UnitBehavior.Regrouping;
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
                 }
-                if (soldier.ValueRO.IsRegrouping)
+                if (soldier.ValueRO.Behavior == UnitBehavior.Regrouping)
                 {
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
                     if (math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
-                        soldier.ValueRW.IsRegrouping = false;
+                        soldier.ValueRW.Behavior = UnitBehavior.Idle;
                 }
                 float2 combatCenter = followsHero ? heroGround.Position : ground.ValueRO.Position;
                 float allowedRadius = followsHero ? combatRadius : float.PositiveInfinity;
-                if (!soldier.ValueRO.IsRegrouping)
+                if (soldier.ValueRO.Behavior != UnitBehavior.Regrouping)
                 {
+                    soldier.ValueRW.Behavior = followsHero ? UnitBehavior.Moving : UnitBehavior.Returning;
                     Entity enemy = soldier.ValueRO.RetaliationTarget;
                     if (!IsLivingMonster(enemy) ||
                         math.distancesq(EntityManager.GetComponentData<GroundTransform>(enemy).Position, combatCenter) > allowedRadius * allowedRadius)
@@ -96,14 +104,17 @@ namespace Game.Battle.Simulation.Systems
                     }
                     if (enemy != Entity.Null)
                     {
+                        soldier.ValueRW.Behavior = UnitBehavior.Chasing;
                         target = EntityManager.GetComponentData<GroundTransform>(enemy).Position;
                         // 停在攻击距离内，避免弓兵追到敌人中心才停下。
                         stopDistance = motion.ValueRO.Radius + EntityManager.GetComponentData<UnitMotion>(enemy).Radius + profile.ValueRO.AttackRange;
                     }
                 }
-                if ((!soldier.ValueRO.IsRegrouping && HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, combatCenter, allowedRadius)) ||
-                    math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
+                bool enemyInRange = soldier.ValueRO.Behavior != UnitBehavior.Regrouping &&
+                    HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, combatCenter, allowedRadius);
+                if (enemyInRange || math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
                 {
+                    soldier.ValueRW.Behavior = enemyInRange ? UnitBehavior.Attacking : UnitBehavior.Idle;
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
                     continue;
@@ -134,6 +145,7 @@ namespace Game.Battle.Simulation.Systems
                     if (vital.ValueRO.Health <= 0 || math.distancesq(soldier.ValueRO.Position, ground.ValueRO.Position) > reach * reach) continue;
                     path.Clear();
                     navigation.ValueRW.IsChasing = 1;
+                    navigation.ValueRW.Behavior = UnitBehavior.Attacking;
                     navigation.ValueRW.NextRepathTime = now + 0.25;
                     break;
                 }

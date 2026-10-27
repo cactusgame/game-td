@@ -9,6 +9,7 @@ namespace Game.Tools.MapPlaytest.Unity.Input
     {
         private readonly Game.Presentation.Input.KeyboardPlayerOperations _operations = new Game.Presentation.Input.KeyboardPlayerOperations();
         public bool ConstructionMode { get; set; }
+        public bool SuppressSpaceSkills { get; set; }
         public void ReadOperations(System.Collections.Generic.List<PlayerOperation> destination)
         {
             if (ConstructionMode)
@@ -16,7 +17,7 @@ namespace Game.Tools.MapPlaytest.Unity.Input
                 _operations.Reset();
                 return;
             }
-            _operations.Read(destination);
+            _operations.Read(destination, SuppressSpaceSkills);
         }
         public void ResetOperations() => _operations.Reset();
         public MoveIntent Read()

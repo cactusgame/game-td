@@ -25,6 +25,8 @@ namespace Game.Battle.Application.Sessions
         private float _accumulator;
         private readonly List<Game.Battle.Contracts.Commands.PlayerOperation> _pendingOperations = new List<Game.Battle.Contracts.Commands.PlayerOperation>();
         public bool InstantDeployment { get; set; }
+        // 对局阶段由外层会话裁决，仅影响短按 R 放下已选队伍。
+        public bool InstantSelectionRelease { get; set; }
         public BattleDefinition Definition { get; private set; }
 
         // 每次重启递增，视图用它区分两局中重复使用的单位 ID，并重建显示对象。
@@ -87,7 +89,13 @@ namespace Game.Battle.Application.Sessions
                 // 接口调用会进入 EcsBattleSimulation.Step，再由系统组调度移动与接触处理。
                 beforeStep?.Invoke();
                 if (_simulation is IPlayerOperations controls)
-                    foreach (var operation in _pendingOperations) controls.Execute(operation, InstantDeployment);
+                    foreach (var operation in _pendingOperations)
+                    {
+                        bool releaseInstantly = InstantSelectionRelease &&
+                            operation == Game.Battle.Contracts.Commands.PlayerOperation.NearbyTap &&
+                            controls.PlayerControls.SelectedCount > 0;
+                        controls.Execute(operation, InstantDeployment || releaseInstantly);
+                    }
                 _pendingOperations.Clear();
                 _simulation.Step(Definition.FixedStep, intent);
                 _accumulator -= Definition.FixedStep;

@@ -24,7 +24,7 @@
   "heroRespawnInvulnerabilitySeconds": 2.0,
   "hero": {
     "id": "hero.alien",
-    "maxHealth": 100,
+    "maxHealth": 10000000,
     "defense": 3,
     "speed": 4.5,
     "radius": 0.42,
@@ -105,5 +105,5 @@
     "targetMainCastle": false,
     "canAttackGates": false
   },
-  "contentVersion": "8ac93eed8f5e8303"
+  "contentVersion": "b0fa256c7e8be72c"
 }

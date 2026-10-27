@@ -1,4 +1,5 @@
 using Game.Battle.Simulation.Components;
+using Game.Battle.Domain.ValueObjects;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -68,7 +69,7 @@ namespace Game.Battle.Simulation.Systems
             {
                 // 死守仍作为邻居阻挡其他单位，自身不接受拥挤位移。
                 if (EntityManager.HasComponent<SoldierState>(entities[i]) &&
-                    EntityManager.GetComponentData<SoldierState>(entities[i]).IsStationed)
+                    EntityManager.GetComponentData<SoldierState>(entities[i]).Stance == CombatStance.HoldGround)
                     continue;
                 var ground = positions[i];
                 ground.Position += corrections[i];

@@ -53,6 +53,7 @@ namespace Game.Tools.MapPlaytest.Unity
         private Label _fps;
         private double _fpsSampleStartedAt;
         private int _fpsFrameCount;
+        private WavePreviewView _wavePreview;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -122,14 +123,17 @@ namespace Game.Tools.MapPlaytest.Unity
                     root.Q<Button>("upgrade-barracks").clicked += () => _tool = "Upgrade";
                     root.Q<Button>("remove").clicked += () => _tool = "Remove";
                     root.Q<Button>("gate").clicked += () => _tool = "Gate";
-                    var nextWave = new Button(() => _session.TryStartNextWave()) { name = "next-wave", text = "开始下一波" };
-                    root.Q<Button>("restart").parent.Add(nextWave);
                     root.Q<Button>("restart").clicked += Restart;
                     root.Q<Button>("exit").clicked += Exit;
                 }
                 _cameraView = new MapPlayCamera(mapCamera, Resources.Load<TextAsset>("GameConfig/MapPlayCamera"));
                 _constructionView = gameObject.AddComponent<BattleConstructionView>();
                 _constructionView.Initialize(_session, _catalog, visuals, mapCamera, hud, RefreshMapView, ShowConstructionFeedback);
+                _wavePreview = new WavePreviewView(_session, mapCamera, hud, () =>
+                {
+                    _constructionView.ResetMode();
+                    _session.CancelPlayerOperations();
+                });
                 Restart();
             }
             catch (Exception error)
@@ -159,6 +163,7 @@ namespace Game.Tools.MapPlaytest.Unity
         public void Restart()
         {
             _session.Restart();
+            _wavePreview?.Reset();
             _constructionView?.ResetMode();
             if (_heroInput != null) _heroInput.ConstructionMode = false;
             var deployment = hud?.rootVisualElement.Q<Button>("deployment-mode");
@@ -175,7 +180,10 @@ namespace Game.Tools.MapPlaytest.Unity
         private void LateUpdate()
         {
             if (_session != null && _cameraView != null)
+            {
                 FollowHero();
+                _wavePreview?.Synchronize();
+            }
         }
 
         private void FollowHero()
@@ -204,6 +212,8 @@ namespace Game.Tools.MapPlaytest.Unity
             if (_session == null)
                 return;
             var mouse = Mouse.current;
+            _wavePreview?.ReadInput();
+            _heroInput.SuppressSpaceSkills = _wavePreview?.SuppressSpaceSkills ?? false;
             bool wasConstructionMode = _constructionView != null && _constructionView.Active;
             _constructionView?.Tick();
             _heroInput.ConstructionMode = _constructionView != null && _constructionView.Active;
@@ -233,7 +243,6 @@ namespace Game.Tools.MapPlaytest.Unity
                     _view.SetCondition(gate.id, _session.GetGateHealth(gate.id), _catalog.Wall.GateHealth, _damagedHealthRatio);
             }
             _view.RefreshConditions(mapSnapshot);
-            hud?.rootVisualElement.Q<Button>("next-wave")?.SetEnabled(_session.CanStartNextWave);
             var controls = _session.PlayerControls;
             if (_heroRespawn != null)
             {
@@ -309,7 +318,7 @@ namespace Game.Tools.MapPlaytest.Unity
             }
         }
 
-        private string OutcomeText() => _session.Outcome == "Victory" ? "Victory" : _session.Outcome == "Defeat" ? "Defeat" : "Defending";
+        private string OutcomeText() => _session.IsConstructionTime ? "建设时间" : _session.Outcome == "Victory" ? "Victory" : _session.Outcome == "Defeat" ? "Defeat" : "Defending";
         private int AliveEnemies()
         {
             int count = 0;
@@ -407,7 +416,7 @@ namespace Game.Tools.MapPlaytest.Unity
             var element = panel.Pick(point);
             while (element != null)
             {
-                if (element.name == "mapControls")
+                if (element.name == "mapControls" || element.name == "wavePreviews")
                     return true;
                 element = element.parent;
             }
@@ -423,7 +432,11 @@ namespace Game.Tools.MapPlaytest.Unity
 #endif
         }
 
-        private void OnDestroy() => _session?.Dispose();
+        private void OnDestroy()
+        {
+            _wavePreview?.Dispose();
+            _session?.Dispose();
+        }
     }
 }
 

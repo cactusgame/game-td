@@ -1,4 +1,5 @@
 using Game.Battle.Domain.Rules;
+using Game.Battle.Domain.ValueObjects;
 using Game.Battle.Simulation.Components;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -46,17 +47,19 @@ namespace Game.Battle.Simulation.Systems
                     structure.ValueRW.NextAttack = now + bounds.AttackInterval;
                 }
             }
-            foreach (var (ground, motion, vitals, navigation, profile) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRO<MonsterNavigationState>, RefRO<CombatProfile>>()
+            foreach (var (ground, motion, vitals, navigation, profile) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<MonsterNavigationState>, RefRO<CombatProfile>>()
                 .WithAll<MonsterTag>())
             {
                 Entity target = navigation.ValueRO.StructureTarget;
-                if (vitals.ValueRO.Health <= 0 || target == Entity.Null || !EntityManager.Exists(target) ||
-                    now < vitals.ValueRO.LastAttackTime + (profile.ValueRO.AttackInterval > 0 ? profile.ValueRO.AttackInterval : 1))
+                if (vitals.ValueRO.Health <= 0 || target == Entity.Null || !EntityManager.Exists(target))
                     continue;
                 var structure = EntityManager.GetComponentData<DefenseStructure>(target);
                 float reach = motion.ValueRO.Radius + profile.ValueRO.AttackRange;
                 float distance = math.distance(ground.ValueRO.Position, math.clamp(ground.ValueRO.Position, structure.Min, structure.Max));
                 if (structure.Health <= 0 || distance > reach + 0.0001f)
+                    continue;
+                navigation.ValueRW.Behavior = UnitBehavior.Attacking;
+                if (now < vitals.ValueRO.LastAttackTime + (profile.ValueRO.AttackInterval > 0 ? profile.ValueRO.AttackInterval : 1))
                     continue;
                 structure.Health = ContactRules.ApplyDamage(structure.Health, vitals.ValueRO.Attack);
                 vitals.ValueRW.LastAttackTime = (float)now;

@@ -142,6 +142,23 @@ namespace Game.Battle.Tests
         }
 
         [Test]
+        public void ConstructionConfirmation_RequiresTwoContinuousSeconds_AndResetRequiresRelease()
+        {
+            var gesture = new PressGesture(2);
+            gesture.Update(true, 0);
+            Assert.That(gesture.Update(true, 1.99), Is.Zero);
+            Assert.That(gesture.Update(false, 1.99), Is.EqualTo(1));
+            gesture.Update(true, 3);
+            Assert.That(gesture.Update(true, 5), Is.EqualTo(2));
+            Assert.That(gesture.Update(true, 6), Is.Zero);
+            gesture.Reset();
+            Assert.That(gesture.Update(true, 10), Is.Zero);
+            Assert.That(gesture.Update(false, 11), Is.Zero);
+            gesture.Update(true, 12);
+            Assert.That(gesture.Update(false, 14.1), Is.EqualTo(4));
+        }
+
+        [Test]
         public void Skill_DamagesOnlyNearbyEnemiesHonorsIndependentCooldownAndRestart()
         {
             using var simulation = new EcsBattleSimulation();
@@ -166,7 +183,7 @@ namespace Game.Battle.Tests
         }
 
         [Test]
-        public void NearbyTap_StartsFollowingAndSecondTapStationsAtCurrentPosition()
+        public void NearbyTap_StartsFollowingAndSecondTapFinishesAtFrozenHeroPosition()
         {
             using var simulation = new EcsBattleSimulation();
             simulation.Reset(Definition());
@@ -178,9 +195,10 @@ namespace Game.Battle.Tests
             for (int i = 0; i < 100; i++) simulation.Step(0.02f, new MoveIntent(0, 1));
             for (int i = 0; i < 300; i++) simulation.Step(0.02f, default);
             Assert.That(Find(simulation, near).Y, Is.GreaterThan(6));
-            var stopped = Find(simulation, near);
             simulation.Execute(PlayerOperation.NearbyTap);
             Assert.That(simulation.PlayerControls.SelectedCount, Is.Zero);
+            for (int i = 0; i < 100; i++) simulation.Step(0.02f, default);
+            var stopped = Find(simulation, near);
             for (int i = 0; i < 100; i++) simulation.Step(0.02f, new MoveIntent(0, -1));
             Assert.That(Find(simulation, near).X, Is.EqualTo(stopped.X).Within(0.001));
             Assert.That(Find(simulation, near).Y, Is.EqualTo(stopped.Y).Within(0.001));
@@ -270,7 +288,7 @@ namespace Game.Battle.Tests
             for (int i = 0; i < 10; i++) simulation.Step(0.02f, default);
             var firstStopped = Find(simulation, first);
             var secondStopped = Find(simulation, second);
-            simulation.Execute(PlayerOperation.NearbyTap);
+            simulation.Execute(PlayerOperation.Cancel);
             for (int i = 0; i < 100; i++) simulation.Step(0.02f, new MoveIntent(0, 1));
             Assert.That(Find(simulation, first).X, Is.EqualTo(firstStopped.X).Within(0.001));
             Assert.That(Find(simulation, second).X, Is.EqualTo(secondStopped.X).Within(0.001));
@@ -373,6 +391,34 @@ namespace Game.Battle.Tests
             session.Advance(0.08f);
             Assert.That(Find(simulation, 2).Health, Is.EqualTo(70));
         }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NearbyTap_ReleasesSelectionAndReachesHeroAtCommandTime(bool instant)
+        {
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(Definition());
+            ulong first = Spawn(simulation, UnitKind.Soldier, 8);
+            ulong second = Spawn(simulation, UnitKind.Archer, 10);
+            simulation.Execute(PlayerOperation.CallAll);
+            simulation.Execute(PlayerOperation.NearbyTap, instant);
+            Assert.That(simulation.PlayerControls.SelectedCount, Is.Zero);
+            Assert.That(Find(simulation, first).IsStationed, Is.False);
+            Assert.That(Find(simulation, second).IsStationed, Is.False);
+            if (instant) Assert.That(Find(simulation, first).X, Is.LessThan(3));
+            else Assert.That(Find(simulation, first).X, Is.EqualTo(8));
+            for (int i = 0; i < 150; i++) simulation.Step(0.02f, new MoveIntent(0, 1));
+            for (int i = 0; i < 250; i++) simulation.Step(0.02f, default);
+            foreach (ulong id in new[] { first, second })
+            {
+                var arrived = Find(simulation, id);
+                Assert.That(arrived.X * arrived.X + arrived.Y * arrived.Y, Is.LessThan(9),
+                    "放下队伍后前往按键时的英雄附近，不追随移动后的英雄");
+                for (int i = 0; i < 50; i++) simulation.Step(0.02f, default);
+                Assert.That(Find(simulation, id).X, Is.EqualTo(arrived.X).Within(0.001));
+                Assert.That(Find(simulation, id).Y, Is.EqualTo(arrived.Y).Within(0.001));
+            }
+        }
+
         private sealed class Source : IBattleDefinitionSource
         {
             private readonly BattleDefinition _definition;

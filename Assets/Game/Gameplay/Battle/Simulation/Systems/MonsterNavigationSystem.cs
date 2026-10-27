@@ -2,6 +2,7 @@ using Game.Battle.Simulation.Components;
 using System;
 using System.Collections.Generic;
 using Game.Battle.Domain.Definitions;
+using Game.Battle.Domain.ValueObjects;
 using Game.MapEngine.Domain;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -41,6 +42,14 @@ namespace Game.Battle.Simulation.Systems
             // 主线程依次重用 A* 工作区，不会由不同实体同时写入同一搜索数组。
             foreach (var(ground, vitals, navigation, wander, path, motion)in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRW<WanderState>, DynamicBuffer<NavigationWaypoint>, RefRO<UnitMotion>>().WithAll<MonsterTag>())
             {
+                if (vitals.ValueRO.Health <= 0)
+                {
+                    navigation.ValueRW = default;
+                    navigation.ValueRW.Behavior = UnitBehavior.Dead;
+                    path.Clear();
+                    continue;
+                }
+                navigation.ValueRW.Behavior = UnitBehavior.Chasing;
                 float radius = navigation.ValueRO.IsChasing != 0 ? _definition.LoseTargetRadius : _definition.DetectionRadius;
                 float rangeSquared = radius * radius;
                 float distanceSquared = math.lengthsq(heroGround.Position - ground.ValueRO.Position);
@@ -63,6 +72,7 @@ namespace Game.Battle.Simulation.Systems
                         // 有主堡但无可达攻击位时等待，不能退回追英雄。
                         navigation.ValueRW.IsChasing = 1;
                         navigation.ValueRW.NextRepathTime = now + _definition.RepathSeconds;
+                        navigation.ValueRW.Behavior = UnitBehavior.Idle;
                         path.Clear();
                         continue;
                     }
@@ -73,6 +83,7 @@ namespace Game.Battle.Simulation.Systems
                     if (navigation.ValueRO.IsChasing != 0)
                         wander.ValueRW.Remaining = 0;
                     navigation.ValueRW = default;
+                    navigation.ValueRW.Behavior = UnitBehavior.Moving; // 无目标时由 MovementSystem 游走。
                     path.Clear();
                     continue;
                 }
