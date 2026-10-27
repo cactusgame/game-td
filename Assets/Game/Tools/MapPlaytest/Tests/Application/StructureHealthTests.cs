@@ -62,6 +62,24 @@ namespace Game.Tools.MapPlaytest.Tests
         }
 
         [Test]
+        public void StunnedEnemy_CannotDamageWall_AndResumesWithoutConsumingAttackCooldown()
+        {
+            using var session = CreateSession();
+            var catalog = FacilityCatalogJson.Read(File.ReadAllText(Root + "facilities.json"));
+            var fortifications = new GatePassageSession(catalog);
+            using var simulation = new EcsBattleSimulation();
+            simulation.Reset(session.Definition);
+            var stunned = new[] { new UnitSnapshot(100, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
+                status: new UnitStatusSnapshot(1, 0, 0, 0)) };
+            fortifications.Update(simulation, session.Snapshot, session.Definition, stunned, 0, true);
+            Assert.That(fortifications.WallHealth("test-wall"), Is.EqualTo(catalog.Wall.WallHealth));
+            var rooted = new[] { new UnitSnapshot(100, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
+                status: new UnitStatusSnapshot(0, 1, 1, 0)) };
+            fortifications.Update(simulation, session.Snapshot, session.Definition, rooted, 0, true);
+            Assert.That(fortifications.WallHealth("test-wall"), Is.LessThan(catalog.Wall.WallHealth));
+        }
+
+        [Test]
         public void WallAndGate_RepairClamps_DestructionPublishesNavigation_AndCannotRevive()
         {
             using var session = CreateSession();

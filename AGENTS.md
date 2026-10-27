@@ -32,16 +32,9 @@ Unity Ddd Ecs Architecture
 - 游戏种使用的配置，应该由以上excel导出成json，放到游戏配置的目录中，比如Assets/Content/Configuration/Resources/GameConfig
 
 
-# 关键代码
+# 关键概念和说明
 
-
-## AI相关
-
-### 术语约定
-- 玩家命令：包含跟随英雄，移动到固定位置，攻击指定目标等
-- 作战姿态：包含警戒、死守等
-- 当前行为：包含移动、归队、追敌、攻击等
-- 人物状态：中毒，减速，亢奋等
+- 单位AI：命令，姿态，状态，见 \Docs\UnitAI.md
 
 
 ### 我方士兵AI相关

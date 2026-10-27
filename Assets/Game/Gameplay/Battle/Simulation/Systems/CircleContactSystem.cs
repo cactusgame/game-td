@@ -29,8 +29,10 @@ namespace Game.Battle.Simulation.Systems
             var heroMotion = SystemAPI.GetComponent<UnitMotion>(hero);
             int heroDamage = 0, contacts = 0;
             float now = (float)SystemAPI.Time.ElapsedTime;
-            bool heroInvulnerable = SystemAPI.HasComponent<UnitStatusState>(hero) &&
-                SystemAPI.GetComponent<UnitStatusState>(hero).IsInvulnerableAt(SystemAPI.Time.ElapsedTime);
+            var heroStatus = SystemAPI.HasComponent<UnitStatusState>(hero)
+                ? SystemAPI.GetComponent<UnitStatusState>(hero) : default;
+            bool heroInvulnerable = heroStatus.IsInvulnerableAt(SystemAPI.Time.ElapsedTime);
+            bool heroCanAttack = heroStatus.CanAttackAt(SystemAPI.Time.ElapsedTime);
             // Query 要求同时具有四种组件，再用 WithAll 额外要求 MonsterTag。
             // RefRO/ValueRO 只读；RefRW/ValueRW 可直接修改 ECS 数据，不需要另行 SetComponent。
             // 此 foreach 在主线程遍历；源代码生成器缓存查询并在遍历前完成必要的数据依赖。
@@ -50,28 +52,36 @@ namespace Game.Battle.Simulation.Systems
                 // 上一步未重叠且本步路径发生接触才扣血；持续重叠不重复扣血。
                 // 终点分离时将状态归零，下一步允许重新接触；扫掠检测也覆盖高速中途穿过。
                 bool hit = contact.ValueRO.WasOverlapping == 0 && ContactRules.SweptCircles(previous.x, previous.y, current.x, current.y, radius);
+                var monsterStatus = SystemAPI.HasComponent<UnitStatusState>(monster)
+                    ? SystemAPI.GetComponent<UnitStatusState>(monster) : default;
+                bool monsterCanAttack = monsterStatus.CanAttackAt(SystemAPI.Time.ElapsedTime);
+                bool heroHit = heroCanAttack && (hit || (overlaps && contact.ValueRO.WasHeroAttackBlocked != 0));
+                bool monsterHit = monsterCanAttack && (hit || (overlaps && contact.ValueRO.WasMonsterAttackBlocked != 0));
+                contact.ValueRW.WasHeroAttackBlocked = heroCanAttack ? (byte)0 : (byte)1;
+                contact.ValueRW.WasMonsterAttackBlocked = monsterCanAttack ? (byte)0 : (byte)1;
                 contact.ValueRW.WasOverlapping = overlaps ? (byte)1 : (byte)0;
-                if (!hit)
+                if (!heroHit && !monsterHit)
                     continue;
                 // 攻击事件独立于实际伤害：被防御抵消时也需要挥击动作。
-                heroVitals.LastAttackTime = now;
-                vitals.ValueRW.LastAttackTime = now;
-                if (SystemAPI.HasComponent<MonsterNavigationState>(monster))
+                if (heroHit)
+                    heroVitals.LastAttackTime = now;
+                if (monsterHit)
+                    vitals.ValueRW.LastAttackTime = now;
+                if (monsterHit && SystemAPI.HasComponent<MonsterNavigationState>(monster))
                 {
                     var navigation = SystemAPI.GetComponent<MonsterNavigationState>(monster);
                     navigation.Behavior = UnitBehavior.Attacking;
                     SystemAPI.SetComponent(monster, navigation);
                 }
                 float facing = heroGround.Position.x - ground.ValueRO.Position.x;
-                if (math.abs(facing) > 0.0001f)
+                if (monsterHit && math.abs(facing) > 0.0001f)
                     ground.ValueRW.FacingX = math.sign(facing);
                 // Domain 只计算伤害数值，当前系统决定何时计算并更新组件。
                 // 双方根据接触处理前的属性互相攻击，即使怪物本次被击杀，仍结算它的这次攻击。
-                int damage = ContactRules.Damage(heroVitals.Attack, vitals.ValueRO.Defense);
-                int incoming = ContactRules.Damage(vitals.ValueRO.Attack, heroVitals.Defense);
+                int damage = heroHit ? ContactRules.Damage(heroVitals.Attack, vitals.ValueRO.Defense) : 0;
+                int incoming = monsterHit ? ContactRules.Damage(vitals.ValueRO.Attack, heroVitals.Defense) : 0;
                 if (heroInvulnerable) incoming = 0;
-                if (SystemAPI.HasComponent<UnitStatusState>(monster) &&
-                    SystemAPI.GetComponent<UnitStatusState>(monster).IsInvulnerableAt(SystemAPI.Time.ElapsedTime))
+                if (monsterStatus.IsInvulnerableAt(SystemAPI.Time.ElapsedTime))
                     damage = 0;
                 // 累加伤害最多记到英雄当前生命，防止多次极端伤害造成整数溢出。
                 heroDamage = incoming >= heroVitals.Health - heroDamage ? heroVitals.Health : heroDamage + incoming;

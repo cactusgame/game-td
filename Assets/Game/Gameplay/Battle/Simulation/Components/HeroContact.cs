@@ -8,5 +8,8 @@ namespace Game.Battle.Simulation.Components
     {
         public byte WasOverlapping;
         public byte WasHeroInvulnerable;
+        // 双方独立记忆攻击受控，解晕后只补该方的一次持续接触攻击，不重复另一方伤害。
+        public byte WasHeroAttackBlocked;
+        public byte WasMonsterAttackBlocked;
     }
 }

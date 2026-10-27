@@ -67,6 +67,9 @@ namespace Game.Battle.Simulation.Systems
             }.Schedule(entities.Length, 64).Complete();
             for (int i = 0; i < entities.Length; i++)
             {
+                if (EntityManager.HasComponent<UnitStatusState>(entities[i]) &&
+                    !EntityManager.GetComponentData<UnitStatusState>(entities[i]).CanMoveAt(SystemAPI.Time.ElapsedTime))
+                    continue;
                 // 死守仍作为邻居阻挡其他单位，自身不接受拥挤位移。
                 if (EntityManager.HasComponent<SoldierState>(entities[i]) &&
                     EntityManager.GetComponentData<SoldierState>(entities[i]).Stance == CombatStance.HoldGround)

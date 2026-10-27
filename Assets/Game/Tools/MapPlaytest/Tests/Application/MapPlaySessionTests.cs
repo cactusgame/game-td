@@ -143,6 +143,26 @@ namespace Game.Tools.MapPlaytest.Tests
         }
 
         [Test]
+        public void GateAttack_StunPreventsDamage_RootAndSilenceStillAllowIt()
+        {
+            var gates = new GatePassageSession(Catalog());
+            var simulation = new Simulation();
+            var rules = Rules();
+            simulation.Reset(rules);
+            int initial = gates.Health("gate-main");
+            var stunned = new[] { new UnitSnapshot(2, UnitKind.Goblin, 0.5f, 2.5f, 1, 100, 100, 0,
+                status: new UnitStatusSnapshot(1, 0, 0, 0)) };
+            gates.Update(simulation, GateMap(true), rules, stunned, 1, true);
+            Assert.That(gates.Health("gate-main"), Is.EqualTo(initial));
+            Assert.That(simulation.Attacks, Is.Empty);
+            var rooted = new[] { new UnitSnapshot(2, UnitKind.Goblin, 0.5f, 2.5f, 1, 100, 100, 0,
+                status: new UnitStatusSnapshot(0, 1, 1, 0)) };
+            gates.Update(simulation, GateMap(true), rules, rooted, 1, true);
+            Assert.That(gates.Health("gate-main"), Is.LessThan(initial));
+            Assert.That(simulation.Attacks, Is.EqualTo(new ulong[] { 2 }));
+        }
+
+        [Test]
         public void FailedGateDestructionDoesNotPublishAttackOrLoseItsCooldown()
         {
             var catalog = new MapContentCatalog(Array.Empty<FacilityDefinition>(),

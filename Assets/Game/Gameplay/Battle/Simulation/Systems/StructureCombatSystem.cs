@@ -47,9 +47,12 @@ namespace Game.Battle.Simulation.Systems
                     structure.ValueRW.NextAttack = now + bounds.AttackInterval;
                 }
             }
-            foreach (var (ground, motion, vitals, navigation, profile) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<MonsterNavigationState>, RefRO<CombatProfile>>()
-                .WithAll<MonsterTag>())
+            foreach (var (ground, motion, vitals, navigation, profile, monster) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<UnitMotion>, RefRW<Vitals>, RefRW<MonsterNavigationState>, RefRO<CombatProfile>>()
+                .WithAll<MonsterTag>().WithEntityAccess())
             {
+                if (EntityManager.HasComponent<UnitStatusState>(monster) &&
+                    !EntityManager.GetComponentData<UnitStatusState>(monster).CanAttackAt(now))
+                    continue;
                 Entity target = navigation.ValueRO.StructureTarget;
                 if (vitals.ValueRO.Health <= 0 || target == Entity.Null || !EntityManager.Exists(target))
                     continue;

@@ -52,7 +52,7 @@ namespace Game.Bootstrap
             // 将契约绑定到具体实现。BattleSession 只依赖三个接口，不依赖 JSON、输入设备或 ECS API。
             builder.RegisterInstance<IBattleDefinitionSource>(new JsonBattleDefinitionSource(_definition));
             builder.Register<HeroInputAdapter>(_ => new HeroInputAdapter(_joystick), Lifetime.Scoped).As<IHeroInput>();
-            builder.Register<EcsBattleSimulation>(Lifetime.Scoped).As<IBattleSimulation>();
+            builder.Register<EcsBattleSimulation>(Lifetime.Scoped).As<IBattleSimulation>().As<IUnitStatusEffects>();
             builder.Register<BattleSession>(Lifetime.Scoped);
             // 注册场景中已有的视图组件，并向其 [Inject] 方法注入同一个 BattleSession。
             // Scoped 服务随作用域管理生命周期，模拟 World 和 InputAction 会在释放服务时清理。

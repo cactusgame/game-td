@@ -127,7 +127,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                             continue;
                         if (friendly)
                             opened.Add(gate.Id);
-                        else if (UnitKinds.IsEnemy(unit.Kind) && applyDamage && stats.CanAttackGates &&
+                        else if (UnitKinds.IsEnemy(unit.Kind) && unit.CanAttack && applyDamage && stats.CanAttackGates &&
                             state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval))
                         {
                             attackers.Add(unit.Id);
@@ -186,7 +186,7 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
                 foreach (var unit in units)
                 {
                     var stats = definition.GetUnit(unit.Kind);
-                    if (unit.Health <= 0 || !UnitKinds.IsEnemy(unit.Kind) || !stats.CanAttackGates)
+                    if (!unit.CanAttack || !UnitKinds.IsEnemy(unit.Kind) || !stats.CanAttackGates)
                         continue;
                     float t = Math.Max(0, Math.Min(1, ((unit.X - from.x) * dx + (unit.Y - from.y) * dy) / lengthSquared));
                     float alongTiles = t * (float)Math.Sqrt(dx * dx / (layout.cellWidth * layout.cellWidth)

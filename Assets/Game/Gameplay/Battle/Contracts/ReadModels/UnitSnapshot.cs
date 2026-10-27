@@ -18,6 +18,10 @@ namespace Game.Battle.Contracts.ReadModels
         public readonly SoldierCommand Command;
         public readonly CombatStance Stance;
         public readonly UnitBehavior Behavior;
+        public readonly UnitStatusSnapshot Status;
+        public bool CanAttack => Health > 0 && Status.CanAttack;
+        public bool CanCast => Health > 0 && Status.CanCast;
+        public bool CanMove => (Health > 0 || IsGhost) && Status.CanMove;
         public readonly double RespawnRemainingSeconds;
         public readonly bool IsGhost;
         public readonly float DeathX, DeathY, DeathFacingX;
@@ -28,7 +32,8 @@ namespace Game.Battle.Contracts.ReadModels
         public UnitSnapshot(ulong id, UnitKind kind, float x, float y, float facingX, int health, int maxHealth, float lastHitTime, float lastAttackTime = -100, bool isSelected = false, bool isStationed = false, double respawnRemainingSeconds = 0,
             bool isGhost = false, float deathX = 0, float deathY = 0, float deathFacingX = 1, uint deathSequence = 0, double invulnerabilityRemainingSeconds = 0,
             SkillCooldownSnapshot skillOneCooldown = default, SkillCooldownSnapshot skillTwoCooldown = default,
-            SoldierCommand command = SoldierCommand.None, CombatStance stance = CombatStance.Alert, UnitBehavior behavior = UnitBehavior.None)
+            SoldierCommand command = SoldierCommand.None, CombatStance stance = CombatStance.Alert, UnitBehavior behavior = UnitBehavior.None,
+            UnitStatusSnapshot status = default)
         {
             Id = id;
             Kind = kind;
@@ -43,6 +48,7 @@ namespace Game.Battle.Contracts.ReadModels
             Stance = isStationed ? CombatStance.HoldGround : stance;
             Command = command;
             Behavior = behavior;
+            Status = status;
             RespawnRemainingSeconds = respawnRemainingSeconds;
             IsGhost = isGhost;
             DeathX = deathX;

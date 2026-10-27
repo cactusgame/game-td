@@ -25,11 +25,12 @@ namespace Game.Battle.Simulation.Systems
             Entity hero = _heroes.CalculateEntityCount() == 1 ? _heroes.GetSingletonEntity() : Entity.Null;
             bool heroAlive = hero != Entity.Null && EntityManager.GetComponentData<Vitals>(hero).Health > 0;
             float2 heroPosition = heroAlive ? EntityManager.GetComponentData<GroundTransform>(hero).Position : default;
-            foreach (var (ground, health, motion, profile, soldier) in
-                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>, RefRW<SoldierState>>())
+            foreach (var (ground, health, motion, profile, soldier, soldierEntity) in
+                SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>, RefRW<SoldierState>>().WithEntityAccess())
             {
                 // 归队不授予免伤，只暂停士兵主动攻击；怪物仍可正常攻击撤退中的士兵。
                 if (soldier.ValueRO.Behavior == UnitBehavior.Regrouping) continue;
+                if (!CanAttack(soldierEntity, now)) continue;
                 if (health.ValueRO.Health <= 0 || now < health.ValueRO.LastAttackTime + profile.ValueRO.AttackInterval) continue;
                 float leashRadius = soldier.ValueRO.FollowCombatRadius;
                 if (heroAlive && leashRadius > 0 && math.distancesq(ground.ValueRO.Position, heroPosition) > leashRadius * leashRadius)
@@ -55,6 +56,7 @@ namespace Game.Battle.Simulation.Systems
             foreach (var (ground, health, motion, profile, attacker) in
                 SystemAPI.Query<RefRW<GroundTransform>, RefRW<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>>().WithAll<MonsterTag>().WithEntityAccess())
             {
+                if (!CanAttack(attacker, now)) continue;
                 if (health.ValueRO.Health <= 0 || now < health.ValueRO.LastAttackTime + profile.ValueRO.AttackInterval) continue;
                 Entity target = Entity.Null;
                 float nearest = float.PositiveInfinity;
@@ -76,6 +78,12 @@ namespace Game.Battle.Simulation.Systems
                 Face(ref ground.ValueRW, EntityManager.GetComponentData<GroundTransform>(target).Position);
             }
         }
+        private bool CanAttack(Entity entity, double now)
+        {
+            return !EntityManager.HasComponent<UnitStatusState>(entity) ||
+                EntityManager.GetComponentData<UnitStatusState>(entity).CanAttackAt(now);
+        }
+
         private void Strike(Entity target, int attack, double now)
         {
             if (EntityManager.HasComponent<UnitStatusState>(target) &&

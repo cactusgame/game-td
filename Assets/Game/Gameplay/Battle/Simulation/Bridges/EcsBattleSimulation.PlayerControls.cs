@@ -214,11 +214,12 @@ namespace Game.Battle.Simulation.Bridges
                         if (!map.TryWorldToCell(position.x, position.y, out var start) ||
                             !map.TryWorldToCell(candidate.x, candidate.y, out var goal) ||
                             !pathfinder.TryFindPath(start, goal, cells)) continue;
-                        StationSoldier(entity, candidate, instant);
+                        bool deployInstantly = instant && em.GetComponentData<UnitStatusState>(entity).CanMoveAt(ElapsedTime);
+                        StationSoldier(entity, candidate, deployInstantly);
                         state = em.GetComponentData<SoldierState>(entity);
                         state.IsSelected = followHero;
                         state.Command = followHero ? SoldierCommand.FollowHero : SoldierCommand.MoveToPosition;
-                        state.Behavior = instant ? UnitBehavior.Idle : UnitBehavior.Regrouping;
+                        state.Behavior = deployInstantly ? UnitBehavior.Idle : UnitBehavior.Regrouping;
                         state.FollowOffset = candidate - center;
                         em.SetComponentData(entity, state);
                         reserved.Add((candidate, radius));
@@ -243,7 +244,7 @@ namespace Game.Battle.Simulation.Bridges
             em.SetComponentData(entity, state);
             em.GetBuffer<NavigationWaypoint>(entity).Clear();
             em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
-            if (!instant) return;
+            if (!instant || !em.GetComponentData<UnitStatusState>(entity).CanMoveAt(ElapsedTime)) return;
             var ground = em.GetComponentData<GroundTransform>(entity);
             ground.Position = ground.Previous = destination;
             em.SetComponentData(entity, ground);
@@ -255,6 +256,7 @@ namespace Game.Battle.Simulation.Bridges
             var skill = _definition.Hero.Skills[slot];
             if (!skill.Enabled) return;
             var em = _world.EntityManager;
+            if (!em.GetComponentData<UnitStatusState>(hero).CanCastAt(ElapsedTime)) return;
             var center = em.GetComponentData<GroundTransform>(hero).Position;
             using var query = em.CreateEntityQuery(typeof(MonsterTag), typeof(Vitals), typeof(GroundTransform));
             using var targets = query.ToEntityArray(Allocator.Temp);

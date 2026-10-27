@@ -1,6 +1,7 @@
 using Game.Battle.Simulation.Components;
 using Game.Battle.Domain.ValueObjects;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -16,22 +17,35 @@ namespace Game.Battle.Simulation.Systems
         public void OnUpdate(ref SystemState state)
         {
             var settings = SystemAPI.GetSingleton<BattleSettings>();
-            state.Dependency = new MovementJob{DeltaTime = SystemAPI.Time.DeltaTime, HalfSize = settings.HalfSize, Center = settings.Center, HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))}.ScheduleParallel(state.Dependency);
+            state.Dependency = new MovementJob
+            {
+                DeltaTime = SystemAPI.Time.DeltaTime,
+                Now = SystemAPI.Time.ElapsedTime,
+                Statuses = SystemAPI.GetComponentLookup<UnitStatusState>(true),
+                HalfSize = settings.HalfSize,
+                Center = settings.Center,
+                HeroInput = math.normalizesafe(settings.MoveInput) * math.min(1, math.length(settings.MoveInput))
+            }.ScheduleParallel(state.Dependency);
         }
 
         [BurstCompile]
         private partial struct MovementJob : IJobEntity
         {
             public float DeltaTime;
+            public double Now;
+            [ReadOnly] public ComponentLookup<UnitStatusState> Statuses;
             public float2 HalfSize;
             public float2 Center;
             public float2 HeroInput;
             // 每个 Job 实例只写当前实体，路径来自导航系统完成的 Buffer。
-            private void Execute(ref GroundTransform ground, ref WanderState wander, ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path, in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
+            private void Execute(Entity entity, ref GroundTransform ground, ref WanderState wander, ref MonsterNavigationState navigation, in DynamicBuffer<NavigationWaypoint> path, in UnitIdentity identity, in UnitMotion motion, in Vitals vitals)
             {
                 ground.Previous = ground.Position;
                 // 死亡英雄的位置代表幽灵；仍消费移动输入，尸体位置独立保存在复活状态中。
                 if (vitals.Health <= 0 && identity.Kind != UnitKind.Hero)
+                    return;
+                // 幽灵维持原有移动语义；活单位不能通过英雄输入、路径或游走绕过控制。
+                if (vitals.Health > 0 && Statuses.HasComponent(entity) && !Statuses[entity].CanMoveAt(Now))
                     return;
                 float2 limit = HalfSize - motion.Radius;
                 float2 next;

@@ -19,7 +19,7 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed partial class EcsBattleSimulation : ILevelEnemySimulation, IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal
+    public sealed partial class EcsBattleSimulation : ILevelEnemySimulation, IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal, IUnitStatusEffects
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
         private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
@@ -54,6 +54,7 @@ namespace Game.Battle.Simulation.Bridges
             // 组继承 ComponentSystemGroup（class），Managed API 返回可直接调用的托管系统对象。
             // Managed 不表示组内不能执行并行 Job。
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
+            _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<UnitStatusSystem>());
             _objectives = _world.GetOrCreateSystemManaged<MonsterObjectiveSystem>();
             _group.AddSystemToUpdateList(_objectives);
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
@@ -500,13 +501,22 @@ namespace Game.Battle.Simulation.Bridges
                     if (respawn.IsWaiting)
                         respawnRemaining = math.clamp(respawn.ReadyAt - ElapsedTime, 0, respawn.DelaySeconds);
                 }
-                var status = _world.EntityManager.GetComponentData<UnitStatusState>(entity);
+                var status = vitals[i].Health > 0
+                    ? _world.EntityManager.GetComponentData<UnitStatusState>(entity) : default;
+                var statusSnapshot = new UnitStatusSnapshot(math.max(0, status.StunnedUntil - ElapsedTime),
+                    math.max(0, status.RootedUntil - ElapsedTime), math.max(0, status.SilencedUntil - ElapsedTime),
+                    math.max(0, status.PoisonedUntil - ElapsedTime));
+                // 控制暂停行动但不清掉士兵的归队阶段或命令；解除后继续原目标。
+                if (statusSnapshot.IsStunned || (!statusSnapshot.CanMove &&
+                    (behavior == UnitBehavior.Moving || behavior == UnitBehavior.Returning ||
+                     behavior == UnitBehavior.Chasing || behavior == UnitBehavior.Regrouping)))
+                    behavior = UnitBehavior.Idle;
                 double invulnerabilityRemaining = math.max(0, status.InvulnerableUntil - ElapsedTime);
                 bool isHero = identities[i].Kind == UnitKind.Hero;
                 destination.Add(new UnitSnapshot(identities[i].Id, identities[i].Kind, positions[i].Position.x, positions[i].Position.y, positions[i].FacingX, vitals[i].Health, vitals[i].MaxHealth, vitals[i].LastHitTime, vitals[i].LastAttackTime, selected, stationed, respawnRemaining,
                     heroRespawn.IsWaiting, heroRespawn.DeathPosition.x, heroRespawn.DeathPosition.y, heroRespawn.DeathFacingX, heroRespawn.DeathSequence, invulnerabilityRemaining,
                     isHero ? CopyHeroSkillCooldown(0) : default, isHero ? CopyHeroSkillCooldown(1) : default,
-                    soldier.Command, soldier.Stance, vitals[i].Health <= 0 ? UnitBehavior.Dead : behavior));
+                    soldier.Command, soldier.Stance, vitals[i].Health <= 0 ? UnitBehavior.Dead : behavior, statusSnapshot));
             }
         }
 

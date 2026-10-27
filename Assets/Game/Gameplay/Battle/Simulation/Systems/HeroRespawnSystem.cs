@@ -22,6 +22,9 @@ namespace Game.Battle.Simulation.Systems
                     respawn.ValueRW.DeathSequence++;
                     respawn.ValueRW.DeathFacingX = ground.ValueRO.FacingX;
                     respawn.ValueRW.ReadyAt = now + respawn.ValueRO.DelaySeconds;
+                    var deadHero = SystemAPI.GetSingletonEntity<HeroTag>();
+                    if (EntityManager.HasComponent<UnitStatusState>(deadHero))
+                        EntityManager.SetComponentData(deadHero, default(UnitStatusState));
                     continue;
                 }
                 if (now < respawn.ValueRO.ReadyAt)
@@ -36,8 +39,7 @@ namespace Game.Battle.Simulation.Systems
                 var hero = SystemAPI.GetSingletonEntity<HeroTag>();
                 if (EntityManager.HasComponent<UnitStatusState>(hero))
                 {
-                    var status = EntityManager.GetComponentData<UnitStatusState>(hero);
-                    status.InvulnerableUntil = now + respawn.ValueRO.InvulnerabilitySeconds;
+                    var status = new UnitStatusState { InvulnerableUntil = now + respawn.ValueRO.InvulnerabilitySeconds };
                     EntityManager.SetComponentData(hero, status);
                 }
 
