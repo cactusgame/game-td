@@ -19,7 +19,7 @@ namespace Game.Battle.Simulation.Bridges
     /// 应用层与 ECS 之间的桥接器：拥有 World，负责生成单位、推进系统组、复制快照和释放资源。
     /// Entity 不会自动生成 GameObject；画面由 Presentation 中的 BattleView 单独创建。
     /// </summary>
-    public sealed partial class EcsBattleSimulation : ILevelEnemySimulation, IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal, IUnitStatusEffects
+    public sealed partial class EcsBattleSimulation : ILevelEnemySimulation, IDefenseBattleSimulation, IPlayerOperations, ISoldierDismissal, IUnitStatusEffects, IAiDebugSimulation
     {
         private readonly Dictionary<string, Entity> _structures = new Dictionary<string, Entity>();
         private readonly Dictionary<ulong, Entity> _unitEntities = new Dictionary<ulong, Entity>();
@@ -33,6 +33,7 @@ namespace Game.Battle.Simulation.Bridges
         private readonly TerrainCollisionSystem _terrainCollision;
         private readonly MonsterSeparationSystem _separation;
         private readonly SoldierNavigationSystem _soldierNavigation;
+        private readonly CombatTargetSelectionSystem _targets;
         private readonly bool _soldiersFollowHero;
         private Game.MapEngine.Domain.GridMap _friendlySpawnMap;
         private readonly EntityQuery _units;
@@ -55,8 +56,11 @@ namespace Game.Battle.Simulation.Bridges
             // Managed 不表示组内不能执行并行 Job。
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
             _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<UnitStatusSystem>());
+            _group.AddSystemToUpdateList(_world.GetOrCreateSystemManaged<HealthRegenerationSystem>());
             _objectives = _world.GetOrCreateSystemManaged<MonsterObjectiveSystem>();
             _group.AddSystemToUpdateList(_objectives);
+            _targets = _world.GetOrCreateSystemManaged<CombatTargetSelectionSystem>();
+            _group.AddSystemToUpdateList(_targets);
             _navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             _group.AddSystemToUpdateList(_navigation);
             _soldierNavigation = _world.GetOrCreateSystemManaged<SoldierNavigationSystem>();
@@ -97,6 +101,8 @@ namespace Game.Battle.Simulation.Bridges
             _friendlySpawnMap = definition.NavigationMap;
             _soldierNavigation.Configure(definition.NavigationMap);
             _soldierNavigation.DetectionRadius = definition.SoldierDetectionRadius;
+            _targets.SoldierDetectionRadius = definition.SoldierDetectionRadius;
+            _targets.Navigation = definition.Navigation;
             _nextId = (ulong)definition.MonsterCount + 2;
             foreach (var entity in _structures.Values)
                 em.DestroyEntity(entity);
@@ -108,6 +114,7 @@ namespace Game.Battle.Simulation.Bridges
             // 只销毁单位查询匹配的实体，保留 _settings 与系统本身。
             em.DestroyEntity(_units);
             _unitEntities.Clear();
+            _externalDebugTargets.Clear();
             ElapsedTime = 0;
             ResetPlayerControls();
             var center = new float2(definition.NavigationMap.OriginX + definition.Width * 0.5f, definition.NavigationMap.OriginY + definition.Height * 0.5f);
@@ -345,6 +352,8 @@ namespace Game.Battle.Simulation.Bridges
             _unitEntities.Add(id, entity);
             em.AddComponentData(entity, new CombatProfile { AttackInterval = definition.AttackInterval, AttackRange = definition.AttackRange, TargetMainCastle = definition.TargetMainCastle ? (byte)1 : (byte)0 });
             em.AddComponentData(entity, new UnitStatusState());
+            em.AddComponentData(entity, new HealthRegenerationState { HealthPerSecond = definition.HealthRegenerationPerSecond });
+            em.AddComponentData(entity, new CombatTargetState());
             em.AddBuffer<NavigationWaypoint>(entity);
             // SetComponentData 修改已有组件，不会自动添加缺失组件；这里写入只读定义中的初始属性。
             em.SetComponentData(entity, new UnitIdentity{Id = id, Kind = definition.Kind});
@@ -420,17 +429,29 @@ namespace Game.Battle.Simulation.Bridges
             return true;
         }
 
-        /// <summary>外部接收者提交伤害后调用。只登记攻击事实，不由表现再次扣血。</summary>
-        public void RecordExternalAttack(ulong attackerId, Game.MapEngine.Domain.MapPoint target)
+        /// <summary>墙门在此检查同一份普通攻击冷却；耐久/空间提交成功后才记录攻击。</summary>
+        public bool TryAttackExternalTarget(ulong attackerId, Game.MapEngine.Domain.MapPoint target, double simulationTime, Func<int, bool> commitDamage, string targetId = null)
         {
             var em = _world.EntityManager;
             em.CompleteAllTrackedJobs();
-            if (!_unitEntities.TryGetValue(attackerId, out var entity) || !em.Exists(entity))
-                return;
+            if (double.IsNaN(simulationTime) || Math.Abs(simulationTime - ElapsedTime) > 1e-6 ||
+                !_unitEntities.TryGetValue(attackerId, out var entity) || !em.Exists(entity))
+                return false;
             var vitals = em.GetComponentData<Vitals>(entity);
-            if (vitals.Health <= 0)
-                return;
+            _externalDebugTargets[attackerId] = (targetId ?? "外部目标", target, ElapsedTime);
+            if (vitals.Health <= 0 || !em.GetComponentData<UnitStatusState>(entity).CanAttackAt(ElapsedTime))
+                return false;
+            if (commitDamage == null) throw new ArgumentNullException(nameof(commitDamage));
+            // 外部墙门在固定步之后结算；等待攻击冷却也仍在交战，不能保留本步恢复。
+            InterruptHealthRegeneration(entity, ref vitals);
+            em.SetComponentData(entity, vitals);
+            if (!Game.Battle.Domain.Rules.NormalAttackRules.IsReady(ElapsedTime, vitals.NextNormalAttackAt))
+                return false;
+            if (!commitDamage(vitals.Attack)) return false;
+            // 回调只提交外部目标，不写单位；单位的冷却和动作在成功边界一起保存。
             vitals.LastAttackTime = (float)ElapsedTime;
+            vitals.NextNormalAttackAt = Game.Battle.Domain.Rules.NormalAttackRules.NextAttackAt(ElapsedTime,
+                em.GetComponentData<CombatProfile>(entity).AttackInterval);
             em.SetComponentData(entity, vitals);
             if (em.HasComponent<MonsterTag>(entity))
             {
@@ -443,6 +464,21 @@ namespace Game.Battle.Simulation.Bridges
             if (math.abs(dx) > 0.0001f)
                 ground.FacingX = math.sign(dx);
             em.SetComponentData(entity, ground);
+            return true;
+        }
+
+        private void InterruptHealthRegeneration(Entity entity, ref Vitals vitals)
+        {
+            var em = _world.EntityManager;
+            if (!em.HasComponent<HealthRegenerationState>(entity)) return;
+            var regeneration = em.GetComponentData<HealthRegenerationState>(entity);
+            if (Math.Abs(regeneration.LastRecoveryAt - ElapsedTime) < 1e-9)
+                vitals.Health = Math.Max(0, vitals.Health - regeneration.HealthRestoredThisStep);
+            regeneration.HealthRestoredThisStep = 0;
+            regeneration.AccumulatedHealing = 0;
+            regeneration.CombatBlockedUntil = Math.Max(regeneration.CombatBlockedUntil,
+                ElapsedTime + HealthRegenerationSystem.OutOfCombatDelaySeconds);
+            em.SetComponentData(entity, regeneration);
         }
 
         public void Step(float deltaTime, MoveIntent intent)
@@ -451,6 +487,8 @@ namespace Game.Battle.Simulation.Bridges
             {
                 throw new ArgumentOutOfRangeException(nameof(deltaTime), "Simulation step must be finite and positive.");
             }
+
+            _externalDebugTargets.Clear();
 
             // GetComponentData 返回结构体副本：修改局部 settings 后必须 SetComponentData 写回。
             // MoveInput 是输入跨越应用层与 ECS 的数据载体，移动系统随后读取它。

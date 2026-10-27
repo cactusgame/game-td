@@ -25,7 +25,7 @@ namespace Game.Battle.Tests
 
         private Entity Spawn()
         {
-            var entity = Em.CreateEntity(typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(CombatProfile), typeof(UnitStatusState));
+            var entity = Em.CreateEntity(typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(CombatProfile), typeof(UnitStatusState), typeof(CombatTargetState));
             Em.SetComponentData(entity, new Vitals { Health = 100, MaxHealth = 100, Attack = 10, LastAttackTime = -100, LastHitTime = -100 });
             Em.SetComponentData(entity, new UnitMotion { Radius = 0.3f });
             Em.SetComponentData(entity, new CombatProfile { AttackRange = 1, AttackInterval = 1 });
@@ -51,6 +51,9 @@ namespace Game.Battle.Tests
             system.Update(_world.Unmanaged);
             Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(100));
             _world.SetTime(new TimeData(3, 0.02f));
+            system.Update(_world.Unmanaged);
+            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(100), "无敌到期不能重置普通攻击冷却");
+            _world.SetTime(new TimeData(4, 0.02f));
             system.Update(_world.Unmanaged);
             Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(90));
         }
@@ -129,27 +132,24 @@ namespace Game.Battle.Tests
 
         [TestCase(true)]
         [TestCase(false)]
-        public void ContactStun_ResumesOnlyBlockedAttackDuringOverlap(bool stunHero)
+        public void ContactStun_RespectsCooldownAndFirstHeroEngagementDelay(bool stunHero)
         {
             Em.CreateEntity(typeof(ContactStatistics));
-            var hero = Spawn();
-            Em.AddComponent<HeroTag>(hero);
-            var monster = Spawn();
-            Em.AddComponent<MonsterTag>(monster);
-            Em.AddComponent<HeroContact>(monster);
+            var hero = Spawn(); Em.AddComponent<HeroTag>(hero);
+            var monster = Spawn(); Em.AddComponent<MonsterTag>(monster); Em.AddComponent<HeroContact>(monster);
             Em.SetComponentData(stunHero ? hero : monster, new UnitStatusState { StunnedUntil = 3 });
             var contact = _world.GetOrCreateSystem<CircleContactSystem>();
             contact.Update(_world.Unmanaged);
-            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(stunHero ? 90 : 100));
+            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(100));
             Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(stunHero ? 100 : 90));
-            _world.SetTime(new TimeData(3, 0.02f));
-            contact.Update(_world.Unmanaged);
-            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(90));
-            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(90));
-            _world.SetTime(new TimeData(4, 0.02f));
-            contact.Update(_world.Unmanaged);
-            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(90));
-            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(90));
+            _world.SetTime(new TimeData(2, 0.02f)); contact.Update(_world.Unmanaged);
+            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(stunHero ? 90 : 100));
+            _world.SetTime(new TimeData(3, 0.02f)); contact.Update(_world.Unmanaged);
+            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(stunHero ? 80 : 100));
+            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(stunHero ? 90 : 70));
+            _world.SetTime(new TimeData(4, 0.02f)); contact.Update(_world.Unmanaged);
+            Assert.That(Em.GetComponentData<Vitals>(hero).Health, Is.EqualTo(stunHero ? 70 : 90));
+            Assert.That(Em.GetComponentData<Vitals>(monster).Health, Is.EqualTo(stunHero ? 80 : 60));
         }
 
         [Test]

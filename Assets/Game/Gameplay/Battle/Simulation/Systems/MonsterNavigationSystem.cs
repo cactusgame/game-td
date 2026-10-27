@@ -25,6 +25,7 @@ namespace Game.Battle.Simulation.Systems
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
             _definition = definition ?? throw new ArgumentNullException(nameof(definition));
+            World.GetOrCreateSystemManaged<CombatTargetSelectionSystem>().Navigation = definition;
             _pathfinder = new GridPathfinder(map);
             _pathCells.Clear();
         }
@@ -33,61 +34,59 @@ namespace Game.Battle.Simulation.Systems
         {
             if (_map == null)
                 return;
-            Entity hero = SystemAPI.GetSingletonEntity<HeroTag>();
-            var heroGround = SystemAPI.GetComponent<GroundTransform>(hero);
-            bool heroAlive = SystemAPI.GetComponent<Vitals>(hero).Health > 0;
             double now = SystemAPI.Time.ElapsedTime;
-            bool heroInMap = _map.TryWorldToCell(heroGround.Position.x, heroGround.Position.y, out var goal);
-            // Query 会完成此前移动 Job 对位置、导航进度和路径 Buffer 的冲突依赖。
-            // 主线程依次重用 A* 工作区，不会由不同实体同时写入同一搜索数组。
-            foreach (var(ground, vitals, navigation, wander, path, motion)in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRW<WanderState>, DynamicBuffer<NavigationWaypoint>, RefRO<UnitMotion>>().WithAll<MonsterTag>())
+            foreach (var (ground, vitals, navigation, wander, path, motion, targets, actor) in
+                SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRW<MonsterNavigationState>, RefRW<WanderState>,
+                    DynamicBuffer<NavigationWaypoint>, RefRO<UnitMotion>, RefRO<CombatTargetState>>().WithAll<MonsterTag>().WithEntityAccess())
             {
                 if (vitals.ValueRO.Health <= 0)
                 {
                     navigation.ValueRW = default;
                     navigation.ValueRW.Behavior = UnitBehavior.Dead;
+                    navigation.ValueRW.StopReason = MovementStopReason.Dead;
+                    path.Clear();
+                    continue;
+                }
+                Entity target = targets.ValueRO.Target;
+                bool hasTarget = target != Entity.Null && EntityManager.Exists(target);
+                bool structure = hasTarget && EntityManager.HasComponent<DefenseStructure>(target);
+                float2 targetPosition = structure ? navigation.ValueRO.StructureGoal :
+                    hasTarget ? EntityManager.GetComponentData<GroundTransform>(target).Position : ground.ValueRO.Position;
+                if (!hasTarget || !_map.TryWorldToCell(targetPosition.x, targetPosition.y, out var goal))
+                {
+                    if (navigation.ValueRO.HasCastleObjective != 0)
+                    {
+                        navigation.ValueRW.IsChasing = 1;
+                        navigation.ValueRW.Behavior = UnitBehavior.Idle;
+                        navigation.ValueRW.StopReason = MovementStopReason.NoTarget;
+                        navigation.ValueRW.NextRepathTime = now + _definition.RepathSeconds;
+                    }
+                    else
+                    {
+                        if (navigation.ValueRO.IsChasing != 0) wander.ValueRW.Remaining = 0;
+                        navigation.ValueRW = default;
+                        navigation.ValueRW.Behavior = UnitBehavior.Moving;
+                    }
                     path.Clear();
                     continue;
                 }
                 navigation.ValueRW.Behavior = UnitBehavior.Chasing;
-                float radius = navigation.ValueRO.IsChasing != 0 ? _definition.LoseTargetRadius : _definition.DetectionRadius;
-                float rangeSquared = radius * radius;
-                float distanceSquared = math.lengthsq(heroGround.Position - ground.ValueRO.Position);
-                float2 targetPosition = heroGround.Position;
-                bool shouldChase = heroAlive && heroInMap && vitals.ValueRO.Health > 0 && distanceSquared <= rangeSquared;
-                if (navigation.ValueRO.HasCastleObjective != 0)
+                navigation.ValueRW.StopReason = MovementStopReason.None;
+                if (!structure)
                 {
-                    // 主堡目标不受英雄感知半径限制。保持已有路线直至重算，避免每步搜索。
-                    if (now < navigation.ValueRO.NextRepathTime && navigation.ValueRO.StructureTarget != Entity.Null &&
-                        EntityManager.Exists(navigation.ValueRO.StructureTarget) &&
-                        EntityManager.GetComponentData<DefenseStructure>(navigation.ValueRO.StructureTarget).Health > 0)
-                        continue;
-                    targetPosition = navigation.ValueRO.StructureGoal;
-                    shouldChase = vitals.ValueRO.Health > 0 && navigation.ValueRO.StructureTarget != Entity.Null &&
-                        EntityManager.Exists(navigation.ValueRO.StructureTarget) &&
-                        EntityManager.GetComponentData<DefenseStructure>(navigation.ValueRO.StructureTarget).Health > 0;
-                    _map.TryWorldToCell(targetPosition.x, targetPosition.y, out goal);
-                    if (!shouldChase)
+                    float range = EntityManager.HasComponent<CombatProfile>(actor)
+                        ? EntityManager.GetComponentData<CombatProfile>(actor).AttackRange : 0;
+                    float reach = motion.ValueRO.Radius + EntityManager.GetComponentData<UnitMotion>(target).Radius + range;
+                    if (math.distancesq(ground.ValueRO.Position, targetPosition) <= reach * reach)
                     {
-                        // 有主堡但无可达攻击位时等待，不能退回追英雄。
                         navigation.ValueRW.IsChasing = 1;
+                        navigation.ValueRW.Behavior = UnitBehavior.Attacking;
+                        navigation.ValueRW.StopReason = MovementStopReason.InAttackRange;
                         navigation.ValueRW.NextRepathTime = now + _definition.RepathSeconds;
-                        navigation.ValueRW.Behavior = UnitBehavior.Idle;
                         path.Clear();
                         continue;
                     }
                 }
-                if (!shouldChase)
-                {
-                    // 一旦脱离感知范围就切换，不等待下一次重算；恢复游走时选新的随机方向。
-                    if (navigation.ValueRO.IsChasing != 0)
-                        wander.ValueRW.Remaining = 0;
-                    navigation.ValueRW = default;
-                    navigation.ValueRW.Behavior = UnitBehavior.Moving; // 无目标时由 MovementSystem 游走。
-                    path.Clear();
-                    continue;
-                }
-
                 bool enteringChase = navigation.ValueRO.IsChasing == 0;
                 navigation.ValueRW.IsChasing = 1;
                 if (enteringChase || now >= navigation.ValueRO.NextRepathTime)
@@ -96,27 +95,25 @@ namespace Game.Battle.Simulation.Systems
                     navigation.ValueRW.WaypointIndex = 0;
                     navigation.ValueRW.GoalCell = new int2(goal.X, goal.Y);
                     navigation.ValueRW.NextRepathTime = now + _definition.RepathSeconds;
-                    bool startInMap = _map.TryWorldToCell(ground.ValueRO.Position.x, ground.ValueRO.Position.y, out var start);
-                    if (startInMap && _pathfinder.TryFindPath(start, goal, _pathCells))
+                    navigation.ValueRW.StopReason = MovementStopReason.NoPath;
+                    if (_map.TryWorldToCell(ground.ValueRO.Position.x, ground.ValueRO.Position.y, out var start) &&
+                        _pathfinder.TryFindPath(start, goal, _pathCells))
                     {
-                        // 不先绕到起点格中心。终点用英雄的连续坐标，同格时也能完成靠近。
                         for (int i = 1; i < _pathCells.Count; i++)
                         {
                             var center = _map.CellCenter(_pathCells[i]);
-                            path.Add(new NavigationWaypoint{Position = new float2(center.X, center.Y)});
+                            path.Add(new NavigationWaypoint { Position = new float2(center.X, center.Y) });
                         }
-
-                        if (path.Length == 0)
-                            path.Add(new NavigationWaypoint{Position = targetPosition});
+                        if (path.Length == 0) path.Add(new NavigationWaypoint { Position = targetPosition });
+                        navigation.ValueRW.StopReason = MovementStopReason.None;
                     }
-                // 无路时保持追踪但不移动，按配置重试；不能沿旧路线穿过无效地块。
                 }
-
+                if (path.Length == 0 && navigation.ValueRO.StopReason == MovementStopReason.None)
+                    navigation.ValueRW.StopReason = MovementStopReason.NoPath;
                 if (path.Length > 0)
                 {
-                    // 格子内的移动也要跟随，不能只追到英雄所在格子的中心就停止。
                     var writablePath = path;
-                    writablePath[path.Length - 1] = new NavigationWaypoint{Position = targetPosition};
+                    writablePath[path.Length - 1] = new NavigationWaypoint { Position = targetPosition };
                 }
             }
         }

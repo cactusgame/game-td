@@ -15,8 +15,7 @@ namespace Game.Bootstrap
 
         public void Start()
         {
-            // 120 是画面目标帧率；战斗模拟步长由 JSON 的 FixedStep 单独决定。
-            Application.targetFrameRate = 120;
+            // 画面限帧由 Presentation 的 RuntimeFrameRate 统一设置，模拟仍按配置的固定步推进。
             Application.runInBackground = true;
             _session.Restart();
         }

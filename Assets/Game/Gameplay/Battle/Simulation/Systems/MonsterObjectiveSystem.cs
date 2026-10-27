@@ -36,14 +36,18 @@ namespace Game.Battle.Simulation.Systems
                 navigation.ValueRW.HasCastleObjective = wantsCastle ? (byte)1 : (byte)0;
                 if (!wantsCastle || vitals.ValueRO.Health <= 0 || SystemAPI.Time.ElapsedTime < navigation.ValueRO.NextRepathTime)
                     continue;
-                TrySelectCastleGoal(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, structures, entities,
-                    out var target, out var position);
+                Entity previous = navigation.ValueRO.StructureTarget;
+                bool kept = TrySelectCastleGoal(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange,
+                    structures, entities, previous, out var target, out var position);
+                if (!kept && previous != Entity.Null)
+                    TrySelectCastleGoal(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange,
+                        structures, entities, Entity.Null, out target, out position);
                 navigation.ValueRW.StructureTarget = target;
                 navigation.ValueRW.StructureGoal = position;
             }
         }
         private bool TrySelectCastleGoal(float2 position, float radius, float attackRange, NativeArray<DefenseStructure> structures,
-            NativeArray<Entity> entities, out Entity target, out float2 destination)
+            NativeArray<Entity> entities, Entity preferred, out Entity target, out float2 destination)
         {
             target = Entity.Null;
             destination = position;
@@ -53,6 +57,7 @@ namespace Game.Battle.Simulation.Systems
             for (int i = 0; i < structures.Length; i++)
             {
                 var castle = structures[i];
+                if (preferred != Entity.Null && entities[i] != preferred) continue;
                 if (castle.IsMainCastle == 0 || castle.Health <= 0)
                     continue;
                 for (int cellIndex = 0; cellIndex < _map.CellCount; cellIndex++)

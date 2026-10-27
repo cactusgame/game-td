@@ -54,6 +54,8 @@ namespace Game.Tools.MapPlaytest.Unity
         private double _fpsSampleStartedAt;
         private int _fpsFrameCount;
         private WavePreviewView _wavePreview;
+        private AiDebugView _aiDebug;
+        public bool AiDebugVisible => _aiDebug?.IsVisible ?? false;
 
         public double SimulationTime => _session?.SimulationTime ?? 0;
         public int MapVersion => _session?.MapVersion ?? 0;
@@ -134,6 +136,7 @@ namespace Game.Tools.MapPlaytest.Unity
                     _constructionView.ResetMode();
                     _session.CancelPlayerOperations();
                 });
+                _aiDebug = new AiDebugView(_session, mapCamera, hud);
                 Restart();
             }
             catch (Exception error)
@@ -183,6 +186,7 @@ namespace Game.Tools.MapPlaytest.Unity
             {
                 FollowHero();
                 _wavePreview?.Synchronize();
+                _aiDebug?.Synchronize();
             }
         }
 
@@ -283,12 +287,16 @@ namespace Game.Tools.MapPlaytest.Unity
         private void UpdateDebugHud()
         {
             var keyboard = Keyboard.current;
-            if (UnityEngine.Application.isFocused && keyboard != null && keyboard.pKey.wasPressedThisFrame && _debugControls != null)
+            bool typing = hud?.rootVisualElement.focusController?.focusedElement is VisualElement focused &&
+                (focused is TextField || focused.GetFirstAncestorOfType<TextField>() != null);
+            if (UnityEngine.Application.isFocused && keyboard != null && keyboard.pKey.wasPressedThisFrame && !typing)
             {
-                _debugControls.ToggleInClassList("debug-visible");
+                _debugControls?.ToggleInClassList("debug-visible");
+                _aiDebug?.SetVisible(!_aiDebug.IsVisible);
             }
 
-            // 按真实墙钟时间统计帧数，不受 timeScale 或 deltaTime 上限影响。
+            // 每约半秒显示该窗口内 Update 帧数 / 真实秒数的平均画面 FPS，不是 ECS 模拟频率。
+            // 使用真实墙钟时间，不受 timeScale 或 deltaTime 上限影响。
             _fpsFrameCount++;
             double now = Time.realtimeSinceStartupAsDouble;
             double elapsedSeconds = now - _fpsSampleStartedAt;
@@ -434,6 +442,7 @@ namespace Game.Tools.MapPlaytest.Unity
 
         private void OnDestroy()
         {
+            _aiDebug?.Dispose();
             _wavePreview?.Dispose();
             _session?.Dispose();
         }

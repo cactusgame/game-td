@@ -52,7 +52,11 @@ namespace Game.Tools.MapPlaytest.Tests
             var fortifications = new GatePassageSession(catalog);
             using var simulation = new EcsBattleSimulation();
             simulation.Reset(session.Definition);
-            var units = new[] { new UnitSnapshot(100, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100) };
+            simulation.SpawnEnemies(new[] { new Game.MapEngine.Domain.MapPoint(-5, -5) }, 1);
+            var attackers = new System.Collections.Generic.List<UnitSnapshot>();
+            simulation.CopyUnits(attackers);
+            ulong attackerId = attackers.First(unit => unit.Kind == UnitKind.Goblin).Id;
+            var units = new[] { new UnitSnapshot(attackerId, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100) };
             fortifications.Update(simulation, session.Snapshot, session.Definition, units, 0, true);
             int afterHit = fortifications.WallHealth("test-wall");
             Assert.That(afterHit, Is.LessThan(catalog.Wall.WallHealth));
@@ -69,11 +73,15 @@ namespace Game.Tools.MapPlaytest.Tests
             var fortifications = new GatePassageSession(catalog);
             using var simulation = new EcsBattleSimulation();
             simulation.Reset(session.Definition);
-            var stunned = new[] { new UnitSnapshot(100, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
+            simulation.SpawnEnemies(new[] { new Game.MapEngine.Domain.MapPoint(-5, -5) }, 1);
+            var attackers = new System.Collections.Generic.List<UnitSnapshot>();
+            simulation.CopyUnits(attackers);
+            ulong attackerId = attackers.First(unit => unit.Kind == UnitKind.Goblin).Id;
+            var stunned = new[] { new UnitSnapshot(attackerId, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
                 status: new UnitStatusSnapshot(1, 0, 0, 0)) };
             fortifications.Update(simulation, session.Snapshot, session.Definition, stunned, 0, true);
             Assert.That(fortifications.WallHealth("test-wall"), Is.EqualTo(catalog.Wall.WallHealth));
-            var rooted = new[] { new UnitSnapshot(100, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
+            var rooted = new[] { new UnitSnapshot(attackerId, UnitKind.Goblin, -0.2f, -3.5f, 1, 100, 100, -100,
                 status: new UnitStatusSnapshot(0, 1, 1, 0)) };
             fortifications.Update(simulation, session.Snapshot, session.Definition, rooted, 0, true);
             Assert.That(fortifications.WallHealth("test-wall"), Is.LessThan(catalog.Wall.WallHealth));

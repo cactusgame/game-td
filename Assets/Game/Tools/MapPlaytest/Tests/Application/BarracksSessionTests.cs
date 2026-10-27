@@ -364,7 +364,7 @@ namespace Game.Tools.MapPlaytest.Tests
                 foreach (var structure in _structures)
                     destination.Add(new DefenseStructureSnapshot(structure.Id, DestroyBarracks && structure.Id == "barracks" ? 0 : structure.MaxHealth, structure.IsMainCastle));
             }
-            public void RecordExternalAttack(ulong attackerId, MapPoint target) { }
+            public bool TryAttackExternalTarget(ulong attackerId, MapPoint target, double simulationTime, Func<int, bool> commitDamage, string targetId = null) => commitDamage(1);
             public void DismissSoldiers(IReadOnlyList<ulong> ids) => _units.RemoveAll(unit => ids.Contains(unit.Id));
             public void Dispose() { }
         }

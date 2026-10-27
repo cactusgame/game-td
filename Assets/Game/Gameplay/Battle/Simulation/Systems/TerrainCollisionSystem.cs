@@ -1,4 +1,5 @@
 using Game.Battle.Simulation.Components;
+using Game.Battle.Domain.ValueObjects;
 using Game.MapEngine.Domain;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -27,7 +28,7 @@ namespace Game.Battle.Simulation.Systems
         {
             if (_map == null)
                 return;
-            foreach (var (ground, motion, identity) in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRO<UnitIdentity>>())
+            foreach (var (ground, motion, identity, entity) in SystemAPI.Query<RefRW<GroundTransform>, RefRO<UnitMotion>, RefRO<UnitIdentity>>().WithEntityAccess())
             {
                 var map = Game.Battle.Domain.ValueObjects.UnitKinds.IsFriendly(identity.ValueRO.Kind) ? _friendlyMap : _map;
                 float2 position = ground.ValueRO.Previous;
@@ -48,6 +49,13 @@ namespace Game.Battle.Simulation.Systems
                         position.y = next.y;
                 }
                 ground.ValueRW.Position = position;
+                if (math.lengthsq(delta) > 0.00000001f && math.distancesq(position, ground.ValueRO.Previous) < 0.00000001f &&
+                    EntityManager.HasComponent<MonsterNavigationState>(entity))
+                {
+                    var navigation = EntityManager.GetComponentData<MonsterNavigationState>(entity);
+                    navigation.StopReason = MovementStopReason.BlockedByTerrain;
+                    EntityManager.SetComponentData(entity, navigation);
+                }
             }
         }
     }

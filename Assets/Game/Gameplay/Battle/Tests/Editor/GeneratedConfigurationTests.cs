@@ -53,6 +53,10 @@ namespace Game.Battle.Tests
             Assert.That(battle.Goblin.TargetMainCastle, Is.True);
             Assert.That(battle.Goblin.CanAttackGates, Is.True);
             Assert.That(battle.Goblin.AttackInterval, Is.EqualTo(1));
+            Assert.That(battle.Hero.HealthRegenerationPerSecond, Is.GreaterThan(battle.Soldiers[0].HealthRegenerationPerSecond));
+            Assert.That(battle.Soldiers[0].HealthRegenerationPerSecond, Is.GreaterThan(battle.Goblin.HealthRegenerationPerSecond));
+            Assert.That(battle.Goblin.HealthRegenerationPerSecond, Is.GreaterThan(0));
+            Assert.That(battle.Runner.HealthRegenerationPerSecond, Is.GreaterThan(0));
         }
         [Test]
         public void ConstructionDomainRejectsCyclicUpgradeDefinitions()

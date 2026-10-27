@@ -38,13 +38,20 @@ namespace Game.Battle.Tests
         private Entity Spawn(float2 position)
         {
             var entity = Em.CreateEntity(typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion),
-                typeof(CombatProfile), typeof(MonsterNavigationState), typeof(UnitIdentity));
+                typeof(CombatProfile), typeof(MonsterNavigationState), typeof(UnitIdentity), typeof(CombatTargetState));
             Em.SetComponentData(entity, new GroundTransform { Position = position, Previous = position });
             Em.SetComponentData(entity, new Vitals { Health = 100, Attack = 10, LastAttackTime = -100 });
             Em.SetComponentData(entity, new UnitMotion { Radius = 0.2f, Speed = 2 });
             Em.SetComponentData(entity, new CombatProfile { AttackRange = 0.15f, AttackInterval = 1 });
             Em.AddBuffer<NavigationWaypoint>(entity);
             return entity;
+        }
+
+        private void SelectTargets()
+        {
+            var targets = _world.GetOrCreateSystemManaged<CombatTargetSelectionSystem>();
+            targets.SoldierDetectionRadius = _navigation.DetectionRadius;
+            targets.Update();
         }
 
         private Entity Soldier(bool stationed = false)
@@ -69,6 +76,7 @@ namespace Game.Battle.Tests
         {
             var soldier = Soldier();
             Em.SetComponentData(soldier, new SoldierState { IsSelected = selected });
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
             Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Idle));
@@ -85,6 +93,7 @@ namespace Game.Battle.Tests
                 Command = SoldierCommand.FollowHero,
                 FollowOffset = new float2(1, 0)
             });
+            SelectTargets();
             _navigation.Update();
             var path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(-9, -10)));
@@ -103,6 +112,7 @@ namespace Game.Battle.Tests
                 Stance = CombatStance.HoldGround,
                 Behavior = UnitBehavior.Regrouping
             });
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
             var state = Em.GetComponentData<SoldierState>(soldier);
@@ -110,6 +120,7 @@ namespace Game.Battle.Tests
             Assert.That(state.Behavior, Is.EqualTo(UnitBehavior.Idle));
             state.Stance = CombatStance.Alert;
             Em.SetComponentData(soldier, state);
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
             Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Regrouping));
@@ -126,11 +137,13 @@ namespace Game.Battle.Tests
                 Behavior = UnitBehavior.Regrouping
             });
             var enemy = Monster(3);
+            SelectTargets();
             _navigation.Update();
             var path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(2, 0)));
             Em.SetComponentData(soldier, new GroundTransform { Position = new float2(2, 0) });
             _world.SetTime(new TimeData(2, 0.02f));
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Chasing));
             Em.SetComponentData(enemy, new Vitals());
@@ -138,6 +151,7 @@ namespace Game.Battle.Tests
             using var heroes = Em.CreateEntityQuery(typeof(HeroTag));
             Em.SetComponentData(heroes.GetSingletonEntity(), new GroundTransform { Position = new float2(8, 8) });
             _world.SetTime(new TimeData(3, 0.02f));
+            SelectTargets();
             _navigation.Update();
             path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(2, 0)));
@@ -150,6 +164,7 @@ namespace Game.Battle.Tests
             var soldier = Soldier();
             var monster = Monster(0.45f);
             Em.SetComponentData(soldier, new SoldierState { Command = SoldierCommand.FollowHero, Behavior = UnitBehavior.Regrouping });
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
             var combat = _world.GetOrCreateSystemManaged<SoldierCombatSystem>();
@@ -160,6 +175,7 @@ namespace Game.Battle.Tests
             using var query = Em.CreateEntityQuery(typeof(HeroTag));
             Em.SetComponentData(query.GetSingletonEntity(), new GroundTransform());
             _world.SetTime(new TimeData(3, 0.02f));
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.Not.EqualTo(UnitBehavior.Regrouping));
             combat.Update();
@@ -177,12 +193,14 @@ namespace Game.Battle.Tests
             Em.SetComponentData(soldier, new SoldierState { Command = SoldierCommand.FollowHero, FollowOffset = new float2(1, 0) });
             Em.SetComponentData(soldier, new CombatProfile { AttackRange = 4.5f, AttackInterval = 1 });
             var enemy = Monster(6);
+            SelectTargets();
             _navigation.Update();
             var path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(new float2(1, 0)));
             _world.GetOrCreateSystemManaged<SoldierCombatSystem>().Update();
             Assert.That(Em.GetComponentData<Vitals>(enemy).Health, Is.EqualTo(100), "远程兵也不能在跟随时被圈外目标牵制");
             Em.SetComponentData(hero, new GroundTransform { Position = new float2(-3, 0) });
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetComponentData<SoldierState>(soldier).Behavior, Is.EqualTo(UnitBehavior.Regrouping));
             path = Em.GetBuffer<NavigationWaypoint>(soldier);
@@ -198,6 +216,7 @@ namespace Game.Battle.Tests
             var soldier = Soldier();
             Monster(enemyX);
             _navigation.DetectionRadius = radius;
+            SelectTargets();
             _navigation.Update();
             var path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path.Length > 0, Is.EqualTo(chases));
@@ -218,11 +237,13 @@ namespace Game.Battle.Tests
             _navigation.DetectionRadius = 1;
             _world.GetOrCreateSystemManaged<SoldierCombatSystem>().Update();
             Assert.That(Em.GetComponentData<SoldierState>(soldier).RetaliationTarget, Is.EqualTo(monster));
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.GreaterThan(0));
             vital.Health = 0;
             Em.SetComponentData(monster, vital);
             _world.SetTime(new TimeData(2, 0.02f));
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetComponentData<SoldierState>(soldier).RetaliationTarget, Is.EqualTo(Entity.Null));
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
@@ -235,6 +256,7 @@ namespace Game.Battle.Tests
             var soldier = Soldier(true);
             var monster = Monster(enemyX);
             Em.GetBuffer<NavigationWaypoint>(soldier).Add(new NavigationWaypoint { Position = new float2(8, 0) });
+            SelectTargets();
             _navigation.Update();
             Assert.That(Em.GetBuffer<NavigationWaypoint>(soldier).Length, Is.Zero);
             _world.GetOrCreateSystemManaged<SoldierCombatSystem>().Update();
@@ -256,6 +278,7 @@ namespace Game.Battle.Tests
             ground.Position = ground.Previous = new float2(2, 0);
             Em.SetComponentData(soldier, ground);
             var enemy = Monster(4);
+            SelectTargets();
             _navigation.Update();
             if (dies)
             {
@@ -270,6 +293,7 @@ namespace Game.Battle.Tests
                 Em.SetComponentData(enemy, enemyGround);
             }
             _world.SetTime(new TimeData(2, 0.02f));
+            SelectTargets();
             _navigation.Update();
             var path = Em.GetBuffer<NavigationWaypoint>(soldier);
             Assert.That(path[path.Length - 1].Position, Is.EqualTo(float2.zero));

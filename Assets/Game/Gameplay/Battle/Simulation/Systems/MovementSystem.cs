@@ -43,22 +43,32 @@ namespace Game.Battle.Simulation.Systems
                 ground.Previous = ground.Position;
                 // 死亡英雄的位置代表幽灵；仍消费移动输入，尸体位置独立保存在复活状态中。
                 if (vitals.Health <= 0 && identity.Kind != UnitKind.Hero)
+                {
+                    navigation.StopReason = MovementStopReason.Dead;
                     return;
+                }
                 // 幽灵维持原有移动语义；活单位不能通过英雄输入、路径或游走绕过控制。
                 if (vitals.Health > 0 && Statuses.HasComponent(entity) && !Statuses[entity].CanMoveAt(Now))
+                {
+                    navigation.StopReason = Statuses[entity].IsStunnedAt(Now) ? MovementStopReason.Stunned : MovementStopReason.Rooted;
                     return;
+                }
                 float2 limit = HalfSize - motion.Radius;
                 float2 next;
                 if (identity.Kind == UnitKind.Hero)
                 {
+                    navigation.StopReason = math.lengthsq(HeroInput) > 0 ? MovementStopReason.None : MovementStopReason.NoMoveInput;
                     next = ground.Position + HeroInput * motion.Speed * DeltaTime;
                 }
                 else if (navigation.IsChasing != 0)
                 {
                     next = FollowPath(ground.Position, limit, Center, motion.Speed * DeltaTime, path, ref navigation);
+                    if (navigation.StopReason == MovementStopReason.None && math.distancesq(next, ground.Position) < 0.00000001f)
+                        navigation.StopReason = path.Length > 0 ? MovementStopReason.Arrived : MovementStopReason.WaitingForPath;
                 }
                 else
                 {
+                    navigation.StopReason = MovementStopReason.None;
                     wander.Remaining -= DeltaTime;
                     if (wander.Remaining <= 0)
                     {

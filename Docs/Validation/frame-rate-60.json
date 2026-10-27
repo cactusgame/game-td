@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-27",
+  "scene": "Assets/Scenes/Development/DefensePlayground.unity",
+  "compilation": "passed",
+  "targetFrameRate": 60,
+  "vSyncCount": 0,
+  "sample": {
+    "before": {
+      "frames": 810,
+      "realtime": 15.948455506462778,
+      "target": 60,
+      "vsync": 0,
+      "display": "FPS 60",
+      "simulationTime": 13.539999697357416
+    },
+    "after": {
+      "frames": 2914,
+      "realtime": 51.05904280646291,
+      "target": 60,
+      "vsync": 0,
+      "display": "FPS 60",
+      "simulationTime": 48.739998910576105
+    },
+    "measuredFps": 59.92494463343802
+  },
+  "gameplaySimulationStepChanged": false
+}

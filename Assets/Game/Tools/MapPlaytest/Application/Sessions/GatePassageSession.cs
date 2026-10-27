@@ -17,8 +17,9 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
     {
         private readonly MapContentCatalog _catalog;
         private readonly Dictionary<string, GateDefense> _defenses = new Dictionary<string, GateDefense>();
-        // 墙和门的低频攻城耐久由本协调器独占，复用相同的按攻击者冷却规则。
+        // 墙门只拥有耐久；攻击者的普通攻击冷却统一由战斗模拟拥有。
         private readonly Dictionary<string, GateDefense> _wallDefenses = new Dictionary<string, GateDefense>();
+        private readonly Dictionary<ulong, string> _attackTargets = new Dictionary<ulong, string>();
         private readonly HashSet<string> _opened = new HashSet<string>();
         public int ViewVersion { get; private set; }
         public int SpatialVersion { get; private set; }
@@ -90,69 +91,59 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             return layout;
         }
 
-        /// <summary>移动完成后读取活单位；敌人接触门洞才攻击，空间发布成功才提交摧毁事实。</summary>
+        /// <summary>移动后投影开门，选择并保持可攻击墙门；伤害与空间成功提交才消耗单位共享冷却。</summary>
         public void Update(IDefenseBattleSimulation simulation, MapLayout layout, BattleDefinition definition,
             IReadOnlyList<UnitSnapshot> units, double now, bool applyDamage)
         {
-            if (applyDamage)
-                AttackWalls(simulation, layout, definition, units, now);
             var network = MapWallSnapshotMapper.Read(layout);
             var opened = new HashSet<string>();
-            foreach (var edge in network.Edges)
+            var livingEnemies = new HashSet<ulong>();
+            foreach (var unit in units)
             {
-                foreach (var gate in edge.Gates)
+                if (unit.Health <= 0) continue;
+                var stats = definition.GetUnit(unit.Kind);
+                var candidates = new List<AttackTarget>();
+                foreach (var edge in network.Edges)
                 {
-                    if (!Game.Fortifications.Domain.Rules.WallGateRules.TryGetSpan(network, edge, gate, out var span))
-                        continue;
-                    var state = _defenses.TryGetValue(gate.Id, out var previous) ? previous.Copy() : new GateDefense(_catalog.Wall.GateHealth);
-                    var attackers = new List<ulong>();
-                    foreach (var unit in units)
+                    foreach (var gate in edge.Gates)
                     {
-                        if (unit.Health <= 0)
-                            continue;
-                        var stats = definition.GetUnit(unit.Kind);
+                        if (!Game.Fortifications.Domain.Rules.WallGateRules.TryGetSpan(network, edge, gate, out var span)) continue;
                         float x = unit.X - span.Center.X;
                         float y = unit.Y - span.Center.Y;
+                        bool friendly = UnitKinds.IsFriendly(unit.Kind);
+                        float reach = friendly ? stats.Speed * definition.FixedStep + 0.5f : Math.Max(layout.cellWidth, layout.cellHeight) * 0.5f + 0.25f;
                         float along = Math.Abs(x * span.Direction.X + y * span.Direction.Y);
                         float across = Math.Abs(-x * span.Direction.Y + y * span.Direction.X);
-                        // 保守格子投影会把门前单位挡在整格边界，攻击距离需覆盖这段投影余量。
-                        float projectionMargin = Math.Max(layout.cellWidth, layout.cellHeight) * 0.5f;
-                        // 英雄和我方士兵使用同一套提前开门距离，不按人物类别区分通行权限。
-                        bool friendly = UnitKinds.IsFriendly(unit.Kind);
-                        float reach = friendly
-                            ? stats.Speed * definition.FixedStep + 0.5f
-                            : projectionMargin + 0.25f;
                         if (along > (span.OpeningEnd - span.OpeningStart) * 0.5f + stats.Radius ||
-                            across > _catalog.Wall.Width * 0.5f + stats.Radius + reach)
-                            continue;
-                        if (friendly)
-                            opened.Add(gate.Id);
-                        else if (UnitKinds.IsEnemy(unit.Kind) && unit.CanAttack && applyDamage && stats.CanAttackGates &&
-                            state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval))
-                        {
-                            attackers.Add(unit.Id);
-                        }
+                            across > _catalog.Wall.Width * 0.5f + stats.Radius + reach) continue;
+                        if (friendly) opened.Add(gate.Id);
+                        else if (!Destroyed(gate.Id)) candidates.Add(new AttackTarget(gate.Id, false, span.Center, x * x + y * y));
                     }
-                    if (state.IsDestroyed && !Destroyed(gate.Id))
-                    {
-                        try
-                        {
-                            simulation.UpdateNavigationMap(Navigation(layout, false, gate.Id), definition.Navigation, Navigation(layout, true));
-                        }
-                        catch
-                        {
-                            Synchronize(simulation, layout, definition);
-                            throw;
-                        }
-                        SpatialVersion++;
-                        ViewVersion++;
-                    }
-                    _defenses[gate.Id] = state;
-                    // 冷却内不重播动作。致命一击须等待破门空间提交成功后再发布攻击事实。
-                    foreach (ulong attackerId in attackers)
-                        simulation.RecordExternalAttack(attackerId, span.Center);
                 }
+                if (!UnitKinds.IsEnemy(unit.Kind)) continue;
+                livingEnemies.Add(unit.Id);
+                if (!applyDamage || !unit.CanAttack || !stats.CanAttackGates) continue;
+                AddWallTargets(layout, unit, stats, candidates);
+                AttackTarget? chosen = null;
+                _attackTargets.TryGetValue(unit.Id, out string previous);
+                foreach (var candidate in candidates)
+                {
+                    if (candidate.Key == previous) { chosen = candidate; break; }
+                    if (!chosen.HasValue || candidate.DistanceSquared < chosen.Value.DistanceSquared ||
+                        (candidate.DistanceSquared == chosen.Value.DistanceSquared && string.CompareOrdinal(candidate.Key, chosen.Value.Key) < 0))
+                        chosen = candidate;
+                }
+                if (!chosen.HasValue)
+                {
+                    _attackTargets.Remove(unit.Id);
+                    continue;
+                }
+                var target = chosen.Value;
+                _attackTargets[unit.Id] = target.Key;
+                simulation.TryAttackExternalTarget(unit.Id, target.Point, now,
+                    damage => CommitAttack(simulation, layout, definition, target, damage), target.Key);
             }
+            foreach (ulong id in _attackTargets.Keys.Where(id => !livingEnemies.Contains(id)).ToArray()) _attackTargets.Remove(id);
             if (!_opened.SetEquals(opened))
             {
                 _opened.Clear();
@@ -161,64 +152,68 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
             }
         }
 
-        private void AttackWalls(IDefenseBattleSimulation simulation, MapLayout layout, BattleDefinition definition,
-            IReadOnlyList<UnitSnapshot> units, double now)
+        private void AddWallTargets(MapLayout layout, UnitSnapshot unit, UnitDefinition stats, List<AttackTarget> targets)
         {
             foreach (var edge in layout.wallEdges)
             {
-                if (WallHealth(edge.id) <= 0)
-                    continue;
+                if (WallHealth(edge.id) <= 0) continue;
                 var from = layout.wallNodes.Find(node => node.id == edge.from);
                 var to = layout.wallNodes.Find(node => node.id == edge.to);
-                if (from.x > to.x || from.x == to.x && from.y > to.y)
-                {
-                    var swap = from;
-                    from = to;
-                    to = swap;
-                }
+                if (from.x > to.x || from.x == to.x && from.y > to.y) { var swap = from; from = to; to = swap; }
                 float dx = to.x - from.x;
                 float dy = to.y - from.y;
                 float lengthSquared = dx * dx + dy * dy;
-                if (lengthSquared <= 0)
-                    continue;
-                var state = _wallDefenses.TryGetValue(edge.id, out var previous)
-                    ? previous.Copy() : new GateDefense(_catalog.Wall.WallHealth);
-                foreach (var unit in units)
+                if (lengthSquared <= 0) continue;
+                float t = Math.Max(0, Math.Min(1, ((unit.X - from.x) * dx + (unit.Y - from.y) * dy) / lengthSquared));
+                float alongTiles = t * (float)Math.Sqrt(dx * dx / (layout.cellWidth * layout.cellWidth) + dy * dy / (layout.cellHeight * layout.cellHeight));
+                if (edge.gates.Any(gate => alongTiles >= gate.startTile && alongTiles <= gate.startTile + gate.widthTiles)) continue;
+                var point = new MapPoint(from.x + t * dx, from.y + t * dy);
+                float x = unit.X - point.X;
+                float y = unit.Y - point.Y;
+                float reach = _catalog.Wall.Width * 0.5f + stats.Radius + Math.Max(layout.cellWidth, layout.cellHeight) * 0.5f + 0.25f;
+                if (x * x + y * y <= reach * reach) targets.Add(new AttackTarget(edge.id, true, point, x * x + y * y));
+            }
+        }
+
+        private bool CommitAttack(IDefenseBattleSimulation simulation, MapLayout layout, BattleDefinition definition, AttackTarget target, int damage)
+        {
+            var states = target.IsWall ? _wallDefenses : _defenses;
+            int maximum = target.IsWall ? _catalog.Wall.WallHealth : _catalog.Wall.GateHealth;
+            var candidate = states.TryGetValue(target.Id, out var old) ? old.Copy() : new GateDefense(maximum);
+            if (!candidate.Damage(damage)) return false;
+            if (candidate.IsDestroyed)
+            {
+                try
                 {
-                    var stats = definition.GetUnit(unit.Kind);
-                    if (!unit.CanAttack || !UnitKinds.IsEnemy(unit.Kind) || !stats.CanAttackGates)
-                        continue;
-                    float t = Math.Max(0, Math.Min(1, ((unit.X - from.x) * dx + (unit.Y - from.y) * dy) / lengthSquared));
-                    float alongTiles = t * (float)Math.Sqrt(dx * dx / (layout.cellWidth * layout.cellWidth)
-                        + dy * dy / (layout.cellHeight * layout.cellHeight));
-                    // 门洞范围由门防御结算，不能一击同时伤害门和所属墙边。
-                    if (edge.gates.Any(gate => alongTiles >= gate.startTile && alongTiles <= gate.startTile + gate.widthTiles))
-                        continue;
-                    var point = new MapPoint(from.x + t * dx, from.y + t * dy);
-                    float x = unit.X - point.X;
-                    float y = unit.Y - point.Y;
-                    float reach = _catalog.Wall.Width * 0.5f + stats.Radius + Math.Max(layout.cellWidth, layout.cellHeight) * 0.5f + 0.25f;
-                    if (x * x + y * y > reach * reach || !state.ReceiveAttack(unit.Id, stats.Attack, now, _catalog.Wall.GateAttackInterval))
-                        continue;
-                    if (state.IsDestroyed)
-                    {
-                        try
-                        {
-                            simulation.UpdateNavigationMap(Navigation(layout, false, destroyedWallId: edge.id),
-                                definition.Navigation, Navigation(layout, true, destroyedWallId: edge.id));
-                        }
-                        catch
-                        {
-                            Synchronize(simulation, layout, definition);
-                            throw;
-                        }
-                        DestroyAttachedGates(layout, edge.id);
-                        SpatialVersion++;
-                    }
-                    _wallDefenses[edge.id] = state.Copy();
-                    ViewVersion++;
-                    simulation.RecordExternalAttack(unit.Id, point);
+                    simulation.UpdateNavigationMap(Navigation(layout, false, target.IsWall ? null : target.Id, target.IsWall ? target.Id : null),
+                        definition.Navigation, Navigation(layout, true, target.IsWall ? null : target.Id, target.IsWall ? target.Id : null));
                 }
+                catch
+                {
+                    Synchronize(simulation, layout, definition);
+                    throw;
+                }
+                if (target.IsWall) DestroyAttachedGates(layout, target.Id);
+                SpatialVersion++;
+            }
+            states[target.Id] = candidate;
+            ViewVersion++;
+            return true;
+        }
+
+        private readonly struct AttackTarget
+        {
+            public readonly string Id;
+            public readonly bool IsWall;
+            public readonly MapPoint Point;
+            public readonly float DistanceSquared;
+            public string Key => (IsWall ? "wall:" : "gate:") + Id;
+            public AttackTarget(string id, bool isWall, MapPoint point, float distanceSquared)
+            {
+                Id = id;
+                IsWall = isWall;
+                Point = point;
+                DistanceSquared = distanceSquared;
             }
         }
 

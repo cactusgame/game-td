@@ -12,5 +12,7 @@ namespace Game.Battle.Simulation.Components
         public int Defense;
         public float LastHitTime;
         public float LastAttackTime;
+        // 普通攻击的唯一冷却。LastAttackTime 用于动作反馈与脱战判定，技能不能改写普通攻击冷却。
+        public double NextNormalAttackAt;
     }
 }

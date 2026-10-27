@@ -64,6 +64,11 @@
       "key": "killGold",
       "label": "击杀奖励/金币",
       "type": "int"
+    },
+    {
+      "key": "healthRegenerationPerSecond",
+      "label": "生命恢复/点每秒",
+      "type": "number"
     }
   ],
   "攻击": [

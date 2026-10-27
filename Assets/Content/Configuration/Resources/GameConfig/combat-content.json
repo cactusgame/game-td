@@ -5,7 +5,7 @@
       "id": "hero.alien",
       "name": "Alien",
       "slot": "Hero",
-      "maxHealth": 10000000,
+      "maxHealth": 200,
       "defense": 3,
       "speed": 4.5,
       "radius": 0.42,
@@ -14,7 +14,8 @@
       "skillIds": "skill.alien_burst;skill.alien_burst_heavy",
       "behaviorId": "",
       "animationResourceId": "alien-actions",
-      "killGold": 0
+      "killGold": 0,
+      "healthRegenerationPerSecond": 5.0
     },
     {
       "id": "enemy.skeleton",
@@ -29,7 +30,8 @@
       "skillIds": "",
       "behaviorId": "behavior.siege",
       "animationResourceId": "skeleton-actions",
-      "killGold": 5
+      "killGold": 5,
+      "healthRegenerationPerSecond": 0.1
     },
     {
       "id": "enemy.fallen",
@@ -44,7 +46,8 @@
       "skillIds": "",
       "behaviorId": "behavior.siege",
       "animationResourceId": "fallen-actions",
-      "killGold": 5
+      "killGold": 5,
+      "healthRegenerationPerSecond": 0.1
     },
     {
       "id": "ally.soldier",
@@ -59,7 +62,8 @@
       "skillIds": "",
       "behaviorId": "",
       "animationResourceId": "soldier-actions",
-      "killGold": 0
+      "killGold": 0,
+      "healthRegenerationPerSecond": 0.2
     },
     {
       "id": "ally.archer",
@@ -74,7 +78,8 @@
       "skillIds": "",
       "behaviorId": "",
       "animationResourceId": "archer-actions",
-      "killGold": 0
+      "killGold": 0,
+      "healthRegenerationPerSecond": 0.2
     }
   ],
   "attacks": [
@@ -193,5 +198,5 @@
       "canAttackGates": false
     }
   ],
-  "contentVersion": "b0fa256c7e8be72c"
+  "contentVersion": "c70e87906aae3831"
 }

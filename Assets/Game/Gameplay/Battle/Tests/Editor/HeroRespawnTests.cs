@@ -28,6 +28,7 @@ namespace Game.Battle.Tests
                 heroSpawn: new MapPoint(2, 3), enemySpawns: new[] { new MapPoint(2, 3) },
                 soldiers: new[] { new UnitDefinition(UnitKind.Soldier, 100, 0, 0, 2, 0.2f, 1) }));
             Assert.That(simulation.TrySpawnSoldier(UnitKind.Soldier, new MapPoint(2, 5), new MapPoint(2, 5), out _), Is.True);
+            simulation.TryApplyStatus(new ApplyUnitStatusCommand(1, UnitStatusKind.Poison, 1, 1, 0.01));
             simulation.Step(0.02f, default);
             var units = new List<UnitSnapshot>();
             simulation.CopyUnits(units);
@@ -98,6 +99,7 @@ namespace Game.Battle.Tests
                 simulation.CopyUnits(units);
                 return units.Find(u => u.Kind == UnitKind.Hero);
             }
+            simulation.TryApplyStatus(new ApplyUnitStatusCommand(1, UnitStatusKind.Poison, 1, 1, 0.01));
             simulation.Step(0.02f, default);
             var dead = ReadHero();
             Assert.That(dead.Health, Is.Zero);

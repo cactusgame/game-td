@@ -151,6 +151,9 @@ def build_documents(tables):
     resources = {p.stem for p in (ROOT / 'Assets/Content/Units').rglob('*-actions.asset')}
     slots = {}
     for record in by['单位'].values():
+        regeneration = record['healthRegenerationPerSecond']
+        if isinstance(regeneration, bool) or not isinstance(regeneration, (int, float)) or not math.isfinite(regeneration) or not 0 <= regeneration <= 3.402823466e38:
+            fail(record, '每秒生命恢复必须为非负有限数且不超过运行时浮点上限')
         reward = record['killGold']
         if isinstance(reward, bool) or not isinstance(reward, int) or not 0 <= reward <= 2147483647:
             fail(record, '击杀金币必须为非负整数且不超过账户上限')
@@ -260,7 +263,7 @@ def build_documents(tables):
         record = slots[slot]
         attack = attacks[record['attackId']]
         rule = behavior.get(record['behaviorId'], {'target': 'Hero', 'canAttackGates': False})
-        battle[key] = {k: record[k] for k in ('id', 'maxHealth', 'defense', 'speed', 'radius', 'visualHeight')}
+        battle[key] = {k: record[k] for k in ('id', 'maxHealth', 'defense', 'speed', 'radius', 'visualHeight', 'healthRegenerationPerSecond')}
         battle[key].update(attack=attack['damage'], attackInterval=attack['interval'], attackRange=attack['range'],
                            targetMainCastle=rule['target'] == 'MainCastle', canAttackGates=rule['canAttackGates'])
         if slot in ('Goblin', 'Runner'):

@@ -23,5 +23,8 @@ namespace Game.Battle.Simulation.Components
         public bool CanMoveAt(double now) => !IsStunnedAt(now) && !IsRootedAt(now);
         public bool CanAttackAt(double now) => !IsStunnedAt(now);
         public bool CanCastAt(double now) => !IsStunnedAt(now) && !IsSilencedAt(now);
+
+        public double HealthRegenerationBlockedUntil => System.Math.Max(
+            System.Math.Max(StunnedUntil, RootedUntil), System.Math.Max(SilencedUntil, PoisonedUntil));
     }
 }

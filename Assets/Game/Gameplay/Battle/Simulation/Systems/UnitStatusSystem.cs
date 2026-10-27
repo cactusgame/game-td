@@ -16,8 +16,16 @@ namespace Game.Battle.Simulation.Systems
         protected override void OnUpdate()
         {
             double now = SystemAPI.Time.ElapsedTime;
-            foreach (var (status, vitals) in SystemAPI.Query<RefRW<UnitStatusState>, RefRW<Vitals>>())
+            foreach (var (status, vitals, entity) in SystemAPI.Query<RefRW<UnitStatusState>, RefRW<Vitals>>().WithEntityAccess())
+            {
+                if (EntityManager.HasComponent<HealthRegenerationState>(entity))
+                {
+                    var regeneration = EntityManager.GetComponentData<HealthRegenerationState>(entity);
+                    regeneration.StatusBlockedUntil = status.ValueRO.HealthRegenerationBlockedUntil;
+                    EntityManager.SetComponentData(entity, regeneration);
+                }
                 ResolvePoison(ref status.ValueRW, ref vitals.ValueRW, now);
+            }
         }
 
         /// <summary>桥接在替换中毒前也调用此结算，避免丢掉已到期而尚未推进的周期。</summary>

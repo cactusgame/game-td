@@ -69,6 +69,12 @@ namespace Game.Tools.MapPlaytest.Application.Sessions
         }
         public BattleDefinition Definition => _battle?.Definition;
         public IReadOnlyList<UnitSnapshot> Units => _battle?.Units ?? Array.Empty<UnitSnapshot>();
+        public void CopyAiDebug(List<UnitAiDebugSnapshot> destination)
+        {
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
+            destination.Clear();
+            (_simulation as IAiDebugSimulation)?.CopyAiDebug(destination);
+        }
 
         public MapPlaySession(MapDefinition initialMap, MapContentCatalog catalog, BattleDefinition rules,
             IHeroInput input, Func<ISpatialBattleSimulation> createSimulation, DefenseEncounterDefinition encounterDefinition = null, Game.Construction.Domain.Definitions.ConstructionContentDefinition construction = null,

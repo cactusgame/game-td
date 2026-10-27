@@ -195,6 +195,7 @@ namespace Game.Battle.Simulation.Bridges
                 state.Behavior = UnitBehavior.Regrouping;
                 state.RetaliationTarget = Entity.Null;
                 em.SetComponentData(entity, state);
+                em.SetComponentData(entity, new CombatTargetState());
                 em.GetBuffer<NavigationWaypoint>(entity).Clear();
                 em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
                 bool found = false;
@@ -242,6 +243,7 @@ namespace Game.Battle.Simulation.Bridges
             state.FollowCombatRadius = 0;
             state.RetaliationTarget = Entity.Null;
             em.SetComponentData(entity, state);
+            em.SetComponentData(entity, new CombatTargetState());
             em.GetBuffer<NavigationWaypoint>(entity).Clear();
             em.SetComponentData(entity, new MonsterNavigationState { IsChasing = 1 });
             if (!instant || !em.GetComponentData<UnitStatusState>(entity).CanMoveAt(ElapsedTime)) return;
@@ -266,11 +268,13 @@ namespace Game.Battle.Simulation.Bridges
                 if (em.HasComponent<UnitStatusState>(target) && em.GetComponentData<UnitStatusState>(target).IsInvulnerableAt(ElapsedTime)) continue;
                 if (vital.Health <= 0 || math.distancesq(center, em.GetComponentData<GroundTransform>(target).Position) > skill.Radius * skill.Radius) continue;
                 // 示例语义为直接减血 y，不再扣防御；只影响存活敌人。
+                if (skill.Damage > 0) InterruptHealthRegeneration(target, ref vital);
                 vital.Health = ContactRules.ApplyDamage(vital.Health, skill.Damage);
                 if (skill.Damage > 0) vital.LastHitTime = (float)ElapsedTime;
                 em.SetComponentData(target, vital);
             }
             var heroVitals = em.GetComponentData<Vitals>(hero);
+            InterruptHealthRegeneration(hero, ref heroVitals);
             heroVitals.LastAttackTime = (float)ElapsedTime;
             em.SetComponentData(hero, heroVitals);
             _skillReadyAt[slot] = ElapsedTime + skill.Cooldown;

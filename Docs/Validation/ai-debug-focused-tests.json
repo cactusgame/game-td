@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "duration": 0.54,
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "Game.Tools.MapPlaytest.Tests.AiDebugTests.DebugRead_ReportsActualTargetPathAndRadius_WithoutAdvancingOrMutatingSimulation",
+      "Status": "Passed",
+      "Duration": 0.0605036,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Tools.MapPlaytest.Tests.AiDebugTests.DebugRead_UsesExternalWallIdentityAndCooldown_OnlyForCurrentStep",
+      "Status": "Passed",
+      "Duration": 0.0049789,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Tools.MapPlaytest.Tests.AiDebugTests.StopReason_DistinguishesStunRootAndNoInput_WithIndependentExpiry",
+      "Status": "Passed",
+      "Duration": 0.0055962,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-27",
+  "rules": {
+    "blockedWhileTargeted": true,
+    "blockedStatuses": [
+      "Stun",
+      "Root",
+      "Silence",
+      "Poison"
+    ],
+    "externalAttacksCancelSameStepHealing": true,
+    "regenerationAfterCombatResolution": true,
+    "outOfCombatDelaySeconds": 5,
+    "blockedDuringPursuit": true
+  },
+  "summary": {
+    "total": 433,
+    "passed": 432,
+    "failed": 1,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "duration": 10.73,
+  "regenerationTests": [
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.AttackAndHit_InterruptCredit_AndOnlyRecoverAfterFiveSeconds(True)",
+      "Status": "Passed",
+      "Duration": 0.008434,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.AttackAndHit_InterruptCredit_AndOnlyRecoverAfterFiveSeconds(False)",
+      "Status": "Passed",
+      "Duration": 0.0027184,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.AttackSkill_CancelsSameStepHealing_EvenWhenNoEnemyIsHit",
+      "Status": "Passed",
+      "Duration": 0.0186224,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Definition_RejectsInvalidRate(-0.1f)",
+      "Status": "Passed",
+      "Duration": 0.0014148,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Definition_RejectsInvalidRate(float.NaN)",
+      "Status": "Passed",
+      "Duration": 0.0003002,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Definition_RejectsInvalidRate(float.PositiveInfinity)",
+      "Status": "Passed",
+      "Duration": 0.0002189,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.ExpiredOrDeadTargetsAndInvulnerability_DoNotPreventRecovery",
+      "Status": "Passed",
+      "Duration": 0.0038605,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.ExternalWallAttack_CancelsRecoveryAtSameSimulationTime_AlsoWhileCoolingDown",
+      "Status": "Passed",
+      "Duration": 0.014005,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FractionalHealing_IsAbsoluteAndIndependentOfStepPartition(0.1f,10,1)",
+      "Status": "Passed",
+      "Duration": 0.0090423,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FractionalHealing_IsAbsoluteAndIndependentOfStepPartition(0.2f,5,1)",
+      "Status": "Passed",
+      "Duration": 0.0031069,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FractionalHealing_IsAbsoluteAndIndependentOfStepPartition(5.0f,1,5)",
+      "Status": "Passed",
+      "Duration": 0.0032676,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FractionalHealing_IsAbsoluteAndIndependentOfStepPartition(0.0f,10,0)",
+      "Status": "Passed",
+      "Duration": 0.005662,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FullHealthAndDeadUnits_DiscardCredit(100)",
+      "Status": "Passed",
+      "Duration": 0.0051375,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FullHealthAndDeadUnits_DiscardCredit(0)",
+      "Status": "Passed",
+      "Duration": 0.0020692,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.FullHealthAndDeadUnits_DiscardCredit(-5)",
+      "Status": "Passed",
+      "Duration": 0.001645,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.HarmfulStatuses_BlockHealing_AndExpiryDoesNotBackfillBlockedTime(Stun)",
+      "Status": "Passed",
+      "Duration": 0.0021299,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.HarmfulStatuses_BlockHealing_AndExpiryDoesNotBackfillBlockedTime(Root)",
+      "Status": "Passed",
+      "Duration": 0.0030751,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.HarmfulStatuses_BlockHealing_AndExpiryDoesNotBackfillBlockedTime(Silence)",
+      "Status": "Passed",
+      "Duration": 0.0037576,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.HarmfulStatuses_BlockHealing_AndExpiryDoesNotBackfillBlockedTime(Poison)",
+      "Status": "Passed",
+      "Duration": 0.0027793,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Healing_ClampsAndPreservesCombatTimestamps(5.0f)",
+      "Status": "Passed",
+      "Duration": 0.0018773,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Healing_ClampsAndPreservesCombatTimestamps(float.MaxValue)",
+      "Status": "Passed",
+      "Duration": 0.0009069,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Pursuit_BlocksBothAttackerAndTarget_ThroughCooldown_ThenAllowsRecovery",
+      "Status": "Passed",
+      "Duration": 0.0025294,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Simulation_AllFactionsRegenerateAfterPoison_LethalPoisonCannotBeHealed",
+      "Status": "Passed",
+      "Duration": 0.0055049,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.Simulation_ContinuousMelee_NeverHealsBetweenNormalAttacks",
+      "Status": "Passed",
+      "Duration": 0.0154066,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "Game.Battle.Tests.HealthRegenerationTests.TowerTarget_CannotHealDuringLongShotCooldownOrInvulnerability",
+      "Status": "Passed",
+      "Duration": 0.0020651,
+      "Message": null,
+      "StackTrace": null
+    }
+  ],
+  "generatedFilesChecked": 9,
+  "existingFailure": [
+    {
+      "FullName": "Game.Tools.MapAuthoring.Tests.MapCanvasNavigationTests.RightClick_CancelsUncommittedBrushAndPlacement_WithoutRemovingCompletedEdits",
+      "Status": "Failed",
+      "Duration": 0.1281575,
+      "Message": "  Expected: Select\r\n  But was:  Facility\r\n",
+      "StackTrace": "at Game.Tools.MapAuthoring.Tests.MapCanvasNavigationTests+<RightClick_CancelsUncommittedBrushAndPlacement_WithoutRemovingCompletedEdits>d__1.MoveNext () [0x0023f] in D:\\projects\\game-td\\Assets\\Game\\Tools\\MapAuthoring\\Tests\\Editor\\MapCanvasNavigationTests.cs:82\r\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__8.MoveNext () [0x0003a] in .\\Library\\PackageCache\\com.unity.test-framework@80f691d4262b\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:52\r\n"
+    }
+  ]
+}

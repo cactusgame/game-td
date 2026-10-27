@@ -23,8 +23,11 @@ namespace Game.Battle.Simulation.Systems
                     respawn.ValueRW.DeathFacingX = ground.ValueRO.FacingX;
                     respawn.ValueRW.ReadyAt = now + respawn.ValueRO.DelaySeconds;
                     var deadHero = SystemAPI.GetSingletonEntity<HeroTag>();
+                    if (EntityManager.HasComponent<CombatTargetState>(deadHero))
+                        EntityManager.SetComponentData(deadHero, default(CombatTargetState));
                     if (EntityManager.HasComponent<UnitStatusState>(deadHero))
                         EntityManager.SetComponentData(deadHero, default(UnitStatusState));
+                    ResetRegeneration(deadHero);
                     continue;
                 }
                 if (now < respawn.ValueRO.ReadyAt)
@@ -34,9 +37,11 @@ namespace Game.Battle.Simulation.Systems
                 vitals.ValueRW.Health = vitals.ValueRO.MaxHealth;
                 vitals.ValueRW.LastHitTime = -100;
                 vitals.ValueRW.LastAttackTime = -100;
+                vitals.ValueRW.NextNormalAttackAt = 0;
                 respawn.ValueRW.IsWaiting = false;
                 respawn.ValueRW.ReadyAt = 0;
                 var hero = SystemAPI.GetSingletonEntity<HeroTag>();
+                ResetRegeneration(hero);
                 if (EntityManager.HasComponent<UnitStatusState>(hero))
                 {
                     var status = new UnitStatusState { InvulnerableUntil = now + respawn.ValueRO.InvulnerabilitySeconds };
@@ -45,8 +50,16 @@ namespace Game.Battle.Simulation.Systems
 
                 // 复活是新的接触周期；身边仍有怪物时，下一步正常重新判定接触，不沿用死亡前的去重标记。
                 foreach (var contact in SystemAPI.Query<RefRW<HeroContact>>().WithAll<MonsterTag>())
-                    contact.ValueRW.WasOverlapping = 0;
+                    contact.ValueRW.IsEngaged = false;
             }
+        }
+
+        private void ResetRegeneration(Entity hero)
+        {
+            if (!EntityManager.HasComponent<HealthRegenerationState>(hero))
+                return;
+            var regeneration = EntityManager.GetComponentData<HealthRegenerationState>(hero);
+            EntityManager.SetComponentData(hero, new HealthRegenerationState { HealthPerSecond = regeneration.HealthPerSecond });
         }
     }
 }

@@ -42,6 +42,12 @@ namespace Game.Battle.Application.Sessions
         public int ContactCount => _simulation.ContactCount;
         public double ElapsedTime => _simulation.ElapsedTime;
         public double LastSimulationMs { get; private set; }
+        public void CopyAiDebug(List<UnitAiDebugSnapshot> destination)
+        {
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
+            destination.Clear();
+            (_simulation as IAiDebugSimulation)?.CopyAiDebug(destination);
+        }
 
         public BattleSession(IBattleDefinitionSource source, IBattleSimulation simulation, IHeroInput input)
         {

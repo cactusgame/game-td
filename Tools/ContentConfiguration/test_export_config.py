@@ -23,6 +23,20 @@ class ExportTests(unittest.TestCase):
         tables['建筑'][0]['maxHealth'] = 999
         self.assertIn('"maxHealth": 999', build_documents(tables)['facilities.json'])
 
+    def test_health_regeneration_projects_absolute_fractional_values_and_validates(self):
+        tables = copy.deepcopy(self.tables)
+        hero = next(r for r in tables['单位'] if r['slot'] == 'Hero')
+        for value in (0, 0.125, 7):
+            hero['healthRegenerationPerSecond'] = value
+            documents = build_documents(tables)
+            self.assertEqual(json.loads(documents['battle.json'])['hero']['healthRegenerationPerSecond'], value)
+            self.assertIn('"healthRegenerationPerSecond": ' + str(value), documents['combat-content.json'])
+        for value in (-0.1, True, '5', float('nan'), float('inf'), 1e39):
+            with self.subTest(value=value):
+                hero['healthRegenerationPerSecond'] = value
+                with self.assertRaises(ConfigurationError):
+                    build_documents(tables)
+
     def test_soldier_detection_radius_projects_and_rejects_invalid_values(self):
         tables = copy.deepcopy(self.tables)
         record = next(r for r in tables['全局参数'] if r['id'] == 'battle.soldierDetectionRadius')

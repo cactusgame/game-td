@@ -564,7 +564,15 @@ namespace Game.Tools.MapPlaytest.Tests
             public int DisposeCount;
             public int UpdateCount;
             public readonly List<ulong> Attacks = new List<ulong>();
-            public void RecordExternalAttack(ulong attackerId, MapPoint target) => Attacks.Add(attackerId);
+            private readonly Dictionary<ulong, double> _nextAttacks = new Dictionary<ulong, double>();
+            public bool TryAttackExternalTarget(ulong attackerId, MapPoint target, double simulationTime, Func<int, bool> commitDamage, string targetId = null)
+            {
+                if (_nextAttacks.TryGetValue(attackerId, out double readyAt) && simulationTime < readyAt) return false;
+                if (!commitDamage(_definition.Goblin.Attack)) return false;
+                _nextAttacks[attackerId] = simulationTime + _definition.Goblin.AttackInterval;
+                Attacks.Add(attackerId);
+                return true;
+            }
             public bool TrySpawnSoldier(UnitKind kind, MapPoint exit, MapPoint rally, out ulong unitId) { unitId = 0; return false; }
 
             public void Reset(BattleDefinition definition)

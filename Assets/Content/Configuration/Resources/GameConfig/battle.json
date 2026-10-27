@@ -24,11 +24,12 @@
   "heroRespawnInvulnerabilitySeconds": 2.0,
   "hero": {
     "id": "hero.alien",
-    "maxHealth": 10000000,
+    "maxHealth": 200,
     "defense": 3,
     "speed": 4.5,
     "radius": 0.42,
     "visualHeight": 0.95,
+    "healthRegenerationPerSecond": 5.0,
     "attack": 20,
     "attackInterval": 1.0,
     "attackRange": 0.0,
@@ -58,6 +59,7 @@
     "speed": 1.25,
     "radius": 0.28,
     "visualHeight": 0.945,
+    "healthRegenerationPerSecond": 0.1,
     "attack": 9,
     "attackInterval": 1.0,
     "attackRange": 0.15,
@@ -72,6 +74,7 @@
     "speed": 3.0,
     "radius": 0.168,
     "visualHeight": 0.665,
+    "healthRegenerationPerSecond": 0.1,
     "attack": 7,
     "attackInterval": 1.0,
     "attackRange": 0.15,
@@ -86,6 +89,7 @@
     "speed": 2.2,
     "radius": 0.21,
     "visualHeight": 0.665,
+    "healthRegenerationPerSecond": 0.2,
     "attack": 8,
     "attackInterval": 1.0,
     "attackRange": 0.35,
@@ -99,11 +103,12 @@
     "speed": 2.4,
     "radius": 0.196,
     "visualHeight": 0.7,
+    "healthRegenerationPerSecond": 0.2,
     "attack": 6,
     "attackInterval": 1.2,
     "attackRange": 4.5,
     "targetMainCastle": false,
     "canAttackGates": false
   },
-  "contentVersion": "b0fa256c7e8be72c"
+  "contentVersion": "c70e87906aae3831"
 }

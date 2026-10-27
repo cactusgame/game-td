@@ -25,6 +25,9 @@ namespace Game.Battle.Tests
             _group = _world.GetOrCreateSystemManaged<BattleSystemGroup>();
             var navigation = _world.GetOrCreateSystemManaged<MonsterNavigationSystem>();
             navigation.Configure(GridMap.CreateOpenArena(20, 20, 1), new NavigationDefinition(1, 5, 0.25f));
+            var targets = _world.GetOrCreateSystemManaged<CombatTargetSelectionSystem>();
+            targets.Navigation = new NavigationDefinition(1, 5, 0.25f);
+            _group.AddSystemToUpdateList(targets);
             _group.AddSystemToUpdateList(navigation);
             _group.AddSystemToUpdateList(_world.GetOrCreateSystem<MovementSystem>());
             _group.SortSystems();
@@ -38,7 +41,7 @@ namespace Game.Battle.Tests
         private Entity Spawn(UnitKind kind, float2 position, uint seed)
         {
             var em = _world.EntityManager;
-            var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState));
+            var entity = em.CreateEntity(typeof(UnitIdentity), typeof(GroundTransform), typeof(Vitals), typeof(UnitMotion), typeof(WanderState), typeof(MonsterNavigationState), typeof(CombatTargetState), typeof(CombatProfile));
             em.AddBuffer<NavigationWaypoint>(entity);
             if (kind == UnitKind.Hero)
                 em.AddComponent<HeroTag>(entity);
@@ -192,13 +195,13 @@ namespace Game.Battle.Tests
         }
 
         [Test]
-        public void SameCellPursuitReachesExactHeroPositionWithoutOvershoot()
+        public void SameCellPursuitStopsInsideAttackReachWithoutOvershoot()
         {
             Move(_hero, new float2(0.1f, 0.1f));
             var monster = Spawn(UnitKind.Runner, new float2(0.8f, 0.1f), 2);
             for (int i = 0; i < 60; i++)
                 Step();
-            Assert.That(math.distance(Position(monster), Position(_hero)), Is.LessThan(0.0001f));
+            Assert.That(math.distance(Position(monster), Position(_hero)), Is.InRange(0.15f, 0.2f));
             Assert.That(Navigation(monster).IsChasing, Is.EqualTo(1));
         }
 

@@ -17,6 +17,7 @@ namespace Game.Battle.Domain.Definitions
         public System.Collections.Generic.IReadOnlyList<HeroAreaSkillDefinition> Skills { get; }
 
         public int MaxHealth { get; }
+        public float HealthRegenerationPerSecond { get; }
 
         public int Attack { get; }
 
@@ -29,7 +30,7 @@ namespace Game.Battle.Domain.Definitions
 
         public float VisualHeight { get; }
 
-        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true, System.Collections.Generic.IEnumerable<HeroAreaSkillDefinition> skills = null, int killGold = 0)
+        public UnitDefinition(UnitKind kind, int maxHealth, int attack, int defense, float speed, float radius, float visualHeight, string id = null, float attackInterval = 1, float attackRange = 0.15f, bool targetMainCastle = true, bool canAttackGates = true, System.Collections.Generic.IEnumerable<HeroAreaSkillDefinition> skills = null, int killGold = 0, float healthRegenerationPerSecond = 0)
         {
             if (!Enum.IsDefined(typeof(UnitKind), kind))
             {
@@ -45,6 +46,9 @@ namespace Game.Battle.Domain.Definitions
             if (float.IsNaN(attackRange) || float.IsInfinity(attackRange) || attackRange < 0)
                 throw new ArgumentOutOfRangeException(nameof(attackRange));
             if (killGold < 0) throw new ArgumentOutOfRangeException(nameof(killGold));
+            if (float.IsNaN(healthRegenerationPerSecond) || float.IsInfinity(healthRegenerationPerSecond) || healthRegenerationPerSecond < 0)
+                throw new ArgumentOutOfRangeException(nameof(healthRegenerationPerSecond));
+            HealthRegenerationPerSecond = healthRegenerationPerSecond;
             KillGold = killGold;
             Id = id ?? kind.ToString();
             Skills = new System.Collections.Generic.List<HeroAreaSkillDefinition>(skills ?? Array.Empty<HeroAreaSkillDefinition>()).AsReadOnly();

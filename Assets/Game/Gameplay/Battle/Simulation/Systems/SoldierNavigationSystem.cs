@@ -30,21 +30,27 @@ namespace Game.Battle.Simulation.Systems
             var heroGround = SystemAPI.GetComponent<GroundTransform>(hero);
             var heroMotion = SystemAPI.GetComponent<UnitMotion>(hero);
             bool heroAlive = SystemAPI.GetComponent<Vitals>(hero).Health > 0;
-            foreach (var (ground, health, motion, profile, soldier, navigation, path) in
+            foreach (var (ground, health, motion, profile, soldier, navigation, path, actor) in
                 SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>,
-                    RefRW<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>())
+                    RefRW<SoldierState>, RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>().WithEntityAccess())
             {
                 if (health.ValueRO.Health <= 0)
                 {
                     soldier.ValueRW.Behavior = UnitBehavior.Dead;
+                    navigation.ValueRW.StopReason = MovementStopReason.Dead;
                     path.Clear();
                     continue;
                 }
+                if (!IsLivingMonster(soldier.ValueRO.RetaliationTarget)) soldier.ValueRW.RetaliationTarget = Entity.Null;
+                Entity enemy = EntityManager.HasComponent<CombatTargetState>(actor)
+                    ? EntityManager.GetComponentData<CombatTargetState>(actor).Target : Entity.Null;
+                if (!IsLivingMonster(enemy)) enemy = Entity.Null;
                 navigation.ValueRW.IsChasing = 1; // 空路线表示等待，不能进入随机游走。
+                navigation.ValueRW.StopReason = MovementStopReason.None;
                 if (soldier.ValueRO.Stance == CombatStance.HoldGround)
                 {
-                    soldier.ValueRW.Behavior = HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius,
-                        profile.ValueRO.AttackRange, ground.ValueRO.Position, float.PositiveInfinity)
+                    navigation.ValueRW.StopReason = MovementStopReason.HoldGround;
+                    soldier.ValueRW.Behavior = IsTargetInRange(enemy, ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange)
                         ? UnitBehavior.Attacking : UnitBehavior.Idle;
                     soldier.ValueRW.FollowCombatRadius = 0;
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
@@ -70,6 +76,7 @@ namespace Game.Battle.Simulation.Systems
                 soldier.ValueRW.FollowCombatRadius = followsHero && heroAlive ? combatRadius : 0;
                 if (followsHero && !heroAlive)
                 {
+                    navigation.ValueRW.StopReason = MovementStopReason.HeroUnavailable;
                     // 不跟随死亡英雄的幽灵。原地防御，复活后再依据新位置判断是否归队。
                     soldier.ValueRW.Behavior = UnitBehavior.Idle;
                     soldier.ValueRW.RetaliationTarget = Entity.Null;
@@ -90,18 +97,9 @@ namespace Game.Battle.Simulation.Systems
                     if (math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
                         soldier.ValueRW.Behavior = UnitBehavior.Idle;
                 }
-                float2 combatCenter = followsHero ? heroGround.Position : ground.ValueRO.Position;
-                float allowedRadius = followsHero ? combatRadius : float.PositiveInfinity;
                 if (soldier.ValueRO.Behavior != UnitBehavior.Regrouping)
                 {
                     soldier.ValueRW.Behavior = followsHero ? UnitBehavior.Moving : UnitBehavior.Returning;
-                    Entity enemy = soldier.ValueRO.RetaliationTarget;
-                    if (!IsLivingMonster(enemy) ||
-                        math.distancesq(EntityManager.GetComponentData<GroundTransform>(enemy).Position, combatCenter) > allowedRadius * allowedRadius)
-                    {
-                        soldier.ValueRW.RetaliationTarget = Entity.Null;
-                        enemy = FindNearbyEnemy(ground.ValueRO.Position, combatCenter, allowedRadius);
-                    }
                     if (enemy != Entity.Null)
                     {
                         soldier.ValueRW.Behavior = UnitBehavior.Chasing;
@@ -111,18 +109,24 @@ namespace Game.Battle.Simulation.Systems
                     }
                 }
                 bool enemyInRange = soldier.ValueRO.Behavior != UnitBehavior.Regrouping &&
-                    HasEnemyInRange(ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange, combatCenter, allowedRadius);
+                    IsTargetInRange(enemy, ground.ValueRO.Position, motion.ValueRO.Radius, profile.ValueRO.AttackRange);
                 if (enemyInRange || math.distancesq(ground.ValueRO.Position, target) <= stopDistance * stopDistance)
                 {
+                    navigation.ValueRW.StopReason = enemyInRange ? MovementStopReason.InAttackRange : MovementStopReason.Arrived;
                     soldier.ValueRW.Behavior = enemyInRange ? UnitBehavior.Attacking : UnitBehavior.Idle;
                     path.Clear();
                     navigation.ValueRW.NextRepathTime = 0;
                     continue;
                 }
-                if (now < navigation.ValueRO.NextRepathTime) continue;
+                if (now < navigation.ValueRO.NextRepathTime)
+                {
+                    if (path.Length == 0) navigation.ValueRW.StopReason = MovementStopReason.WaitingForPath;
+                    continue;
+                }
                 path.Clear();
                 navigation.ValueRW.WaypointIndex = 0;
                 navigation.ValueRW.NextRepathTime = now + 0.25;
+                navigation.ValueRW.StopReason = MovementStopReason.NoPath;
                 if (_map.TryWorldToCell(ground.ValueRO.Position.x, ground.ValueRO.Position.y, out var start) &&
                     _map.TryWorldToCell(target.x, target.y, out var goal) && _pathfinder.TryFindPath(start, goal, _cells))
                 {
@@ -132,22 +136,7 @@ namespace Game.Battle.Simulation.Systems
                         path.Add(new NavigationWaypoint { Position = new float2(center.X, center.Y) });
                     }
                     path.Add(new NavigationWaypoint { Position = target });
-                }
-            }
-            foreach (var (ground, health, motion, profile, navigation, path) in
-                SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>, RefRO<CombatProfile>,
-                    RefRW<MonsterNavigationState>, DynamicBuffer<NavigationWaypoint>>().WithAll<MonsterTag>())
-            {
-                if (health.ValueRO.Health <= 0) continue;
-                foreach (var (soldier, vital, otherMotion) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>>().WithAll<SoldierState>())
-                {
-                    float reach = motion.ValueRO.Radius + otherMotion.ValueRO.Radius + profile.ValueRO.AttackRange;
-                    if (vital.ValueRO.Health <= 0 || math.distancesq(soldier.ValueRO.Position, ground.ValueRO.Position) > reach * reach) continue;
-                    path.Clear();
-                    navigation.ValueRW.IsChasing = 1;
-                    navigation.ValueRW.Behavior = UnitBehavior.Attacking;
-                    navigation.ValueRW.NextRepathTime = now + 0.25;
-                    break;
+                    navigation.ValueRW.StopReason = MovementStopReason.None;
                 }
             }
         }
@@ -157,31 +146,11 @@ namespace Game.Battle.Simulation.Systems
                 EntityManager.HasComponent<MonsterTag>(entity) && EntityManager.GetComponentData<Vitals>(entity).Health > 0;
         }
 
-        private Entity FindNearbyEnemy(float2 position, float2 allowedCenter, float allowedRadius)
+        private bool IsTargetInRange(Entity target, float2 position, float radius, float range)
         {
-            Entity target = Entity.Null;
-            float nearest = DetectionRadius * DetectionRadius;
-            foreach (var (ground, vital, entity) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>>().WithAll<MonsterTag>().WithEntityAccess())
-            {
-                float distance = math.distancesq(position, ground.ValueRO.Position);
-                if (vital.ValueRO.Health <= 0 || distance > nearest)
-                    continue;
-                if (math.distancesq(ground.ValueRO.Position, allowedCenter) > allowedRadius * allowedRadius)
-                    continue;
-                nearest = distance;
-                target = entity;
-            }
-            return target;
-        }
-        private bool HasEnemyInRange(float2 position, float radius, float range, float2 allowedCenter, float allowedRadius)
-        {
-            foreach (var (ground, vital, motion) in SystemAPI.Query<RefRO<GroundTransform>, RefRO<Vitals>, RefRO<UnitMotion>>().WithAll<MonsterTag>())
-            {
-                float reach = radius + motion.ValueRO.Radius + range;
-                if (vital.ValueRO.Health > 0 && math.distancesq(position, ground.ValueRO.Position) <= reach * reach &&
-                    math.distancesq(ground.ValueRO.Position, allowedCenter) <= allowedRadius * allowedRadius) return true;
-            }
-            return false;
+            if (!IsLivingMonster(target)) return false;
+            float reach = radius + EntityManager.GetComponentData<UnitMotion>(target).Radius + range;
+            return math.distancesq(position, EntityManager.GetComponentData<GroundTransform>(target).Position) <= reach * reach;
         }
     }
 }

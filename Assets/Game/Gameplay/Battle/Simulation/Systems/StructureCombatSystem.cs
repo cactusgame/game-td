@@ -33,6 +33,14 @@ namespace Game.Battle.Simulation.Systems
                         target = entity;
                     }
                 }
+                // 被塔锁定时仍在交战，包括射击冷却和无敌挡伤期间；不能夹在两次射击间恢复。
+                if (bounds.Attack > 0 && target != Entity.Null && EntityManager.HasComponent<HealthRegenerationState>(target))
+                {
+                    var regeneration = EntityManager.GetComponentData<HealthRegenerationState>(target);
+                    regeneration.CombatBlockedUntil = now + HealthRegenerationSystem.OutOfCombatDelaySeconds;
+                    regeneration.AccumulatedHealing = 0;
+                    EntityManager.SetComponentData(target, regeneration);
+                }
                 if (bounds.Attack > 0 && now >= bounds.NextAttack && target != Entity.Null)
                 {
                     var health = EntityManager.GetComponentData<Vitals>(target);
@@ -54,6 +62,11 @@ namespace Game.Battle.Simulation.Systems
                     !EntityManager.GetComponentData<UnitStatusState>(monster).CanAttackAt(now))
                     continue;
                 Entity target = navigation.ValueRO.StructureTarget;
+                if (EntityManager.HasComponent<CombatTargetState>(monster))
+                {
+                    Entity selected = EntityManager.GetComponentData<CombatTargetState>(monster).Target;
+                    if (selected != Entity.Null && selected != target) continue;
+                }
                 if (vitals.ValueRO.Health <= 0 || target == Entity.Null || !EntityManager.Exists(target))
                     continue;
                 var structure = EntityManager.GetComponentData<DefenseStructure>(target);
@@ -62,10 +75,12 @@ namespace Game.Battle.Simulation.Systems
                 if (structure.Health <= 0 || distance > reach + 0.0001f)
                     continue;
                 navigation.ValueRW.Behavior = UnitBehavior.Attacking;
-                if (now < vitals.ValueRO.LastAttackTime + (profile.ValueRO.AttackInterval > 0 ? profile.ValueRO.AttackInterval : 1))
+                navigation.ValueRW.StopReason = MovementStopReason.InAttackRange;
+                if (!NormalAttackRules.IsReady(now, vitals.ValueRO.NextNormalAttackAt))
                     continue;
                 structure.Health = ContactRules.ApplyDamage(structure.Health, vitals.ValueRO.Attack);
                 vitals.ValueRW.LastAttackTime = (float)now;
+                vitals.ValueRW.NextNormalAttackAt = NormalAttackRules.NextAttackAt(now, profile.ValueRO.AttackInterval);
                 EntityManager.SetComponentData(target, structure);
             }
         }
